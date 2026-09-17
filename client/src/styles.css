@@ -32,3 +32,11 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eef1f7; }
 .live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%;
             background: #2fa14f; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ---- password rule checklist ---- */
+.pw-rules { list-style: none; padding: 8px 12px; margin: 0 0 8px; background: #f4f6fa;
+            border-radius: 6px; font-size: 13px; }
+.rule { padding: 2px 0; }
+.rule.ok { color: #2fa14f; }
+.rule.bad { color: #8a94a6; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }

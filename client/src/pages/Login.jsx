@@ -1,13 +1,33 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext.jsx';
 
+// ---------------------------------------------------------------
+// ANIMATION TEASER (full GSAP + Lottie session coming next time)
+// Two tiny effects:
+//   1. Card slides up + fades in on page load
+//   2. Card shakes when login fails (instant, wordless feedback)
+// Notice: animation never blocks logic — it decorates it.
+// ---------------------------------------------------------------
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
+  const cardRef = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  // Runs once after the card first renders
+  useEffect(() => {
+    gsap.from(cardRef.current, { y: 40, opacity: 0, duration: 0.6, ease: 'power2.out' });
+  }, []);
+
+  const shake = () => {
+    gsap.fromTo(cardRef.current, { x: -8 }, {
+      x: 8, duration: 0.07, repeat: 5, yoyo: true, clearProps: 'x',
+    });
+  };
 
   const submit = async () => {
     setError('');
@@ -16,11 +36,12 @@ export default function Login() {
       nav('/notes');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+      shake();                       // feel the failure, not just read it
     }
   };
 
   return (
-    <div className="card auth-card">
+    <div className="card auth-card" ref={cardRef}>
       <h2>Login</h2>
       {error && <p className="error">{error}</p>}
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
