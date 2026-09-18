@@ -7,6 +7,8 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import Notes from './pages/Notes.jsx';
 import Admin from './pages/Admin.jsx';
 
+//import BadEffect from './pages/BadEffect.jsx';
+
 // Route guards — the frontend half of protection.
 // (The API enforces it too. Never trust only the frontend.)
 function Protected({ children }) {
@@ -48,6 +50,7 @@ export default function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/notes" element={<Protected><Notes /></Protected>} />
           <Route path="/admin" element={<AdminOnly><Admin /></AdminOnly>} />
+          {/* <Route path="/bad-effect" element={<Protected><BadEffect /></Protected>} /> */}
         </Routes>
       </main>
     </>

@@ -19,9 +19,18 @@ export default function Login() {
   const [error, setError] = useState('');
 
   // Runs once after the card first renders
+  // useEffect(() => {
+  //   gsap.from(cardRef.current, { y: 40, opacity: 0, duration: 0.6, ease: 'power2.out' });
+  // }, []);
+
   useEffect(() => {
-    gsap.from(cardRef.current, { y: 40, opacity: 0, duration: 0.6, ease: 'power2.out' });
-  }, []);
+  const tween = gsap.fromTo(
+    cardRef.current,
+    { y: 40, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+  );
+  return () => tween.kill();   // cleanup for StrictMode's double-run
+}, []);
 
   const shake = () => {
     gsap.fromTo(cardRef.current, { x: -8 }, {
