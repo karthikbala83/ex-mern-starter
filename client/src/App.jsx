@@ -6,6 +6,11 @@ import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import Notes from './pages/Notes.jsx';
 import Admin from './pages/Admin.jsx';
+import Game from './pages/Game.jsx';
+import Leaderboard from './pages/Leaderboard.jsx';
+import Feedback from './pages/Feedback.jsx';
+import NotificationBell from './components/NotificationBell.jsx';
+import { ToastProvider } from './context/ToastContext.jsx';
 
 //import BadEffect from './pages/BadEffect.jsx';
 
@@ -17,20 +22,26 @@ function Protected({ children }) {
 }
 function AdminOnly({ children }) {
   const { user } = useAuth();
-  return user?.role === 'admin' ? children : <Navigate to="/notes" />;
+  return user?.role === 'admin' ? children : <Navigate to="/game" />;
 }
 
 export default function App() {
   const { user, logout } = useAuth();
+  // ToastProvider wraps EVERYTHING, including the nav — the bell lives in the
+  // navbar and calls useToast(), so it has to sit inside the provider's tree.
   return (
-    <>
+    <ToastProvider>
       <nav className="nav">
-        <span className="brand">MERN Starter</span>
+        <span className="brand">Campus Arena</span>
         <div>
           {user ? (
             <>
+              <Link to="/game">Game</Link>
+              <Link to="/leaderboard">Leaderboard</Link>
               <Link to="/notes">Notes</Link>
+              <Link to="/feedback">Feedback</Link>
               {user.role === 'admin' && <Link to="/admin">Admin</Link>}
+              <NotificationBell />
               <button className="link-btn" onClick={logout}>Logout ({user.name})</button>
             </>
           ) : (
@@ -43,16 +54,19 @@ export default function App() {
       </nav>
       <main className="container">
         <Routes>
-          <Route path="/" element={<Navigate to={user ? '/notes' : '/login'} />} />
+          <Route path="/" element={<Navigate to={user ? '/game' : '/login'} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/notes" element={<Protected><Notes /></Protected>} />
+          <Route path="/game" element={<Protected><Game /></Protected>} />
+          <Route path="/leaderboard" element={<Protected><Leaderboard /></Protected>} />
+          <Route path="/feedback" element={<Protected><Feedback /></Protected>} />
           <Route path="/admin" element={<AdminOnly><Admin /></AdminOnly>} />
           {/* <Route path="/bad-effect" element={<Protected><BadEffect /></Protected>} /> */}
         </Routes>
       </main>
-    </>
+    </ToastProvider>
   );
 }

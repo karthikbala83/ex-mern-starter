@@ -2,6 +2,8 @@
 // "Active" = a session touched the API within the last 5 minutes.
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
+import ReferralTree from '../components/ReferralTree.jsx';
+import FeedbackSearch from '../components/FeedbackSearch.jsx';
 
 export default function Admin() {
   const [data, setData] = useState(null);
@@ -68,6 +70,11 @@ export default function Admin() {
           </tbody>
         </table>
       </div>
+
+      {/* The two new aggregations get their own components so this file
+          stays readable. Each fetches once — they are not part of the poll. */}
+      <ReferralTree />
+      <FeedbackSearch />
     </div>
   );
 }

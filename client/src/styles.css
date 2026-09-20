@@ -40,3 +40,66 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eef1f7; }
 .rule.ok { color: #2fa14f; }
 .rule.bad { color: #8a94a6; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ================= CAMPUS ARENA ================= */
+
+/* ---- Game arena: a fixed box so random dot coords always land inside ---- */
+/* position:relative is what makes the dot's absolute left/top measure from
+   the ARENA's corner and not the page's. Remove it and dots fly off-screen. */
+.arena { position: relative; margin: 16px 0; border-radius: 14px;
+         background: linear-gradient(160deg, #1E3E7B, #2c5aa8); overflow: hidden;
+         box-shadow: 0 4px 16px rgba(30,62,123,0.25); }
+.arena-center { position: absolute; inset: 0; display: flex; flex-direction: column;
+         align-items: center; justify-content: center; gap: 10px; color: #fff; text-align: center; }
+.arena-center .muted { color: #c7d3ea; }
+.countdown { font-size: 90px; font-weight: 700; }
+.dot { position: absolute; border-radius: 50%; background: #C9A21F; color: #1a2333;
+       font-weight: 700; font-size: 18px; padding: 0; border: 3px solid #fff;
+       box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.big-score { font-size: 46px; font-weight: 700; margin: 4px 0; }
+.big-score small { font-size: 18px; font-weight: 400; margin-left: 4px; }
+.result .info { color: #ffe27a; }
+
+/* ---- Leaderboard ---- */
+.my-rank { display: flex; align-items: center; gap: 16px; }
+.rank-num { font-size: 38px; font-weight: 700; color: #1E3E7B; }
+.medal-1 { background: #fdf6dc; } .medal-2 { background: #f1f3f6; } .medal-3 { background: #f8ece2; }
+.medal td:first-child { font-size: 18px; }
+
+/* ---- Referral ---- */
+.ref-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.ref-row input { margin-bottom: 0; }
+.ref-row button { white-space: nowrap; }
+.ref-code { background: #e6ebf5; padding: 8px 14px; border-radius: 6px;
+            font-size: 16px; letter-spacing: 1px; font-weight: 700; }
+.ref-list { margin: 0; padding-left: 18px; font-size: 14px; }
+.tree { list-style: none; padding: 0; margin: 8px 0 0; font-size: 14px; }
+.tree li { padding: 3px 0; }
+
+/* ---- Notification bell ---- */
+.bell-wrap { position: relative; display: inline-block; margin-left: 16px; }
+.bell { font-size: 18px; margin-left: 0; position: relative; }
+.bell-badge { position: absolute; top: -6px; right: -10px; background: #b3372f;
+              color: #fff; font-size: 11px; font-weight: 700; border-radius: 10px;
+              padding: 1px 6px; }
+.bell-panel { position: absolute; right: 0; top: 30px; width: 280px; z-index: 30;
+              background: #fff; color: #1a2333; border-radius: 10px; padding: 12px;
+              box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+.bell-item { border-bottom: 1px solid #eef1f7; padding: 6px 0; }
+.bell-item:last-child { border-bottom: none; }
+.bell-item p { font-size: 13px; margin-top: 4px; }
+
+/* ---- Toasts: fixed so they never shift the page underneath ---- */
+.toast-stack { position: fixed; top: 70px; right: 20px; z-index: 50;
+               display: flex; flex-direction: column; gap: 8px; }
+.toast { background: #1a2333; color: #fff; padding: 12px 16px; border-radius: 8px;
+         font-size: 14px; max-width: 300px; cursor: pointer;
+         box-shadow: 0 4px 14px rgba(0,0,0,0.22); }
+.toast-success { background: #2c6e49; }
+.toast-warn { background: #9c5b1f; }
+
+/* ---- Star rating ---- */
+.stars { display: flex; gap: 4px; margin-bottom: 10px; }
+.star { background: none; border: none; font-size: 28px; color: #cfd6e4;
+        padding: 0 2px; line-height: 1; }
+.star.on { color: #C9A21F; }

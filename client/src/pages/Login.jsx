@@ -42,7 +42,7 @@ export default function Login() {
     setError('');
     try {
       await login(email, password);
-      nav('/notes');
+      nav('/game');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
       shake();                       // feel the failure, not just read it

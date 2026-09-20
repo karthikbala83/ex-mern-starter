@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Session = require('../models/Session');
+const Notification = require('../models/Notification');
 
 // helper: sign a JWT that carries BOTH user id and session id
 const signToken = (userId, sessionId) =>
@@ -12,11 +13,46 @@ const signToken = (userId, sessionId) =>
 // POST /api/auth/signup
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password, profile } = req.body;
+    const { name, email, password, profile, referralCode } = req.body;
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
 
-    const user = await User.create({ name, email, password, profile });
+    // ---- Resolve the invite code, if one came along ----
+    // A bad or expired code must NEVER block a signup. Someone shared a link in
+    // WhatsApp, it got truncated, the code no longer exists — that is not the new
+    // student's fault, and losing a real user over a broken link is the worse bug.
+    // So: look it up, and if it doesn't resolve, silently carry on with null.
+    let referrer = null;
+    if (referralCode) {
+      referrer = await User.findOne({ referralCode: referralCode.trim() });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+      profile,
+      referredBy: referrer ? referrer._id : null,
+    });
+
+    // ---- Welcome the new user, and tell the referrer they earned an invite ----
+    // insertMany writes both rows in one trip. This runs AFTER the user exists,
+    // so a notification can never point at an account that failed to save.
+    const welcome = [
+      {
+        user: user._id,
+        type: 'WELCOME',
+        message: `Welcome to Campus Arena, ${user.name}! Play a game to get on the leaderboard.`,
+      },
+    ];
+    if (referrer) {
+      welcome.push({
+        user: referrer._id,
+        type: 'NEW_REFERRAL',
+        message: `${user.name} joined using your referral link!`,
+      });
+    }
+    await Notification.insertMany(welcome);
     // auto-login after signup: create session + token
     const session = await Session.create({
       user: user._id,

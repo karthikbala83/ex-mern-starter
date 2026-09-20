@@ -24,6 +24,14 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/notes', trackActivity, require('./routes/noteRoutes'));
 app.use('/api/admin', trackActivity, require('./routes/adminRoutes'));
 
+// ---- Campus Arena ----
+// Same shape as above: trackActivity = [protect, touch], so these are all
+// logged-in-only AND they keep the live admin dashboard's heartbeat ticking.
+app.use('/api/game', trackActivity, require('./routes/gameRoutes'));
+app.use('/api/users', trackActivity, require('./routes/userRoutes'));
+app.use('/api/notifications', trackActivity, require('./routes/notificationRoutes'));
+app.use('/api/feedback', trackActivity, require('./routes/feedbackRoutes'));
+
 // ---- 404 + error handler ----
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err, req, res, next) => {

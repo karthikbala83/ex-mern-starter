@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // ---------------------------------------------------------------
@@ -22,6 +22,14 @@ export default function Signup() {
   const nav = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', skills: '' });
   const [error, setError] = useState('');
+
+  // ---- Referral link: /signup?ref=A79st54H ----
+  // useSearchParams reads the query string from the URL. The code is never
+  // typed by the user, so it stays out of `form` state — it is data the LINK
+  // carried, not a field. A missing ?ref simply gives undefined, and the
+  // server treats that the same as a wrong code: signup proceeds regardless.
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref') || undefined;
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   // Re-runs on every keystroke because state changed -> re-render.
@@ -38,8 +46,9 @@ export default function Signup() {
         email: form.email,
         password: form.password,
         profile: { skills: form.skills.split(',').map((s) => s.trim()).filter(Boolean) },
+        referralCode,
       });
-      nav('/notes');
+      nav('/game');
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed');
     }
@@ -48,6 +57,10 @@ export default function Signup() {
   return (
     <div className="card auth-card">
       <h2>Create account</h2>
+      {/* Show the invite so it doesn't feel like a hidden tracker */}
+      {referralCode && (
+        <p className="info">You were invited! Code <code>{referralCode}</code> applied.</p>
+      )}
       {error && <p className="error">{error}</p>}
       <input placeholder="Name" value={form.name} onChange={set('name')} />
       <input placeholder="Email" value={form.email} onChange={set('email')} />

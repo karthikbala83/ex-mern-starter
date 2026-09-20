@@ -3,9 +3,11 @@
 // Every endpoint here is an aggregation pipeline:
 //   $match -> $lookup (JOIN) -> $unwind -> $group -> $project
 // ---------------------------------------------------------------
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Note = require('../models/Note');
 const Session = require('../models/Session');
+const Feedback = require('../models/Feedback');
 
 const ACTIVE_WINDOW_MS = 5 * 60 * 1000; // active = seen in last 5 minutes
 
@@ -129,4 +131,86 @@ exports.listUsers = async (req, res) => {
     users: result[0].data,
     total: result[0].total[0]?.count || 0,
   });
+};
+
+// ---------------------------------------------------------------
+// GET /api/admin/referral-tree?userId=
+// $graphLookup — the RECURSIVE join. This is the one aggregation
+// that plain SQL needs a WITH RECURSIVE CTE to express.
+// ---------------------------------------------------------------
+exports.referralTree = async (req, res) => {
+  // Default to the admin asking, but any user can be the root of a tree.
+  const rootId = mongoose.isValidObjectId(req.query.userId)
+    ? new mongoose.Types.ObjectId(req.query.userId)
+    : req.user._id;
+
+  const [tree] = await User.aggregate([
+    { $match: { _id: rootId } },
+    {
+      // Read this as: "start at me, then repeatedly find every user whose
+      // referredBy equals an _id I've already collected, and keep going."
+      $graphLookup: {
+        from: 'users',              // the collection to walk (raw name, not the model)
+        startWith: '$_id',          // the value we begin the search from
+        connectFromField: '_id',    // on each new hop, take THIS field of the found doc…
+        connectToField: 'referredBy', // …and match it against THIS field to go one level deeper
+        as: 'downline',             // every descendant lands in this array
+        maxDepth: 4,                // 0 = direct invites only. 4 = five levels. ALWAYS cap it:
+                                    // an accidental cycle without maxDepth runs until it dies.
+        depthField: 'level',        // Mongo stamps how many hops away each person was
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        rootName: '$name',
+        // level 0 = people I invited directly, 1 = people THEY invited, and so on.
+        downline: {
+          $map: {
+            input: '$downline',
+            as: 'd',
+            in: { name: '$$d.name', level: '$$d.level' },
+          },
+        },
+      },
+    },
+  ]);
+
+  if (!tree) return res.status(404).json({ message: 'User not found' });
+
+  // Sort by level so the UI can render a simple indented list, no tree library.
+  tree.downline.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  res.json({ ...tree, total: tree.downline.length });
+};
+
+// ---------------------------------------------------------------
+// GET /api/admin/feedback?q=searchText
+// $text search — using the index we declared on the Feedback model.
+// ---------------------------------------------------------------
+exports.searchFeedback = async (req, res) => {
+  const q = (req.query.q || '').trim();
+
+  // No search term: just show the latest 20.
+  if (!q) {
+    const items = await Feedback.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(20);
+    return res.json({ items, searched: false });
+  }
+
+  // With a term, three things change together — and they must ALL be present:
+  //   $text   in the filter      -> use the text index
+  //   $meta   in the projection  -> ask Mongo for the relevance score
+  //   $meta   in the sort        -> order by that score, best match first
+  // Sorting by textScore without projecting it is the classic mistake.
+  const items = await Feedback.find(
+    { $text: { $search: q } },
+    { score: { $meta: 'textScore' } }
+  )
+    .populate('user', 'name email')
+    .sort({ score: { $meta: 'textScore' } })
+    .limit(20);
+
+  res.json({ items, searched: true, q });
 };

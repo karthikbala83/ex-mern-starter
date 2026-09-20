@@ -6,6 +6,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+// nanoid@3 is the last CommonJS version — v4+ is ESM-only and `require` would fail.
+const { nanoid } = require('nanoid');
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,12 +40,50 @@ const userSchema = new mongoose.Schema(
       },
     },
 
+    // ================= CAMPUS ARENA fields =================
+
+    // Short shareable invite code. Generated once, pre-save, on create.
+    // sparse:true on the index — Mongo would otherwise treat every missing
+    // code as the SAME null value and reject the 2nd user with a duplicate-key error.
+    referralCode: { type: String, unique: true, index: true, sparse: true },
+
+    // Who invited this user. A ref to our OWN collection (self-reference) —
+    // that self-link is exactly what makes $graphLookup able to walk the tree.
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+
+    // Best (lowest) reaction-game time in milliseconds. null = never played.
+    bestScoreMs: { type: Number, default: null },
+
+    // ---- GeoJSON Point. READ THIS TWICE: coordinates are [LONGITUDE, LATITUDE]. ----
+    // Every map UI you have ever used says "lat, lng". GeoJSON says the OPPOSITE.
+    // Swapping them is the single most common geo bug — you get no error, just
+    // results from the wrong side of the planet.
+    location: {
+      type: { type: String, enum: ['Point'] },   // the weird `type: { type: ... }` is
+                                                 // needed because `type` is also a
+                                                 // Mongoose keyword. This says: a field
+                                                 // literally NAMED "type", of String.
+      coordinates: { type: [Number] },           // [lng, lat], rounded to 2 decimals
+                                                 // (~1 km) in the controller before save
+    },
+
     lastLoginAt: Date,
     resetPasswordToken: String,
     resetPasswordExpires: Date,
   },
   { timestamps: true }        // adds createdAt / updatedAt automatically
 );
+
+// ---- Geospatial index. Without this, $geoNear throws — it is not optional. ----
+// '2dsphere' = "index these points on a sphere (Earth)", so distances are real
+// metres, not flat-plane maths. sparse:true skips users who never shared location.
+userSchema.index({ location: '2dsphere' }, { sparse: true });
+
+// ---- Give every NEW user a referral code. ----
+// isNew is true only on the very first save, so codes never change on update.
+userSchema.pre('save', function () {
+  if (this.isNew && !this.referralCode) this.referralCode = nanoid(8);
+});
 
 // ---- Hash password BEFORE saving. Never store plain text. ----
 userSchema.pre('save', async function () {
