@@ -67,6 +67,28 @@ export default function App() {
           {/* <Route path="/bad-effect" element={<Protected><BadEffect /></Protected>} /> */}
         </Routes>
       </main>
+
+      {/* ---------------------------------------------------------------
+          Site footer. It lives HERE — outside <Routes> — so it renders
+          once and shows on every page, including Login and Signup.
+          Putting it inside each page component would mean copying it
+          nine times and forgetting it on the tenth.
+
+          rel="noopener" closes a real security hole: without it, the
+          page we open can reach back via window.opener and redirect
+          this tab somewhere else (reverse tabnabbing).
+
+          Note it is NOT "noopener noreferrer" — the usual copy-paste.
+          `noreferrer` strips the Referer header, which would make every
+          one of these visits show up as "direct" in Saravonix's
+          analytics. Keeping the referrer is the whole point of the link.
+          --------------------------------------------------------------- */}
+      <footer className="site-footer">
+        Supported By{' '}
+        <a href="https://saravonix.com" target="_blank" rel="noopener">
+          Saravonix Technologies
+        </a>
+      </footer>
     </ToastProvider>
   );
 }

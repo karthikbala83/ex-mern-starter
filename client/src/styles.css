@@ -103,3 +103,14 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .star { background: none; border: none; font-size: 28px; color: #cfd6e4;
         padding: 0 2px; line-height: 1; }
 .star.on { color: #C9A21F; }
+
+/* ---- Site footer (every page) ---- */
+/* #root is a flex column so the footer sits at the BOTTOM of short pages
+   (Login, Feedback) instead of floating up under the card. `flex: 1` on
+   the main area makes it absorb the leftover height. */
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+.container { flex: 1; }
+.site-footer { text-align: center; padding: 18px 16px; font-size: 13px;
+               color: #6b7688; border-top: 1px solid #e3e8f0; background: #fff; }
+.site-footer a { color: #1E3E7B; font-weight: 600; text-decoration: none; }
+.site-footer a:hover { color: #C9A21F; text-decoration: underline; }
