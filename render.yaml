@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------
+# Render Blueprint — builds ONLY the server half of this monorepo.
+# Same repo as Netlify uses; `rootDir` is what keeps them apart.
+#
+# Why check this in? Because "how is production configured?" should
+# be answerable by reading the repo, not by clicking through a
+# dashboard. Secrets still stay out of git — see envVars below.
+# ---------------------------------------------------------------
+services:
+  - type: web
+    name: campus-arena-api
+    runtime: node
+    plan: free                  # sleeps after 15 min idle; ~50s to wake
+    rootDir: server             # cd here first — ignores client/
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /          # server.js answers this with {status:'API running'}
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: JWT_EXPIRES_IN
+        value: 1d
+
+      # generateValue: Render invents a long random string on first deploy.
+      # Nobody types it, nobody can leak it from git, and it differs from
+      # your laptop's dev secret — which is exactly what you want.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # sync: false = "this one is a secret, prompt me in the dashboard".
+      # The KEY is version-controlled; the VALUE never touches the repo.
+      - key: MONGO_URI
+        sync: false
+
+      # Your Netlify URL. Chicken-and-egg: you won't know it until the
+      # client is deployed, so set it after and redeploy. CORS depends on it.
+      - key: CLIENT_URL
+        sync: false

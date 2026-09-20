@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------
+# Netlify config — builds ONLY the client half of this monorepo.
+# This file sits at the repo ROOT, but `base` tells Netlify to cd
+# into client/ first, so npm install/build run there and the
+# server/ folder is ignored completely.
+# ---------------------------------------------------------------
+[build]
+  base    = "client"        # cd here before doing anything
+  command = "npm run build" # Vite writes to client/dist
+  publish = "dist"          # relative to `base`, so => client/dist
+
+[build.environment]
+  # Pin the Node version. Without this, Netlify picks its own default
+  # and "works on my laptop, fails on the build server" becomes a mystery.
+  NODE_VERSION = "20"
+
+# ---------------------------------------------------------------
+# SPA fallback — the single most important line for React Router.
+# The CDN only has index.html; there is no /leaderboard file on disk.
+# A visitor who types /leaderboard directly, or hits refresh there,
+# would get a 404 without this. status 200 (not 301) means "serve
+# index.html but KEEP the URL", so React Router can read the path
+# and render the right page.
+# ---------------------------------------------------------------
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
