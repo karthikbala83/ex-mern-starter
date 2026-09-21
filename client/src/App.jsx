@@ -14,6 +14,27 @@ import { ToastProvider } from './context/ToastContext.jsx';
 
 //import BadEffect from './pages/BadEffect.jsx';
 
+// ---------------------------------------------------------------
+// Where the footer link points.
+//
+// The ?utm_* parameters are how Saravonix tells WHICH project sent a
+// visitor. Google Analytics (and every other analytics tool) reads these
+// four names by convention:
+//   utm_source   — who sent them        (this app)
+//   utm_medium   — what kind of link    (a footer link, not an ad or email)
+//   utm_campaign — which batch/effort   (so next year's cohort is separate)
+//
+// Why bother when we already keep the Referer header? Because referrers
+// are fragile: privacy modes, some browsers, and any http -> https hop
+// drop them silently. UTM tags live in the URL itself, so they survive.
+// Referer and UTM together = belt and braces.
+//
+// One constant, not a string inline in the JSX, so there is exactly one
+// place to edit when the campaign name changes.
+// ---------------------------------------------------------------
+const SARAVONIX_URL =
+  'https://saravonix.com/?utm_source=campus-arena&utm_medium=footer&utm_campaign=student-projects';
+
 // Route guards — the frontend half of protection.
 // (The API enforces it too. Never trust only the frontend.)
 function Protected({ children }) {
@@ -85,7 +106,7 @@ export default function App() {
           --------------------------------------------------------------- */}
       <footer className="site-footer">
         Supported By{' '}
-        <a href="https://saravonix.com" target="_blank" rel="noopener">
+        <a href={SARAVONIX_URL} target="_blank" rel="noopener">
           Saravonix Technologies
         </a>
       </footer>
