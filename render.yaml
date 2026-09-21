@@ -2,9 +2,25 @@
 # Render Blueprint — builds ONLY the server half of this monorepo.
 # Same repo as Netlify uses; `rootDir` is what keeps them apart.
 #
-# Why check this in? Because "how is production configured?" should
-# be answerable by reading the repo, not by clicking through a
-# dashboard. Secrets still stay out of git — see envVars below.
+# >>> THIS FILE IS ONLY READ ON THE BLUEPRINT PATH. <<<
+#
+#   New -> Blueprint     Render reads this file. Root dir, build and
+#                        start commands come from here, and JWT_SECRET
+#                        is generated for you. Nothing else to do.
+#
+#   New -> Web Service   Render IGNORES this file. You must enter the
+#                        root directory, build and start commands by
+#                        hand, AND set JWT_SECRET and NODE_ENV yourself
+#                        -- generateValue below does NOT apply to you.
+#                        See "Path B" in the README.
+#
+# The tell: if Render asks you for a Start Command, you are on the Web
+# Service path (or this file is not on the branch Render is watching --
+# a Blueprint only sees render.yaml on the branch it was pointed at).
+#
+# Why check this in at all? Because "how is production configured?"
+# should be answerable by reading the repo, not by clicking through a
+# dashboard. Secrets still stay out of git -- see envVars below.
 # ---------------------------------------------------------------
 services:
   - type: web
