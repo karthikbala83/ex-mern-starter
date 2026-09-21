@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext.jsx';
+import AuthLayout from '../components/AuthLayout.jsx';
 
 // ---------------------------------------------------------------
 // ANIMATION TEASER (full GSAP + Lottie session coming next time)
@@ -50,8 +51,12 @@ export default function Login() {
   };
 
   return (
-    <div className="card auth-card" ref={cardRef}>
-      <h2>Login</h2>
+    <AuthLayout>
+      {/* cardRef stays on this inner div so the existing entrance tween and
+          the failure shake keep animating the FORM, not the whole layout. */}
+      <div className="auth-form" ref={cardRef}>
+      <h2>Welcome back</h2>
+      <p className="auth-hint">Sign in to enter the arena.</p>
       {error && <p className="error">{error}</p>}
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input type="password" placeholder="Password" value={password}
@@ -60,6 +65,7 @@ export default function Login() {
       <button onClick={submit}>Login</button>
       <p><Link to="/forgot-password">Forgot password?</Link></p>
       <p>New here? <Link to="/signup">Create an account</Link></p>
-    </div>
+      </div>
+    </AuthLayout>
   );
 }

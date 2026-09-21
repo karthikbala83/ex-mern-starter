@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import AuthLayout from '../components/AuthLayout.jsx';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -14,12 +15,15 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="card auth-card">
+    <AuthLayout>
+      <div className="auth-form">
       <h2>Forgot password</h2>
+      <p className="auth-hint">We'll send you a link to set a new one.</p>
       {message && <p className="info">{message}</p>}
       {devLink && <p className="info">Dev link: <a href={devLink}>{devLink}</a></p>}
       <input placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <button onClick={submit}>Send reset link</button>
-    </div>
+      </div>
+    </AuthLayout>
   );
 }

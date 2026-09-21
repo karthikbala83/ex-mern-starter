@@ -12,7 +12,17 @@ const trackActivity = require('./middleware/trackActivity');
 const app = express();
 
 // ---- Global middleware ----
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// An Origin header is scheme + host + port and NEVER has a path — the browser
+// sends "https://site.netlify.app", not "https://site.netlify.app/". If
+// CLIENT_URL is pasted from the address bar it usually carries a trailing
+// slash, the two strings stop matching exactly, and every request fails CORS
+// while the preflight still answers 204 — so the server looks perfectly
+// healthy and only the browser complains. Strip it here so a stray slash in
+// an env var can never cost anyone an afternoon again.
+const clientOrigin = (process.env.CLIENT_URL || '').replace(/\/+$/, '');
+if (!clientOrigin) console.warn('CLIENT_URL is not set — CORS will allow any origin.');
+
+app.use(cors({ origin: clientOrigin || undefined, credentials: true }));
 app.use(express.json());
 
 // ---- Connect database ----

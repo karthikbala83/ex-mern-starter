@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import AuthLayout from '../components/AuthLayout.jsx';
 
 // ---------------------------------------------------------------
 // Password rules — one small regex per rule, not one monster.
@@ -55,8 +56,10 @@ export default function Signup() {
   };
 
   return (
-    <div className="card auth-card">
+    <AuthLayout>
+      <div className="auth-form">
       <h2>Create account</h2>
+      <p className="auth-hint">One minute, and you're on the leaderboard.</p>
       {/* Show the invite so it doesn't feel like a hidden tracker */}
       {referralCode && (
         <p className="info">You were invited! Code <code>{referralCode}</code> applied.</p>
@@ -80,6 +83,7 @@ export default function Signup() {
       <input placeholder="Skills (comma separated: react, node)" value={form.skills} onChange={set('skills')} />
       <button onClick={submit} disabled={!allValid || !form.name || !form.email}>Sign up</button>
       <p>Already registered? <Link to="/login">Login</Link></p>
-    </div>
+      </div>
+    </AuthLayout>
   );
 }
