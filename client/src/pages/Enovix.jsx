@@ -31,10 +31,21 @@ import { useAuth } from '../context/AuthContext.jsx';
 // admins get an explicit preview of both, because they need to see the
 // material without being part of the experiment.
 // ---------------------------------------------------------------
+// Tiny stable string hash (djb2). Not cryptographic and does not need to be —
+// it only has to give the SAME answer for the same id every time, and spread
+// ids evenly across the buckets.
+function hashToIndex(id, buckets) {
+  if (!id || !buckets) return 0;
+  let h = 5381;
+  for (let i = 0; i < id.length; i++) h = ((h * 33) ^ id.charCodeAt(i)) >>> 0;
+  return h % buckets;
+}
+
 export default function Enovix() {
   const [lang, setLang] = useState('ta');
   const [mine, setMine] = useState(null);      // this student's assigned version, if any
   const [loaded, setLoaded] = useState(false);
+  const [offline, setOffline] = useState(false);   // could not reach the check service
   const { user } = useAuth();
   const isStaff = user?.role === 'admin';
 
@@ -44,7 +55,12 @@ export default function Enovix() {
     let cancelled = false;
     api.get('/lesson-feedback/mine')
       .then((r) => { if (!cancelled) setMine(r.data); })
-      .catch(() => {})                                  // not started yet is normal
+      .catch((e) => {
+        // 401/empty just means "not started yet" — normal. Anything else means
+        // the service is unreachable, and a student must NOT be locked out of
+        // the lesson because a server is asleep.
+        if (!cancelled && e.response?.status !== 401) setOffline(true);
+      })
       .finally(() => { if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; };
   }, []);
@@ -65,8 +81,18 @@ export default function Enovix() {
       <div className="home-grid">
         {Object.values(lessons).map((l) => {
           const versions = Object.keys(l.scenes ?? {});           // ['A', 'B']
-          // Send them to their assigned version; otherwise to the check first.
-          const target = mine?.version ? `/enovix/${l.id}?v=${mine.version}` : '/enovix/check';
+          // Normally: the concept check assigns the version and we honour it.
+          // If the check service is unreachable we still let them learn, but we
+          // pick the version FOR them from their user id rather than letting
+          // them choose — a stable hash spreads students evenly across A and B
+          // and keeps self-selection out of the data. Same student, same
+          // version, every time.
+          const fallback = versions[hashToIndex(user?.id, versions.length)] ?? 'B';
+          const target = mine?.version
+            ? `/enovix/${l.id}?v=${mine.version}`
+            : offline
+              ? `/enovix/${l.id}?v=${fallback}`
+              : '/enovix/check';
 
           return (
             <div key={l.id} className="home-card home-card-learn">
@@ -76,8 +102,16 @@ export default function Enovix() {
 
               {loaded && (
                 <Link to={target} className="home-go">
-                  {mine?.version ? `Open lesson (version ${mine.version}) →` : 'Start here →'}
+                  {mine?.version
+                    ? `Open lesson (version ${mine.version}) →`
+                    : offline ? 'Open lesson →' : 'Start here →'}
                 </Link>
+              )}
+
+              {offline && (
+                <p className="muted">
+                  The concept check is unavailable right now — the lesson still works.
+                </p>
               )}
 
               {/* Staff only — students must not self-select, see the note above. */}

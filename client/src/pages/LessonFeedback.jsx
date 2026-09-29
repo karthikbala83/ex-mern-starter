@@ -1,7 +1,7 @@
 // Student flow: choose version → pre-check → open lesson → post-check + rating → done.
 // Section teachers share a link like /enovix/check?v=B so each section gets one version.
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 
 function Questions({ questions, answers, setAnswers }) {
@@ -43,14 +43,43 @@ export default function Feedback() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    Promise.all([api.get('/lesson-feedback/questions'), api.get('/lesson-feedback/mine')]).then(([q, m]) => {
-      setMeta(q.data);
-      setMine(m.data);
-    });
+  // A Promise.all with no .catch() is a trap: if EITHER request fails the
+  // whole chain rejects, `meta` stays null, and the guard below renders
+  // "Loading…" forever with no clue why. That is what a 404 — or simply a
+  // sleeping free-tier server taking 50s to wake — looked like to students.
+  // Always give a failed fetch somewhere to land and something to say.
+  const [loadError, setLoadError] = useState('');
+
+  const loadMeta = useCallback(() => {
+    setLoadError('');
+    Promise.all([api.get('/lesson-feedback/questions'), api.get('/lesson-feedback/mine')])
+      .then(([q, m]) => { setMeta(q.data); setMine(m.data); })
+      .catch((e) => {
+        setLoadError(
+          e.response?.status === 404
+            ? 'The lessons service is not available yet. Please tell your teacher.'
+            : 'Could not reach the server. It may still be waking up — try again.'
+        );
+      });
   }, []);
 
-  if (!meta || mine === undefined) return <p>Loading…</p>;
+  useEffect(() => { loadMeta(); }, [loadMeta]);
+
+  if (loadError) return (
+    <div className="card">
+      <h2>Concept check unavailable</h2>
+      <p className="error">{loadError}</p>
+      <p className="muted">
+        You can still watch the lesson — only the before/after questions need the server.
+      </p>
+      <div className="ref-row">
+        <button onClick={loadMeta}>Try again</button>
+        <Link className="fb-open" to="/enovix">Back to Enovix</Link>
+      </div>
+    </div>
+  );
+
+  if (!meta || mine === undefined) return <p className="muted">Loading…</p>;
   const qs = meta.questions;
   const allAnswered = qs.every((q) => Number.isInteger(answers[q.id]));
   const stage = !mine ? 'pre' : !mine.post?.at ? 'post' : 'done';
