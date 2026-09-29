@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { MdMenuBook, MdScience } from 'react-icons/md';
+import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // ---------------------------------------------------------------
 // Enovix landing: every lesson we have, as cards.
@@ -12,12 +15,39 @@ import { lessons } from '../lessons/index.js';
 // Every piece of lesson text is bilingual: { en: '...', ta: '...' }.
 // Render `l.title` directly and React throws "Objects are not valid as a
 // React child" — you must always pick a language first. We default to
-// Tamil to match Lesson.jsx, and put the `lang` attribute on the element
-// so screen readers and fonts switch with it.
+// Tamil to match Lesson.jsx.
+//
+// ---- WHY STUDENTS DO NOT CHOOSE THEIR OWN VERSION ----
+// Each lesson exists as version A (applications-first) and B (life-first).
+// The whole point of the pilot is to find out which one teaches better, by
+// comparing the same before/after concept check across the two groups.
+// If students picked for themselves, the groups would differ by
+// personality rather than by version and the comparison would mean
+// nothing — that is self-selection bias, and it is the classic way to
+// ruin an A/B test.
+//
+// So: the concept check assigns the version and records it, and this page
+// sends a student to the version they were actually given. Teachers and
+// admins get an explicit preview of both, because they need to see the
+// material without being part of the experiment.
 // ---------------------------------------------------------------
 export default function Enovix() {
   const [lang, setLang] = useState('ta');
+  const [mine, setMine] = useState(null);      // this student's assigned version, if any
+  const [loaded, setLoaded] = useState(false);
+  const { user } = useAuth();
+  const isStaff = user?.role === 'admin';
+
   const t = (v) => (typeof v === 'string' ? v : v?.[lang] ?? '');
+
+  useEffect(() => {
+    let cancelled = false;
+    api.get('/lesson-feedback/mine')
+      .then((r) => { if (!cancelled) setMine(r.data); })
+      .catch(() => {})                                  // not started yet is normal
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div>
@@ -33,23 +63,47 @@ export default function Enovix() {
       </div>
 
       <div className="home-grid">
-        {Object.values(lessons).map((l) => (
-          <Link key={l.id} to={`/enovix/${l.id}`} className="home-card home-card-learn">
-            <span className="home-emoji">📘</span>
-            <h3 lang={lang}>{t(l.title)}</h3>
-            {l.breadcrumb && <p>{t(l.breadcrumb)}</p>}
-            <span className="home-go">Open lesson →</span>
-          </Link>
-        ))}
+        {Object.values(lessons).map((l) => {
+          const versions = Object.keys(l.scenes ?? {});           // ['A', 'B']
+          // Send them to their assigned version; otherwise to the check first.
+          const target = mine?.version ? `/enovix/${l.id}?v=${mine.version}` : '/enovix/check';
+
+          return (
+            <div key={l.id} className="home-card home-card-learn">
+              <span className="home-emoji"><MdMenuBook /></span>
+              <h3 lang={lang}>{t(l.title)}</h3>
+              {l.breadcrumb && <p>{t(l.breadcrumb)}</p>}
+
+              {loaded && (
+                <Link to={target} className="home-go">
+                  {mine?.version ? `Open lesson (version ${mine.version}) →` : 'Start here →'}
+                </Link>
+              )}
+
+              {/* Staff only — students must not self-select, see the note above. */}
+              {isStaff && versions.length > 0 && (
+                <p className="staff-preview">
+                  <MdScience aria-hidden="true" /> Preview:{' '}
+                  {versions.map((v) => (
+                    <Link key={v} to={`/enovix/${l.id}?v=${v}`}>version {v}</Link>
+                  ))}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="card">
         <h3>Help us improve</h3>
         <p className="muted">
-          Take the quick concept check before and after a lesson — it is how we
-          find out which version actually teaches better.
+          The quick concept check before and after a lesson is how we find out
+          which version actually teaches better — and it decides how every
+          future lesson gets made.
         </p>
-        <Link to="/enovix/check" className="fb-open">Start the concept check</Link>
+        <Link to="/enovix/check" className="fb-open">
+          {mine?.post?.at ? 'Your answers' : mine ? 'Continue the concept check' : 'Start the concept check'}
+        </Link>
       </div>
     </div>
   );

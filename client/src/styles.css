@@ -237,3 +237,61 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .lang-switch { display: flex; gap: 6px; }
 .lang-switch button { background: #e6ebf5; color: #1a2333; font-size: 14px; padding: 6px 14px; }
 .lang-switch button[aria-pressed="true"] { background: #1E3E7B; color: #fff; }
+
+/* ================= MOBILE APP SHELL ================= */
+
+/* Icons sit on the text baseline by default, which makes buttons look
+   misaligned. inline-flex + align-items centres them against their label. */
+.link-btn, .logout-btn { display: inline-flex; align-items: center; gap: 6px; }
+.bell svg, .logout-btn svg { font-size: 22px; }
+.home-emoji svg { font-size: 34px; vertical-align: middle; }
+.staff-preview { font-size: 13px; color: #6b7688; display: flex; align-items: center;
+                 gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.staff-preview a { color: #1E3E7B; font-weight: 600; margin-right: 8px; }
+
+/* The bell panel used to be 280px pinned to the right edge, which pushed
+   off-screen on a 360px phone. Fixed + inset gives it the viewport to work
+   with instead of its (tiny) parent. */
+.bell-panel { max-height: 60vh; overflow-y: auto; }
+.bell-scrim { position: fixed; inset: 0; z-index: 25; background: transparent;
+              border: none; padding: 0; cursor: default; }
+
+/* Bottom tab bar — hidden on desktop, shown on phones. */
+.mobile-nav { display: none; }
+
+@media (max-width: 760px) {
+  /* Top bar keeps only the brand, the bell and logout. */
+  .desktop-only { display: none !important; }
+  .nav { padding: 10px 14px; }
+  .brand { font-size: 16px; }
+
+  /* Give the fixed bar its own space at the end of the page, or it covers
+     the last card and the footer. env(safe-area-inset-bottom) clears the
+     home indicator on iPhones. */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+
+  .mobile-nav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: #fff; border-top: 1px solid #e3e8f0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -2px 12px rgba(30,62,123,0.10);
+  }
+  .mobile-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 8px 2px; text-decoration: none; color: #6b7688; font-size: 10.5px;
+    /* 5 tabs on a 360px screen is 72px each — keep labels on one line
+       rather than letting "Feedback" wrap and shove the bar taller. */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    /* 44px is the usual minimum for a reliable finger target. */
+    min-height: 44px; justify-content: center;
+  }
+  .mobile-tab-icon { font-size: 22px; }
+  .mobile-tab.active { color: #1E3E7B; font-weight: 700; }
+  .mobile-tab.active .mobile-tab-icon { transform: translateY(-1px); }
+
+  /* Panel spans the screen instead of hanging off the right edge. */
+  .bell-panel { position: fixed; top: 56px; left: 12px; right: 12px; width: auto; }
+
+  .container { margin-top: 16px; }
+  .lesson-top { align-items: flex-start; }
+}

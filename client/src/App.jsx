@@ -1,8 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, Link, NavLink } from 'react-router-dom';
+import { MdLogout } from 'react-icons/md';
 import { useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
+import MobileNav from './components/MobileNav.jsx';
 
 // ---- Eager: everything needed to sign in, plus the landing page ----
 // These are tiny and every visitor needs them, so splitting them would
@@ -86,15 +88,25 @@ export default function App() {
         <div>
           {user ? (
             <>
-              {/* NavLink, not Link: it knows when it is the active route,
+              {/* The text links are hidden on phones (.desktop-only) — down
+                  there navigation lives in the bottom bar instead. The bell
+                  and logout stay up here on every size, because neither is
+                  a destination and a bottom bar should only hold those.
+
+                  NavLink, not Link: it knows when it is the active route,
                   so the current tab can highlight itself. */}
-              <NavLink to="/home">Home</NavLink>
-              <NavLink to="/game">Fun Game</NavLink>
-              <NavLink to="/enovix">Enovix</NavLink>
-              <NavLink to="/feedback">Feedback</NavLink>
-              {user.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
+              <span className="desktop-only">
+                <NavLink to="/home">Home</NavLink>
+                <NavLink to="/game">Fun Game</NavLink>
+                <NavLink to="/enovix">Enovix</NavLink>
+                <NavLink to="/feedback">Feedback</NavLink>
+                {user.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
+              </span>
               <NotificationBell />
-              <button className="link-btn" onClick={logout}>Logout ({user.name})</button>
+              <button className="link-btn logout-btn" onClick={logout} aria-label="Logout">
+                <MdLogout />
+                <span className="desktop-only">Logout ({user.name})</span>
+              </button>
             </>
           ) : (
             <>
@@ -141,6 +153,10 @@ export default function App() {
           </Routes>
         </Suspense>
       </main>
+
+      {/* Phones only. Rendered outside <main> so it can be fixed to the
+          viewport bottom without the page content scrolling over it. */}
+      <MobileNav />
 
       {/* ---------------------------------------------------------------
           Site footer. It lives HERE — outside <Routes> — so it renders
