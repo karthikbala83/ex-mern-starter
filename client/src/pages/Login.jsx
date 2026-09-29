@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 // ---------------------------------------------------------------
 // ANIMATION TEASER (full GSAP + Lottie session coming next time)
@@ -59,7 +60,7 @@ export default function Login() {
       <p className="auth-hint">Sign in to enter the arena.</p>
       {error && <p className="error">{error}</p>}
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password}
+      <PasswordInput value={password}
              onChange={(e) => setPassword(e.target.value)}
              onKeyDown={(e) => e.key === 'Enter' && submit()} />
       <button onClick={submit}>Login</button>

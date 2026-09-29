@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 // ---------------------------------------------------------------
 // Password rules — one small regex per rule, not one monster.
@@ -67,7 +68,7 @@ export default function Signup() {
       {error && <p className="error">{error}</p>}
       <input placeholder="Name" value={form.name} onChange={set('name')} />
       <input placeholder="Email" value={form.email} onChange={set('email')} />
-      <input type="password" placeholder="Password" value={form.password} onChange={set('password')} />
+      <PasswordInput value={form.password} onChange={set('password')} />
 
       {/* Live checklist — appears once the user starts typing */}
       {form.password && (

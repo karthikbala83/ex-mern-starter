@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdMenuBook, MdScience } from 'react-icons/md';
+import { MdMenuBook, MdPlayArrow } from 'react-icons/md';
 import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
-import { useAuth } from '../context/AuthContext.jsx';
 
 // ---------------------------------------------------------------
 // Enovix landing: every lesson we have, as cards.
@@ -17,53 +16,45 @@ import { useAuth } from '../context/AuthContext.jsx';
 // React child" — you must always pick a language first. We default to
 // Tamil to match Lesson.jsx.
 //
-// ---- WHY STUDENTS DO NOT CHOOSE THEIR OWN VERSION ----
-// Each lesson exists as version A (applications-first) and B (life-first).
-// The whole point of the pilot is to find out which one teaches better, by
-// comparing the same before/after concept check across the two groups.
-// If students picked for themselves, the groups would differ by
-// personality rather than by version and the comparison would mean
-// nothing — that is self-selection bias, and it is the classic way to
-// ruin an A/B test.
+// ---- BOTH VERSIONS ARE OPEN ON PURPOSE ----
+// Each lesson exists as version A (applications-first) and B (life-first),
+// and during the pilot anyone can open either. That is a deliberate choice
+// for this phase: students and professors are being asked which one they
+// prefer, so they have to be able to see both and go back and forth.
+// Once that review is in, the plan is to keep a single version and this
+// card collapses to one button.
 //
-// So: the concept check assigns the version and records it, and this page
-// sends a student to the version they were actually given. Teachers and
-// admins get an explicit preview of both, because they need to see the
-// material without being part of the experiment.
+// Worth knowing when reading the results: because students choose, the
+// two groups are self-selected rather than randomly assigned, so treat
+// version comparisons as a preference signal — not proof that one
+// version teaches better. The pre/post scores still measure whether the
+// lesson works; they just cannot cleanly attribute a difference to A vs B.
 // ---------------------------------------------------------------
-// Tiny stable string hash (djb2). Not cryptographic and does not need to be —
-// it only has to give the SAME answer for the same id every time, and spread
-// ids evenly across the buckets.
-function hashToIndex(id, buckets) {
-  if (!id || !buckets) return 0;
-  let h = 5381;
-  for (let i = 0; i < id.length; i++) h = ((h * 33) ^ id.charCodeAt(i)) >>> 0;
-  return h % buckets;
-}
-
 export default function Enovix() {
   const [lang, setLang] = useState('ta');
-  const [mine, setMine] = useState(null);      // this student's assigned version, if any
-  const [loaded, setLoaded] = useState(false);
-  const [offline, setOffline] = useState(false);   // could not reach the check service
-  const { user } = useAuth();
-  const isStaff = user?.role === 'admin';
+  const [mine, setMine] = useState(null);      // concept-check progress, for the CTA label
+  const [offline, setOffline] = useState(false);
 
   const t = (v) => (typeof v === 'string' ? v : v?.[lang] ?? '');
 
+  // Only the concept-check button depends on this call. The lesson links
+  // below never do, so a sleeping server can no longer block learning.
   useEffect(() => {
     let cancelled = false;
     api.get('/lesson-feedback/mine')
       .then((r) => { if (!cancelled) setMine(r.data); })
-      .catch((e) => {
-        // 401/empty just means "not started yet" — normal. Anything else means
-        // the service is unreachable, and a student must NOT be locked out of
-        // the lesson because a server is asleep.
-        if (!cancelled && e.response?.status !== 401) setOffline(true);
-      })
-      .finally(() => { if (!cancelled) setLoaded(true); });
+      .catch((e) => { if (!cancelled && e.response?.status !== 401) setOffline(true); });
     return () => { cancelled = true; };
   }, []);
+
+  // The WHOLE label is translated, not just the noun. Translating half a
+  // sentence ("Learn with பதிப்பு A") reads worse than leaving it in one
+  // language — word order differs between English and Tamil, so a shared
+  // prefix plus a translated suffix cannot come out right in both.
+  const VERSION_LABEL = {
+    A: { en: 'Learn with Version A', ta: 'பதிப்பு A உடன் கற்க' },
+    B: { en: 'Learn with Version B', ta: 'பதிப்பு B உடன் கற்க' },
+  };
 
   return (
     <div>
@@ -78,55 +69,31 @@ export default function Enovix() {
         </div>
       </div>
 
-      <div className="home-grid">
-        {Object.values(lessons).map((l) => {
-          const versions = Object.keys(l.scenes ?? {});           // ['A', 'B']
-          // Normally: the concept check assigns the version and we honour it.
-          // If the check service is unreachable we still let them learn, but we
-          // pick the version FOR them from their user id rather than letting
-          // them choose — a stable hash spreads students evenly across A and B
-          // and keeps self-selection out of the data. Same student, same
-          // version, every time.
-          const fallback = versions[hashToIndex(user?.id, versions.length)] ?? 'B';
-          const target = mine?.version
-            ? `/enovix/${l.id}?v=${mine.version}`
-            : offline
-              ? `/enovix/${l.id}?v=${fallback}`
-              : '/enovix/check';
+      {Object.values(lessons).map((l) => {
+        const versions = Object.keys(l.scenes ?? {});          // ['A', 'B']
+        return (
+          <div key={l.id} className="card lesson-card">
+            <span className="home-emoji"><MdMenuBook /></span>
+            <h3 lang={lang}>{t(l.title)}</h3>
+            {l.breadcrumb && <p className="muted">{t(l.breadcrumb)}</p>}
 
-          return (
-            <div key={l.id} className="home-card home-card-learn">
-              <span className="home-emoji"><MdMenuBook /></span>
-              <h3 lang={lang}>{t(l.title)}</h3>
-              {l.breadcrumb && <p>{t(l.breadcrumb)}</p>}
-
-              {loaded && (
-                <Link to={target} className="home-go">
-                  {mine?.version
-                    ? `Open lesson (version ${mine.version}) →`
-                    : offline ? 'Open lesson →' : 'Start here →'}
+            <div className="version-row">
+              {versions.map((v) => (
+                <Link key={v} to={`/enovix/${l.id}?v=${v}`} className={`version-btn version-${v}`} lang={lang}>
+                  <MdPlayArrow aria-hidden="true" />
+                  {t(VERSION_LABEL[v]) || `Version ${v}`}
                 </Link>
-              )}
-
-              {offline && (
-                <p className="muted">
-                  The concept check is unavailable right now — the lesson still works.
-                </p>
-              )}
-
-              {/* Staff only — students must not self-select, see the note above. */}
-              {isStaff && versions.length > 0 && (
-                <p className="staff-preview">
-                  <MdScience aria-hidden="true" /> Preview:{' '}
-                  {versions.map((v) => (
-                    <Link key={v} to={`/enovix/${l.id}?v=${v}`}>version {v}</Link>
-                  ))}
-                </p>
-              )}
+              ))}
             </div>
-          );
-        })}
-      </div>
+
+            <p className="muted version-hint" lang={lang}>
+              {lang === 'ta'
+                ? 'ஒரே பாடம், இரண்டு விதமாக. இரண்டையும் பாருங்கள் — உங்களுக்கு எது பிடித்தது என்பதே நாங்கள் வைத்துக்கொள்ளும் பதிப்பை தீர்மானிக்கும்.'
+                : 'Two ways of telling the same lesson. Try both and tell us which one you liked — your answer decides the version we keep.'}
+            </p>
+          </div>
+        );
+      })}
 
       <div className="card">
         <h3>Help us improve</h3>
@@ -135,9 +102,15 @@ export default function Enovix() {
           which version actually teaches better — and it decides how every
           future lesson gets made.
         </p>
-        <Link to="/enovix/check" className="fb-open">
-          {mine?.post?.at ? 'Your answers' : mine ? 'Continue the concept check' : 'Start the concept check'}
-        </Link>
+        {offline ? (
+          <p className="error">
+            The concept check is unavailable right now — the lessons above still work.
+          </p>
+        ) : (
+          <Link to="/enovix/check" className="fb-open">
+            {mine?.post?.at ? 'Your answers' : mine ? 'Continue the concept check' : 'Start the concept check'}
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import AuthLayout from '../components/AuthLayout.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -25,7 +26,7 @@ export default function ResetPassword() {
       <h2>Set new password</h2>
       <p className="auth-hint">Pick something you haven't used before.</p>
       {error && <p className="error">{error}</p>}
-      <input type="password" placeholder="New password" value={password}
+      <PasswordInput placeholder="New password" value={password}
              onChange={(e) => setPassword(e.target.value)} />
       <button onClick={submit}>Update password</button>
       </div>
