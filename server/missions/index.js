@@ -1,0 +1,8 @@
+// Registry of server-side mission references. Add a file, add a line.
+module.exports = {
+  pickItem: require('./pickItem'),
+  otpBreakChance: require('./otpBreakChance'),
+  moveToward: require('./moveToward'),
+  isInsideCampus: require('./isInsideCampus'),
+  rainSway: require('./rainSway'),
+};

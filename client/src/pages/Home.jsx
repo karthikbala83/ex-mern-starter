@@ -44,6 +44,14 @@ export default function Home() {
              narration, live code labs, and a quiz at the end.</p>
           <span className="home-go">Start learning →</span>
         </Link>
+
+        <Link to="/missions" className="home-card home-card-build">
+          <span className="home-emoji">🚀</span>
+          <h3>Missions</h3>
+          <p>Apply what you learned. Write one function at a time and watch
+             a real game and a real college app grow around it.</p>
+          <span className="home-go">Start building →</span>
+        </Link>
       </div>
     </div>
   );

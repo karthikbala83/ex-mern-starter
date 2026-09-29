@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
-  MdHome, MdSportsEsports, MdSchool, MdRateReview, MdInsights,
+  MdHome, MdSportsEsports, MdSchool, MdRocketLaunch, MdInsights,
 } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -25,7 +25,9 @@ const TABS = [
   { to: '/home',     label: 'Home',   Icon: MdHome },
   { to: '/game',     label: 'Game',   Icon: MdSportsEsports },
   { to: '/enovix',   label: 'Enovix', Icon: MdSchool },
-  { to: '/feedback', label: 'Feedback', Icon: MdRateReview },
+  // Missions earns a tab over Feedback: it is somewhere students go
+  // repeatedly, and Feedback is reachable from Home and Enovix.
+  { to: '/missions', label: 'Missions', Icon: MdRocketLaunch },
 ];
 
 export default function MobileNav() {

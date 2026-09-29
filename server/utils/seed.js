@@ -9,6 +9,8 @@ const Note = require('../models/Note');
 const GameSession = require('../models/GameSession');
 const Notification = require('../models/Notification');
 const Feedback = require('../models/Feedback');
+const MissionProgress = require('../models/MissionProgress');
+const MissionAttempt = require('../models/MissionAttempt');
 
 // Erode region. GeoJSON order: [LONGITUDE, LATITUDE] — lng first, always.
 // 2 decimals ≈ 1.1 km, the same rounding the location controller applies.
@@ -23,6 +25,8 @@ const run = async () => {
     GameSession.deleteMany(),
     Notification.deleteMany(),
     Feedback.deleteMany(),
+    MissionProgress.deleteMany(),
+    MissionAttempt.deleteMany(),
   ]);
 
   // ---- Build the indexes we declared in the schemas ----
@@ -34,6 +38,8 @@ const run = async () => {
     GameSession.syncIndexes(),
     Notification.syncIndexes(),
     Feedback.syncIndexes(),
+    MissionProgress.syncIndexes(),
+    MissionAttempt.syncIndexes(),
   ]);
 
   // ---------------------------------------------------------------
@@ -143,11 +149,56 @@ const run = async () => {
     { user: divya._id, rating: 4, message: 'Leaderboard is motivating. Wish the game had more levels.' },
   ]);
 
+  // ---------------------------------------------------------------
+  // Mission progress, so the Missions leaderboard has ranks on first demo.
+  // The points are written on BOTH records on purpose: MissionProgress is
+  // the detail and User.missionPoints is the denormalised total the
+  // leaderboard sorts on. A seed that sets only one of them would show a
+  // leaderboard that disagrees with every student's own progress page.
+  // ---------------------------------------------------------------
+  const st = (o = {}) => ({ predict: false, fill: false, write: false, bonus: false, ...o });
+
+  const missionPlan = [
+    // Arun: furthest along — one mission fully finished including the bonus,
+    // and one he fought for (all three hints: 10 + 50 - 15 = 45).
+    { user: arun, rows: [
+      { missionId: 'moveToward', stages: st({ predict: true, fill: true, write: true, bonus: true }), points: 100, attempts: 3 },
+      { missionId: 'pickItem', stages: st({ predict: true, write: true }), points: 45, attempts: 4, hintsUsed: 3 },
+    ] },
+    // Priya: a clean full mission (10 + 20 + 50) plus one predict.
+    { user: priya, rows: [
+      { missionId: 'pickItem', stages: st({ predict: true, fill: true, write: true }), points: 80, attempts: 2 },
+      { missionId: 'rainSway', stages: st({ predict: true }), points: 10, attempts: 0 },
+    ] },
+    // Karthik: mid-mission. One with hints (10 + 20 - 10 = 20), one first-try (10 + 20 + 10).
+    { user: karthik, rows: [
+      { missionId: 'otpBreakChance', stages: st({ predict: true, fill: true }), points: 20, attempts: 4, hintsUsed: 2 },
+      { missionId: 'moveToward', stages: st({ predict: true, fill: true }), points: 40, attempts: 1, firstTryBonus: true },
+    ] },
+    // Divya: just started — two predicts, nothing written yet.
+    { user: divya, rows: [
+      { missionId: 'isInsideCampus', stages: st({ predict: true }), points: 10, attempts: 0 },
+      { missionId: 'rainSway', stages: st({ predict: true }), points: 10, attempts: 1 },
+    ] },
+  ];
+
+  for (const p of missionPlan) {
+    await MissionProgress.insertMany(p.rows.map((r) => ({ user: p.user._id, hintsUsed: 0, firstTryBonus: false, ...r })));
+    // DERIVE the total from the rows rather than writing a second number by
+    // hand. Hardcoding it is how seed data ends up claiming a total that
+    // disagrees with the very rows beneath it — which is exactly the drift
+    // the controller works to avoid at runtime.
+    const total = p.rows.reduce((a, r) => a + r.points, 0);
+    await User.updateOne({ _id: p.user._id }, { $set: { missionPoints: total } });
+    p.total = total;
+  }
+
   console.log('Seeded users:');
   console.log('  admin@demo.com / admin123');
   console.log('  arun|priya|karthik|divya|suresh@demo.com / student123');
   console.log('Referral codes:');
   [admin, ...students].forEach((u) => console.log(`  ${u.name.padEnd(8)} ${u.referralCode}`));
+  console.log('Mission points:', missionPlan.map((p) => `${p.user.name} ${p.total}`).join(', '));
   console.log(`Try: ${process.env.CLIENT_URL}/signup?ref=${arun.referralCode}`);
   process.exit(0);
 };

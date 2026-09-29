@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MdMenuBook, MdPlayArrow } from 'react-icons/md';
 import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
+import { worlds } from '../missions/catalog.js';
 
 // ---------------------------------------------------------------
 // Enovix landing: every lesson we have, as cards.
@@ -94,6 +95,43 @@ export default function Enovix() {
           </div>
         );
       })}
+
+      {/* ---- The full journey (M7) ----
+          Every lesson in the catalogue, not only the ones that are built.
+          A student seeing 42 lessons across 7 worlds understands where this
+          is going; showing only the one finished lesson makes the product
+          look like it IS one lesson. Live ones link, the rest are honest
+          about being unbuilt and name the missions they will unlock. */}
+      <div className="card">
+        <h3>The full journey</h3>
+        <p className="muted">
+          {worlds.reduce((n, w) => n + w.lessons.length, 0)} lessons across {worlds.length} worlds.
+          We are building them one at a time — here is the whole map.
+        </p>
+
+        {worlds.map((w) => (
+          <div key={w.id} className="journey-world">
+            <h4>World {w.id} — <span lang={lang}>{t(w.title)}</span></h4>
+            {w.lessons.map((l) => (
+              <div key={l.id} className={`journey-row ${l.status === 'live' ? 'is-live' : 'is-soon'}`}>
+                <div className="journey-title">
+                  {l.status === 'live'
+                    ? <Link to={l.route || `/enovix/${l.id}`} lang={lang}>{t(l.title)}</Link>
+                    : <span lang={lang}>{t(l.title)}</span>}
+                  {l.status === 'live'
+                    ? <span className="badge">Open</span>
+                    : <span className="badge">Coming soon</span>}
+                </div>
+                {l.missions.length > 0 && (
+                  <p className="muted journey-missions">
+                    {l.missions.map((m) => `${m.product === 'game' ? '🎮' : '🏢'} ${t(m.title)}`).join(' · ')}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
 
       <div className="card">
         <h3>Help us improve</h3>

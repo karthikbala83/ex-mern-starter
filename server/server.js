@@ -48,6 +48,11 @@ app.use('/api/feedback', trackActivity, require('./routes/feedbackRoutes'));
 // never collide. Two features, two collections, one login.
 app.use('/api/lesson-feedback', trackActivity, require('./routes/lessonFeedbackRoutes'));
 
+// ---- Mission engine ----
+// Students apply a concept by writing one function. Their code runs in
+// THEIR browser, never here — see controllers/missionsController.js.
+app.use('/api/missions', trackActivity, require('./routes/missionRoutes'));
+
 // ---- 404 + error handler ----
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err, req, res, next) => {

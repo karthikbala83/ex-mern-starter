@@ -54,6 +54,15 @@ const userSchema = new mongoose.Schema(
     // Best (lowest) reaction-game time in milliseconds. null = never played.
     bestScoreMs: { type: Number, default: null },
 
+    // Total mission points. This is DENORMALISED — the same total could be
+    // computed by summing MissionProgress rows, but the missions leaderboard
+    // sorts every user by it, and sorting on a field you must first compute
+    // per user means a $lookup + $group before you can even rank. One indexed
+    // number here turns that into a plain sort. The cost is that two places
+    // now have to agree, so it is only ever changed by $inc alongside the
+    // MissionProgress write that earned it.
+    missionPoints: { type: Number, default: 0, index: true },
+
     // ---- GeoJSON Point. READ THIS TWICE: coordinates are [LONGITUDE, LATITUDE]. ----
     // Every map UI you have ever used says "lat, lng". GeoJSON says the OPPOSITE.
     // Swapping them is the single most common geo bug — you get no error, just

@@ -37,6 +37,12 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard.jsx'));
 const Notes       = lazy(() => import('./pages/Notes.jsx'));
 const Feedback    = lazy(() => import('./pages/Feedback.jsx'));
 
+// --- Missions ---
+// Lazy like the rest: the worker, geolib and mathjs only reach a student
+// who actually opens a mission.
+const Missions      = lazy(() => import('./pages/Missions.jsx'));
+const MissionPlayer = lazy(() => import('./pages/MissionPlayer.jsx'));
+
 // --- Enovix ---
 const Enovix         = lazy(() => import('./pages/Enovix.jsx'));
 const Lesson         = lazy(() => import('./pages/Lesson.jsx'));
@@ -99,6 +105,7 @@ export default function App() {
                 <NavLink to="/home">Home</NavLink>
                 <NavLink to="/game">Fun Game</NavLink>
                 <NavLink to="/enovix">Enovix</NavLink>
+                <NavLink to="/missions">Missions</NavLink>
                 <NavLink to="/feedback">Feedback</NavLink>
                 {user.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
               </span>
@@ -138,6 +145,10 @@ export default function App() {
             <Route path="/leaderboard" element={<Protected><Leaderboard /></Protected>} />
             <Route path="/notes" element={<Protected><Notes /></Protected>} />
             <Route path="/feedback" element={<Protected><Feedback /></Protected>} />
+
+            {/* ---- tab 3: Missions ---- */}
+            <Route path="/missions" element={<Protected><Missions /></Protected>} />
+            <Route path="/missions/:id" element={<Protected><MissionPlayer /></Protected>} />
 
             {/* ---- tab 2: Enovix ---- */}
             <Route path="/enovix" element={<Protected><Enovix /></Protected>} />

@@ -7,6 +7,11 @@ import ReferralCard from '../components/ReferralCard.jsx';
 const MEDALS = ['🥇', '🥈', '🥉'];   // index 0,1,2 -> ranks 1,2,3
 
 export default function Leaderboard() {
+  // Two boards, two metrics, deliberately NOT merged: the reaction game
+  // ranks by lowest time, missions by highest points. One table with a
+  // "score" column would hide that difference instead of teaching it.
+  const [tab, setTab] = useState('game');
+  const [missionBoard, setMissionBoard] = useState(null);
   const [board, setBoard] = useState(null);
   const [nearby, setNearby] = useState(null);
   const [geoMsg, setGeoMsg] = useState('');
@@ -18,6 +23,9 @@ export default function Leaderboard() {
     let cancelled = false;
     api.get('/game/leaderboard')
       .then((r) => { if (!cancelled) setBoard(r.data); })
+      .catch(() => {});
+    api.get('/missions/leaderboard')
+      .then((r) => { if (!cancelled) setMissionBoard(r.data); })
       .catch(() => {});
     loadNearby();
     return () => { cancelled = true; };
@@ -85,6 +93,47 @@ export default function Leaderboard() {
     <div>
       <h2>Leaderboard</h2>
 
+      <div className="seg filter-row">
+        <button aria-pressed={tab === 'game'} onClick={() => setTab('game')}>⚡ Reaction game</button>
+        <button aria-pressed={tab === 'missions'} onClick={() => setTab('missions')}>🚀 Missions</button>
+      </div>
+
+      {tab === 'missions' && (
+        <>
+          <div className="card my-rank">
+            {missionBoard?.me ? (
+              <>
+                <span className="rank-num">#{missionBoard.me.rank}</span>
+                <div><strong>Your mission rank</strong>
+                  <p className="muted">{missionBoard.me.points} points</p></div>
+              </>
+            ) : <p className="muted">Finish a mission stage to get ranked.</p>}
+          </div>
+
+          <div className="card">
+            <h3>Top 20 by mission points</h3>
+            <table>
+              <thead><tr><th>Rank</th><th>Player</th><th>Points</th></tr></thead>
+              <tbody>
+                {(missionBoard?.top ?? []).length === 0 && (
+                  <tr><td colSpan="3" className="muted">Nobody has scored yet.</td></tr>
+                )}
+                {(missionBoard?.top ?? []).map((p) => (
+                  <tr key={p._id} className={p.rank <= 3 ? `medal medal-${p.rank}` : ''}>
+                    <td>{MEDALS[p.rank - 1] || p.rank}</td>
+                    <td>{p.name}</td>
+                    <td>{p.missionPoints}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {tab === 'game' && (
+        <>
+
       {/* My rank, computed by $setWindowFields on the server */}
       <div className="card my-rank" ref={cardRef}>
         {board.me ? (
@@ -145,6 +194,9 @@ export default function Leaderboard() {
           </table>
         )}
       </div>
+
+        </>
+      )}
 
       <ReferralCard />
     </div>
