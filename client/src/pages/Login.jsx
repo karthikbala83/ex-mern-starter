@@ -4,6 +4,8 @@ import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
+import ServerWaking from '../components/ServerWaking.jsx';
+import { warmUpApi } from '../api/axios';
 
 // ---------------------------------------------------------------
 // ANIMATION TEASER (full GSAP + Lottie session coming next time)
@@ -19,6 +21,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   // Runs once after the card first renders
   // useEffect(() => {
@@ -40,14 +43,23 @@ export default function Login() {
     });
   };
 
+  // Start the server booting the moment this page appears, while the
+  // student is still typing. See warmUpApi() for why this matters so much
+  // on a free instance. Fire and forget — we never wait on it.
+  useEffect(() => { warmUpApi(); }, []);
+
   const submit = async () => {
+    if (busy) return;                // a second click would be a second login
     setError('');
+    setBusy(true);
     try {
       await login(email, password);
-      nav('/game');
+      nav('/home');                  // the fork: Fun Game or Enovix
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
       shake();                       // feel the failure, not just read it
+    } finally {
+      setBusy(false);                // runs on success AND failure — never strand the button
     }
   };
 
@@ -63,7 +75,8 @@ export default function Login() {
       <PasswordInput value={password}
              onChange={(e) => setPassword(e.target.value)}
              onKeyDown={(e) => e.key === 'Enter' && submit()} />
-      <button onClick={submit}>Login</button>
+      <button onClick={submit} disabled={busy}>{busy ? 'Signing in…' : 'Login'}</button>
+      <ServerWaking active={busy} />
       <p><Link to="/forgot-password">Forgot password?</Link></p>
       <p>New here? <Link to="/signup">Create an account</Link></p>
       </div>

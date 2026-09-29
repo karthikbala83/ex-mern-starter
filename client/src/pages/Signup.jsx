@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
+import ServerWaking from '../components/ServerWaking.jsx';
+import { warmUpApi } from '../api/axios';
 
 // ---------------------------------------------------------------
 // Password rules — one small regex per rule, not one monster.
@@ -24,6 +26,7 @@ export default function Signup() {
   const nav = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', skills: '' });
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   // ---- Referral link: /signup?ref=A79st54H ----
   // useSearchParams reads the query string from the URL. The code is never
@@ -39,9 +42,15 @@ export default function Signup() {
   const results = RULES.map((r) => ({ ...r, ok: r.test(form.password) }));
   const allValid = results.every((r) => r.ok);
 
+  // Same warm-up as Login — a new student typing their details is free
+  // time we can spend starting the server.
+  useEffect(() => { warmUpApi(); }, []);
+
   const submit = async () => {
+    if (busy) return;
     setError('');
     if (!allValid) return setError('Password does not meet all the rules below');
+    setBusy(true);
     try {
       await signup({
         name: form.name,
@@ -50,9 +59,11 @@ export default function Signup() {
         profile: { skills: form.skills.split(',').map((s) => s.trim()).filter(Boolean) },
         referralCode,
       });
-      nav('/game');
+      nav('/home');                  // the fork: Fun Game or Enovix
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -82,7 +93,10 @@ export default function Signup() {
       )}
 
       <input placeholder="Skills (comma separated: react, node)" value={form.skills} onChange={set('skills')} />
-      <button onClick={submit} disabled={!allValid || !form.name || !form.email}>Sign up</button>
+      <button onClick={submit} disabled={busy || !allValid || !form.name || !form.email}>
+        {busy ? 'Creating your account…' : 'Sign up'}
+      </button>
+      <ServerWaking active={busy} />
       <p>Already registered? <Link to="/login">Login</Link></p>
       </div>
     </AuthLayout>
