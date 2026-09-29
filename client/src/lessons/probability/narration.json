@@ -1,0 +1,398 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, fractions). Faculty review this file; then run: npm run voice (in /server).",
+  "lesson": "probability",
+  "title": {
+    "en": "Why do CSE students need Probability?",
+    "ta": "CSE students-க்கு Probability ஏன் தேவை?"
+  },
+  "versions": {
+    "A": {
+      "label": "Applications first",
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "Your phone guesses",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "Your phone knows a message is spam before you even open it.",
+              "ta": "நீங்க message-ஐ open பண்றதுக்கு முன்னாடியே, உங்க phone அது spam-னு கண்டுபிடிச்சிடுது."
+            },
+            {
+              "id": "s1-b2",
+              "en": "It doesn't know for sure. It calculates how likely it is.",
+              "ta": "அதுக்கு உறுதியா தெரியாது. எவ்வளவு chance இருக்குன்னு calculate பண்ணுது."
+            },
+            {
+              "id": "s1-b3",
+              "en": "That calculation is probability. Let's see why every CSE student needs it.",
+              "ta": "அந்த calculation தான் probability. ஒவ்வொரு CSE student-க்கும் இது ஏன் தேவைன்னு பார்ப்போம்."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "Code is certain, the world is not",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Your code is exact. Same input, same output, every time.",
+              "ta": "உங்க code exact-ஆ இருக்கும். அதே input கொடுத்தா, எப்பவும் அதே output தான்."
+            },
+            {
+              "id": "s2-b2",
+              "en": "But the real world is not. Packets get lost, servers crash, users click unpredictably.",
+              "ta": "ஆனா real world அப்படி இல்ல. Packets காணாம போகும், server crash ஆகும், users எதை click பண்ணுவாங்கன்னு சொல்ல முடியாது."
+            },
+            {
+              "id": "s2-b3",
+              "en": "Probability is the maths of this uncertainty: how often something happens, out of all possibilities.",
+              "ta": "இந்த uncertainty-க்கான maths தான் probability. மொத்த possibilities-ல ஒரு விஷயம் எத்தனை தடவை நடக்குதுன்னு அளக்குறது."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Counting outcomes",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Roll two dice. How many outcomes are possible? 6 times 6, that's 36.",
+              "ta": "ரெண்டு dice உருட்டுங்க. மொத்தம் எத்தனை outcomes? 6 × 6 = 36.",
+              "say": {
+                "ta": "ரெண்டு dice உருட்டுங்க. மொத்தம் எத்தனை outcomes? ஆறு into ஆறு, மொத்தம் 36."
+              }
+            },
+            {
+              "id": "s3-b2",
+              "en": "Now count the ones that add up to 7. There are six of them.",
+              "ta": "இதுல sum 7 வர்றது எத்தனை? மொத்தம் ஆறு."
+            },
+            {
+              "id": "s3-b3",
+              "en": "So P(sum = 7) is 6 over 36, about 17%. Counting carefully is the first skill, which is why you study permutations and combinations.",
+              "ta": "அதனால P(sum = 7) = 6/36, அதாவது சுமார் 17%. சரியா count பண்றது தான் முதல் skill. அதுக்கு தான் permutations, combinations படிக்கிறோம்.",
+              "say": {
+                "en": "So the probability of getting a sum of 7 is 6 out of 36, about 17 percent. Counting carefully is the first skill, which is why you study permutations and combinations.",
+                "ta": "அதனால sum 7 வர்ற probability, 36-ல 6, அதாவது சுமார் 17 percent. சரியா count பண்றது தான் முதல் skill. அதுக்கு தான் permutations, combinations படிக்கிறோம்."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Predict: shared birthdays",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "Quick question. In a class of 23 students, what's the chance that two share a birthday?",
+              "ta": "ஒரு சின்ன கேள்வி. 23 பேர் இருக்கிற class-ல, ரெண்டு பேருக்கு ஒரே birthday இருக்க chance எவ்வளவு?"
+            },
+            {
+              "id": "s4-b2",
+              "en": "It's about 50%! Our intuition fails here, but maths doesn't.",
+              "ta": "கிட்டத்தட்ட 50%! இங்க நம்ம intuition தப்பா போகும், maths தப்பா போகாது."
+            },
+            {
+              "id": "s4-b3",
+              "en": "The same maths tells you how soon two keys will collide in a hash table. That's why hash table sizes and hash functions are designed using probability.",
+              "ta": "இதே maths தான் hash table-ல ரெண்டு keys எவ்வளவு சீக்கிரம் ஒரே slot-ல collide ஆகும்னு சொல்லுது. அதனால தான் hash table size, hash function எல்லாம் probability வெச்சு design பண்றாங்க."
+            }
+          ],
+          "ask": {
+            "afterBeat": 1,
+            "q": {
+              "en": "In a class of 23 students, what is the chance that two share a birthday?",
+              "ta": "23 பேர் இருக்கிற class-ல, ரெண்டு பேருக்கு ஒரே birthday இருக்க chance எவ்வளவு?"
+            },
+            "options": [
+              "5%",
+              "25%",
+              "50%",
+              "90%"
+            ],
+            "hint": {
+              "en": "Commit to a guess before you see the answer.",
+              "ta": "Answer பார்க்கிறதுக்கு முன்னாடி ஒரு guess பண்ணுங்க."
+            }
+          }
+        },
+        {
+          "id": "s5",
+          "title": "Bayes and the spam filter",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Back to spam. Take 100 emails: 20 are spam, 80 are genuine.",
+              "ta": "மறுபடியும் spam-க்கு வருவோம். 100 emails எடுத்துக்கோங்க: 20 spam, 80 genuine."
+            },
+            {
+              "id": "s5-b2",
+              "en": "The word FREE appears in 16 of the spam emails, and in only 4 genuine ones.",
+              "ta": "FREE ங்கிற word 16 spam emails-ல வருது, genuine emails-ல 4-ல மட்டும் தான்."
+            },
+            {
+              "id": "s5-b3",
+              "en": "So if an email says FREE, it is one of these 20, and 16 of them are spam. P(spam given FREE) is 16 over 20, that's 80%. This is Bayes' theorem.",
+              "ta": "அதனால ஒரு email-ல FREE இருந்தா, அது இந்த 20-ல ஒண்ணு. அதுல 16 spam. P(spam | FREE) = 16/20 = 80%. இது தான் Bayes' theorem.",
+              "say": {
+                "en": "So if an email says FREE, it is one of these 20, and 16 of them are spam. The probability of spam, given the word FREE, is 16 out of 20. That is 80 percent. This is Bayes theorem.",
+                "ta": "அதனால ஒரு email-ல FREE இருந்தா, அது இந்த 20-ல ஒண்ணு. அதுல 16 spam. FREE இருக்கிற email spam-ஆ இருக்கிற probability, 20-ல 16, அதாவது 80 percent. இது தான் Bayes theorem."
+              }
+            },
+            {
+              "id": "s5-b4",
+              "en": "Real filters combine hundreds of words like this. That's Naive Bayes, one of the first machine learning algorithms you'll build.",
+              "ta": "உண்மையான filters இப்படி நூற்றுக்கணக்கான words-ஐ சேர்த்து பாக்கும். அது தான் Naive Bayes. நீங்க build பண்ற முதல் ML algorithms-ல ஒண்ணு."
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "Where CSE uses it",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Machine learning: every prediction is a probability.",
+              "ta": "Machine learning: ஒவ்வொரு prediction-உம் ஒரு probability தான்."
+            },
+            {
+              "id": "s6-b2",
+              "en": "Algorithms: randomized quicksort picks a random pivot to stay fast on average.",
+              "ta": "Algorithms: randomized quicksort ஒரு random pivot எடுத்து, average-ஆ fast-ஆ ஓடுது."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Networks, cryptography, load balancing, testing, even loot drops in games. All built on probability.",
+              "ta": "Networks, cryptography, load balancing, testing, game-ல loot drop கூட. எல்லாமே probability மேல தான் கட்டப்பட்டிருக்கு."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Probability measures uncertainty: favourable outcomes out of total outcomes.",
+              "ta": "Probability uncertainty-ஐ அளக்குது: மொத்த outcomes-ல favourable outcomes எத்தனை."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Counting, Bayes and randomness show up in machine learning, hashing, algorithms and networks.",
+              "ta": "Counting, Bayes, randomness எல்லாம் machine learning, hashing, algorithms, networks-ல வருது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "Now try the quiz, then explain this in your own words.",
+              "ta": "இப்போ quiz try பண்ணுங்க. அப்புறம் உங்க சொந்த words-ல explain பண்ணுங்க."
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "label": "Life first",
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "What does 70% mean?",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "Your weather app says \"70% chance of rain tomorrow\". What does that actually mean?",
+              "ta": "Weather app-ல \"நாளைக்கு 70% மழை\"ன்னு பார்த்திருப்பீங்க. அதுக்கு உண்மையா என்ன அர்த்தம்?"
+            },
+            {
+              "id": "s1-b2",
+              "en": "Think of 10 days just like tomorrow. On 7 of them it rained, on 3 it didn't. 7 out of 10 is 70%.",
+              "ta": "நாளை மாதிரியே 10 நாள் இருந்தா, அதுல 7 நாள் மழை பெய்யும், 3 நாள் பெய்யாது. 10-ல 7, அது தான் 70%."
+            },
+            {
+              "id": "s1-b3",
+              "en": "That is probability: how many out of how many. 0 means it never happens, 1 means it always happens.",
+              "ta": "இது தான் probability: எத்தனையில எத்தனை. 0 னா நடக்கவே நடக்காது, 1 னா கண்டிப்பா நடக்கும்."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "The cricket toss",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Before the match, the toss. The captain calls Heads. What is his chance of winning it?",
+              "ta": "Match ஆரம்பிக்கும் முன்னாடி toss. Captain \"Heads\"ன்னு சொல்றாரு. Toss win பண்ண chance எவ்வளவு?"
+            },
+            {
+              "id": "s2-b2",
+              "en": "A coin has only two sides, Heads and Tails. We want just one of them.",
+              "ta": "Coin-க்கு ரெண்டே பக்கம் தான்: Heads, Tails. நமக்கு வேண்டியது அதுல ஒண்ணு மட்டும்."
+            },
+            {
+              "id": "s2-b3",
+              "en": "So chance = ways you want ÷ all possible ways = 1 ÷ 2 = 50%. That is the whole probability formula!",
+              "ta": "அதனால chance = வேண்டிய வழிகள் ÷ மொத்த வழிகள் = 1 ÷ 2 = 50%. Probability formula இவ்வளவு தான்!",
+              "say": {
+                "en": "So, chance equals the ways you want, divided by all possible ways. One out of two, that is 50 percent. That is the whole probability formula!",
+                "ta": "அதனால chance-ன்னா, வேண்டிய வழிகளை மொத்த வழிகளால வகுக்கணும். ரெண்டுல ஒண்ணு, அதாவது 50 percent. Probability formula இவ்வளவு தான்!"
+              }
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Guessing in exams",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "An exam MCQ with four options. You know nothing, so you guess blindly.",
+              "ta": "Exam-ல ஒரு MCQ, நாலு options. எதுவுமே தெரியாம blind-ஆ guess பண்றீங்க."
+            },
+            {
+              "id": "s3-b2",
+              "en": "One of four is right, so your chance is 1/4 = 25%. Guess all 10 questions and you get only about 2 or 3 right.",
+              "ta": "4-ல 1 தான் சரி, அதனால chance 1/4 = 25%. 10 கேள்வியும் guess பண்ணா, சுமார் 2 அல்லது 3 தான் சரியா வரும்.",
+              "say": {
+                "en": "One of four is right, so your chance is one out of four, 25 percent. Guess all 10 questions and you get only about 2 or 3 right.",
+                "ta": "நாலுல ஒண்ணு தான் சரி. அதனால chance 25 percent. 10 கேள்வியும் guess பண்ணா, சுமார் 2 அல்லது 3 தான் சரியா வரும்."
+              }
+            },
+            {
+              "id": "s3-b3",
+              "en": "But if you studied a little, you can cut two wrong options. Now your chance is 1/2 = 50%.",
+              "ta": "ஆனா கொஞ்சம் படிச்சிருந்தா, ரெண்டு தப்பான options-ஐ cut பண்ணிடலாம். இப்போ chance 1/2 = 50%.",
+              "say": {
+                "en": "But if you studied a little, you can cut two wrong options. Now your chance is one out of two, 50 percent.",
+                "ta": "ஆனா கொஞ்சம் படிச்சிருந்தா, ரெண்டு தப்பான options-ஐ cut பண்ணிடலாம். இப்போ chance ரெண்டுல ஒண்ணு, 50 percent."
+              }
+            },
+            {
+              "id": "s3-b4",
+              "en": "Did you notice? Studying literally changes your probability.",
+              "ta": "கவனிச்சீங்களா? படிக்கிறது உங்க probability-ஐயே மாத்துது."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Why OTP has 6 digits",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "Your bank OTP has 6 digits. Why six? Why not just two?",
+              "ta": "உங்க bank OTP-ல 6 digits இருக்கு. ஏன் 6? ஏன் 2 digits போதாது?"
+            },
+            {
+              "id": "s4-b2",
+              "en": "With 2 digits there are only 100 combinations. A thief gets 3 tries, so his chance is 3/100 = 3%. Far too high.",
+              "ta": "2 digits-னா 100 combinations தான். திருடனுக்கு 3 tries கிடைச்சா, chance 3/100 = 3%. ரொம்ப அதிகம்!",
+              "say": {
+                "en": "With 2 digits there are only 100 combinations. A thief gets 3 tries, so his chance is 3 out of 100. That is 3 percent. Far too high.",
+                "ta": "2 digits-னா 100 combinations தான். திருடனுக்கு 3 tries கிடைச்சா, chance 100-ல 3, அதாவது 3 percent. ரொம்ப அதிகம்!"
+              }
+            },
+            {
+              "id": "s4-b3",
+              "en": "With 6 digits there are 10 lakh combinations. 3 tries give him just 3 in 10 lakh, and then the account locks.",
+              "ta": "6 digits-னா 10 லட்சம் combinations. 3 tries-ல chance 10 லட்சத்துல 3 தான். அதுக்கு அப்புறம் account lock ஆகிடும்."
+            },
+            {
+              "id": "s4-b4",
+              "en": "\"6 digits, only 3 attempts\" was designed by an engineer, using exactly this probability.",
+              "ta": "\"6 digits, 3 attempts மட்டும்\" இந்த rule-ஐ design பண்ணது ஒரு engineer. இதே probability வெச்சு தான்."
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "Apps guess all day",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Every app you use daily is constantly guessing.",
+              "ta": "நீங்க தினமும் use பண்ற ஒவ்வொரு app-உம் guess பண்ணிட்டே இருக்கு."
+            },
+            {
+              "id": "s5-b2",
+              "en": "The cricket app shows win chances. Maps estimates when you'll arrive.",
+              "ta": "Cricket app win chance சொல்லுது. Maps நீங்க எப்போ போய் சேருவீங்கன்னு சொல்லுது."
+            },
+            {
+              "id": "s5-b3",
+              "en": "Instagram guesses which reel you'll watch next. Your bank spots fraud payments. All of it is probability.",
+              "ta": "Instagram அடுத்து நீங்க எந்த reel பார்ப்பீங்கன்னு guess பண்ணுது. Bank fraud payment-ஐ கண்டுபிடிக்குது. எல்லாமே probability தான்."
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "User or builder?",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Same phone, two kinds of people. One of them just uses the app.",
+              "ta": "ஒரே phone, ரெண்டு வகை மனுஷங்க. ஒருத்தர் app-ஐ use மட்டும் பண்றாரு."
+            },
+            {
+              "id": "s6-b2",
+              "en": "The other builds the system that makes all those guesses. The person who understands probability sits in that chair.",
+              "ta": "இன்னொருத்தர் அந்த guess பண்ற system-ஐ build பண்றாரு. Probability புரிஞ்சவர் தான் அந்த chair-ல உட்கார்றாரு."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Decide which side you want to be on. This subject is your first step.",
+              "ta": "நீங்க எந்த பக்கம் இருக்கணும்னு நீங்களே முடிவு பண்ணுங்க. அதுக்கான முதல் படி இந்த subject தான்."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Probability in code",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "What does probability look like in code? One line is enough for a coin toss.",
+              "ta": "Code-ல probability எப்படி இருக்கும்? ஒரு coin toss-க்கு ஒரே ஒரு line போதும்."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Math.random() gives a random number between 0 and 1. Below 0.5 means Heads, otherwise Tails.",
+              "ta": "Math.random() 0-க்கும் 1-க்கும் நடுவுல ஒரு random number தருது. 0.5-க்கு கீழ இருந்தா Heads, இல்லன்னா Tails.",
+              "say": {
+                "en": "Math dot random gives a random number between 0 and 1. Below 0.5 means Heads, otherwise Tails.",
+                "ta": "Math dot random, 0-க்கும் 1-க்கும் நடுவுல ஒரு random number தருது. 0.5-க்கு கீழ இருந்தா Heads, இல்லன்னா Tails."
+              }
+            },
+            {
+              "id": "s7-b3",
+              "en": "Run it 1000 times and Heads comes close to 50%. What you calculated on paper really happens in the computer.",
+              "ta": "1000 தடவை ஓட்டி பாருங்க, Heads கிட்டத்தட்ட 50% வருது. Paper-ல நீங்க calculate பண்ணது, computer-ல உண்மையா நடக்குது!"
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Probability is how many out of how many, a number from 0 to 1.",
+              "ta": "Probability-ன்னா எத்தனையில எத்தனை. 0-ல இருந்து 1 வரைக்கும் ஒரு number."
+            },
+            {
+              "id": "s8-b2",
+              "en": "Studying raises your chances. Literally.",
+              "ta": "படிச்சா உங்க chances உயரும். உண்மையாவே."
+            },
+            {
+              "id": "s8-b3",
+              "en": "Every app you use runs on it. Learn it, and you can build them. Now try the code yourself below.",
+              "ta": "நீங்க use பண்ற ஒவ்வொரு app-உம் இதுல தான் ஓடுது. இதை கத்துக்கிட்டா, நீங்களே build பண்ணலாம். இப்போ கீழ code-ஐ நீங்களே run பண்ணி பாருங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

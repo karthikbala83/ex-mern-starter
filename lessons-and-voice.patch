@@ -1,0 +1,2072 @@
+diff --git a/.gitignore b/.gitignore
+index fdd8c5a..f568487 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -4,3 +4,4 @@ dist/
+ build/
+ .DS_Store
+ *.log
++server/voice-audition/
+diff --git a/FEEDBACK_SETUP.md b/FEEDBACK_SETUP.md
+new file mode 100644
+index 0000000..340a2aa
+--- /dev/null
++++ b/FEEDBACK_SETUP.md
+@@ -0,0 +1,29 @@
++# Lesson feedback module (Probability pilot)
++
++Adds a before → lesson → after feedback flow to the MERN starter, plus an admin results page.
++
++## Files
++| File | What it does |
++|---|---|
++| `server/models/Feedback.js` | One document per student per lesson: `pre`, `post`, `rating` sub-documents, unique index on `{user, lesson}` |
++| `server/controllers/feedbackController.js` | Questions (answers stay on the server), pre/post submit with validation, `$facet` summary for admin |
++| `server/routes/feedbackRoutes.js` | `/questions`, `/mine`, `/pre`, `/post`, `/summary` (admin) |
++| `server/server.js` | One new line mounting `/api/feedback` behind `trackActivity` |
++| `client/src/pages/Feedback.jsx` | Student flow |
++| `client/src/pages/FeedbackResults.jsx` | Admin comparison table, auto-refresh every 15 s |
++| `client/src/App.jsx`, `client/src/styles.css` | Routes, nav links, a few styles |
++
++## Before the pilot
++1. **Share the three lesson links publicly.** Claude artifact links are private until shared. Open each one, choose Share, and allow anyone with the link to view.
++2. Check the three URLs in `VERSIONS` inside `feedbackController.js`.
++3. Deploy as usual (Render + Vercel). No new packages or env vars.
++
++## Running it in class
++- Give each section its own link: `https://<your-app>/feedback?v=A`, `?v=B`, `?v=C`.
++- Students sign up / log in, answer 3 questions, open the lesson, then answer the same 3 plus ratings.
++- Watch results live at `/admin/feedback` (admin login).
++
++## Homework ideas for students
++1. Add a `department` facet to the summary (which branch gained most?).
++2. Export the summary as CSV.
++3. Make `LESSON` and `QUESTIONS` come from a `Lesson` collection instead of constants — the first step toward the full Course → Subject → Lesson app.
+diff --git a/LESSONS_SETUP.md b/LESSONS_SETUP.md
+new file mode 100644
+index 0000000..73fa608
+--- /dev/null
++++ b/LESSONS_SETUP.md
+@@ -0,0 +1,37 @@
++# Animated lessons with Sarvam voice-over
++
++## What's here
++| Path | Purpose |
++|---|---|
++| `client/src/lessons/probability/narration.json` | **All narration.** `en`/`ta` = captions on screen. `say.en`/`say.ta` = what the voice speaks when it must differ (fractions, symbols). Faculty review this file. |
++| `client/src/lessons/probability/scenesA.js`, `scenesB.js` | Canvas animation per scene (Version A: applications first, B: life first) |
++| `client/src/lessons/probability/lab.js` | Code-lab experiments in JavaScript **and** Python, with their charts |
++| `client/src/lessons/probability/quiz.js` | Quiz questions (Tamil + English) |
++| `client/src/lessons/index.js` | Lesson registry: add new lessons here |
++| `client/src/components/LessonPlayer.jsx` | Player: one MP3 per beat, animation follows the audio clock |
++| `client/src/components/CodeLab.jsx` | Run-and-see lab; Python loads in the browser only when chosen |
++| `client/src/pages/Lesson.jsx` | `/lesson/probability?v=A` or `?v=B` (story + lab + quiz), `?v=C` (lab + quiz) |
++| `server/scripts/generateVoice.js` | One-time Sarvam voice generation, skips unchanged lines |
++| `server/scripts/auditionVoices.js` | Hear candidate voices side by side |
++
++## Generate the voice-over (run on your machine)
++```bash
++cd server
++# server/.env needs:  SARVAM_API_KEY=your-key   (SARVAM_KEY also works)
++
++npm run voice:audition            # 1. writes server/voice-audition/index.html: listen, pick a voice
++# add VOICE_SPEAKER=<name> (and optionally VOICE_PACE=0.92) to server/.env
++
++npm run voice -- --dry            # 2. preview: clips and characters, no API calls
++npm run voice -- --lesson probability --version B --lang ta   # 3. try one version + language first
++npm run voice                     # 4. everything (96 clips, ~8,700 characters)
++```
++Audio lands in `client/public/audio/probability/<A|B>/<ta|en>/<beat>.mp3` with a `manifest.json`.
++**Commit the MP3s and manifest**, so Vercel serves them as static files. Nothing calls Sarvam at runtime.
++
++After a professor edits a sentence in `narration.json`, run `npm run voice` again: only changed lines regenerate.
++Changing `VOICE_SPEAKER` or `VOICE_PACE` regenerates everything (use `--force` to do it deliberately).
++
++## Pilot links
++- `/lesson/probability?v=A`, `?v=B`, `?v=C`
++- Feedback: `/feedback?v=A|B|C` (the "Open lesson" button now points inside this app)
+diff --git a/client/index.html b/client/index.html
+index 26f5be3..cbcacbc 100644
+--- a/client/index.html
++++ b/client/index.html
+@@ -4,6 +4,9 @@
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <title>MERN Deploy Starter</title>
++    <link rel="preconnect" href="https://fonts.googleapis.com" />
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
++    <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@400;600;700;800&display=swap" rel="stylesheet" />
+   </head>
+   <body>
+     <div id="root"></div>
+diff --git a/client/public/audio/README.md b/client/public/audio/README.md
+new file mode 100644
+index 0000000..7fa7fc5
+--- /dev/null
++++ b/client/public/audio/README.md
+@@ -0,0 +1,2 @@
++Generated voice-over lives here: `<lesson>/<version>/<lang>/<beatId>.mp3` plus `<lesson>/manifest.json`.
++Create it with `npm run voice` inside `/server`, then commit the MP3s and manifest so every deployment serves them as static files.
+diff --git a/client/src/App.jsx b/client/src/App.jsx
+index 31cba21..42bd20d 100644
+--- a/client/src/App.jsx
++++ b/client/src/App.jsx
+@@ -6,6 +6,9 @@ import ForgotPassword from './pages/ForgotPassword.jsx';
+ import ResetPassword from './pages/ResetPassword.jsx';
+ import Notes from './pages/Notes.jsx';
+ import Admin from './pages/Admin.jsx';
++import Feedback from './pages/Feedback.jsx';
++import FeedbackResults from './pages/FeedbackResults.jsx';
++import Lesson from './pages/Lesson.jsx';
+ 
+ //import BadEffect from './pages/BadEffect.jsx';
+ 
+@@ -30,7 +33,10 @@ export default function App() {
+           {user ? (
+             <>
+               <Link to="/notes">Notes</Link>
++              <Link to="/lesson/probability">Probability lesson</Link>
++              <Link to="/feedback">Lesson feedback</Link>
+               {user.role === 'admin' && <Link to="/admin">Admin</Link>}
++              {user.role === 'admin' && <Link to="/admin/feedback">Feedback results</Link>}
+               <button className="link-btn" onClick={logout}>Logout ({user.name})</button>
+             </>
+           ) : (
+@@ -50,6 +56,9 @@ export default function App() {
+           <Route path="/reset-password/:token" element={<ResetPassword />} />
+           <Route path="/notes" element={<Protected><Notes /></Protected>} />
+           <Route path="/admin" element={<AdminOnly><Admin /></AdminOnly>} />
++          <Route path="/lesson/:id" element={<Protected><Lesson /></Protected>} />
++          <Route path="/feedback" element={<Protected><Feedback /></Protected>} />
++          <Route path="/admin/feedback" element={<AdminOnly><FeedbackResults /></AdminOnly>} />
+           {/* <Route path="/bad-effect" element={<Protected><BadEffect /></Protected>} /> */}
+         </Routes>
+       </main>
+diff --git a/client/src/components/CodeLab.jsx b/client/src/components/CodeLab.jsx
+new file mode 100644
+index 0000000..f7f35c2
+--- /dev/null
++++ b/client/src/components/CodeLab.jsx
+@@ -0,0 +1,116 @@
++// ---------------------------------------------------------------
++// CodeLab — run-and-see experiments in JavaScript or Python.
++// JS runs natively. Python runs in the browser via Pyodide, loaded
++// only when a student first picks Python (~10 MB, then cached).
++// Student code NEVER runs on our server.
++// ---------------------------------------------------------------
++import { useEffect, useMemo, useRef, useState } from 'react';
++
++const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
++let pyodidePromise = null;
++function loadPython() {
++  if (!pyodidePromise) {
++    pyodidePromise = new Promise((resolve, reject) => {
++      const s = document.createElement('script');
++      s.src = PYODIDE_URL + 'pyodide.js';
++      s.onload = () => window.loadPyodide({ indexURL: PYODIDE_URL }).then(resolve, reject);
++      s.onerror = () => reject(new Error('Could not load Python. Check your internet connection.'));
++      document.head.appendChild(s);
++    }).catch((e) => { pyodidePromise = null; throw e; });
++  }
++  return pyodidePromise;
++}
++
++async function runJS(code) {
++  const lines = []; const print = (...a) => lines.push(a.join(' '));
++  const result = new Function('print', code)(print);
++  return { lines, result };
++}
++async function runPy(code) {
++  const py = await loadPython();
++  const lines = [];
++  py.setStdout({ batched: (s) => lines.push(s) });
++  py.runPython('globals().pop("result", None)');
++  await py.runPythonAsync(code);
++  const r = py.globals.get('result');
++  const result = r?.toJs ? r.toJs({ dict_converter: Object.fromEntries }) : r;
++  r?.destroy?.();
++  return { lines, result };
++}
++
++function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
++  const cvRef = useRef(null); const kitRef = useRef(null);
++  const [code, setCode] = useState({ js: exp.code, py: exp.py });
++  const [out, setOut] = useState('');
++  const [res, setRes] = useState(null);
++  const [busy, setBusy] = useState(false);
++  const mode = pyMode ? 'py' : 'js';
++
++  const draw = (r, a) => {
++    const cv = cvRef.current; if (!cv) return; const ctx = cv.getContext('2d');
++    if (!kitRef.current) kitRef.current = createLab(ctx);
++    const { labs, paper, txt } = kitRef.current; const s = cv.width / 800; ctx.setTransform(s, 0, 0, s, 0, 0); paper();
++    if (!r) { txt(lang === 'ta' ? 'Run அழுத்துங்க' : 'Press Run', 400, 250, { size: 40, weight: 800, align: 'center', color: '#C3CFE2' }); return; }
++    try { labs.find((l) => l.id === exp.id).viz(r, a); } catch { txt('The chart needs the original result values.', 40, 250, { size: 22, color: '#C8553D' }); }
++  };
++  useEffect(() => {
++    const cv = cvRef.current; const resize = () => { const d = window.devicePixelRatio || 1; cv.width = Math.round(cv.clientWidth * d); cv.height = Math.round(cv.clientWidth * 10 / 16 * d); draw(res, 1); };
++    const ro = new ResizeObserver(resize); ro.observe(cv); return () => ro.disconnect();
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [res, lang]);
++
++  const run = async () => {
++    setBusy(true); setOut(pyMode ? 'Running Python… (first run downloads Python, about 10 MB)' : 'Running…');
++    const t = performance.now();
++    try {
++      const { lines, result } = await (pyMode ? runPy(code.py) : runJS(code.js));
++      const ms = (performance.now() - t).toFixed(0);
++      if (!result || typeof result !== 'object') { setOut(lines.join('\n') + `\n(Keep the ${pyMode ? 'result = …' : 'return'} line at the bottom so the chart can draw.)`); return; }
++      setOut(lines.join('\n') + `\n(ran in ${ms} ms)`); setRes(result); onRun(exp.id);
++      const t0 = performance.now(); const anim = () => { const a = Math.min(1, (performance.now() - t0) / 900); draw(result, a); if (a < 1) requestAnimationFrame(anim); }; anim();
++    } catch (e) {
++      const msg = String(e.message || e).trim().split('\n').slice(-3).join('\n');
++      setOut('Error: ' + msg + '\nFix the line and press Run again. "Reset code" brings back the original.');
++    } finally { setBusy(false); }
++  };
++
++  return (
++    <section className="lab-exp">
++      <div className="lab-head"><span className="lab-num">{n}</span><h3 lang={lang}>{exp.title[lang]}</h3></div>
++      <p className="lab-why" lang={lang}>{exp.why[lang]}</p>
++      <div className="lab-grid">
++        <div>
++          <textarea spellCheck={false} value={code[mode]} aria-label={`Code for experiment ${n}`}
++            onChange={(ev) => setCode({ ...code, [mode]: ev.target.value })}
++            onKeyDown={(ev) => { if (ev.key === 'Tab') { ev.preventDefault(); const el = ev.target; const p = el.selectionStart; el.setRangeText(pyMode ? '    ' : '  ', p, el.selectionEnd, 'end'); setCode({ ...code, [mode]: el.value }); } }} />
++          <div className="lab-btns">
++            <button onClick={run} disabled={busy}>{busy ? 'Running…' : `Run ${pyMode ? 'Python' : 'JavaScript'}`}</button>
++            <button className="lp-ghost" onClick={() => { setCode({ ...code, [mode]: mode === 'py' ? exp.py : exp.code }); setOut(''); setRes(null); }}>Reset code</button>
++          </div>
++        </div>
++        <div><canvas ref={cvRef} /><pre className="lab-out" aria-live="polite">{out || 'Press Run to see output.'}</pre></div>
++      </div>
++      <div className="lab-ch">
++        <b>Challenge</b> <span lang={lang}>{exp.ch[lang]}</span>
++        <details><summary>{lang === 'ta' ? 'Answer பார்க்க' : 'Show answer'}</summary><p lang={lang}>{exp.ans[lang]}</p></details>
++      </div>
++    </section>
++  );
++}
++
++export default function CodeLab({ createLab, lang, onRun = () => {} }) {
++  const exps = useMemo(() => createLab(null).labs, [createLab]);
++  const [pyMode, setPyMode] = useState(false);
++  return (
++    <div className="lab">
++      <div className="lab-bar">
++        <p lang={lang}>{lang === 'ta' ? 'Run அழுத்துங்க. அப்புறம் CAPITALS-ல இருக்கிற number-ஐ மாத்தி மறுபடியும் run பண்ணுங்க.' : 'Press Run. Then change the number in CAPITALS and run again.'}</p>
++        <div className="seg" role="group" aria-label="Programming language">
++          <button aria-pressed={!pyMode} onClick={() => setPyMode(false)}>JavaScript</button>
++          <button aria-pressed={pyMode} onClick={() => setPyMode(true)}>Python</button>
++        </div>
++      </div>
++      {exps.map((x, i) => <Experiment key={x.id} exp={x} n={i + 1} lang={lang} pyMode={pyMode} createLab={createLab} onRun={onRun} />)}
++    </div>
++  );
++}
+diff --git a/client/src/components/LessonPlayer.jsx b/client/src/components/LessonPlayer.jsx
+new file mode 100644
+index 0000000..080ff3a
+--- /dev/null
++++ b/client/src/components/LessonPlayer.jsx
+@@ -0,0 +1,139 @@
++// ---------------------------------------------------------------
++// LessonPlayer — animated story with pre-generated voice-over.
++// One MP3 per beat: /audio/<lesson>/<version>/<lang>/<beatId>.mp3
++// When a clip exists, the animation follows the audio clock, so
++// voice and visuals stay in sync. No clip? Captions + timer only.
++// ---------------------------------------------------------------
++import { useEffect, useRef, useState } from 'react';
++
++const W = 1280, H = 720;
++const clamp = (x) => Math.max(0, Math.min(1, x));
++const estimate = (text, lang) => Math.max(lang === 'ta' ? 3400 : 3000, text.length * (lang === 'ta' ? 68 : 62));
++
++export default function LessonPlayer({ lessonId, version, story, createScenes, lang, onComplete }) {
++  const canvasRef = useRef(null);
++  const eng = useRef(null);               // mutable engine state (not React state: changes 60x/sec)
++  const [ui, setUi] = useState({ started: false, playing: false, scene: 0, beat: 0, asking: false, finished: false });
++  const [voiceOn, setVoiceOn] = useState(true);
++  const [note, setNote] = useState('');
++  const seen = useRef(new Set());
++  const langRef = useRef(lang); const voiceRef = useRef(voiceOn);
++  langRef.current = lang; voiceRef.current = voiceOn;
++
++  const scenes = story.scenes;
++  const beat = (s, b) => scenes[s].beats[b];
++  const url = (id, l) => `/audio/${lessonId}/${version}/${l}/${id}.mp3`;
++
++  // ---------- engine ----------
++  useEffect(() => {
++    const cv = canvasRef.current; const ctx = cv.getContext('2d');
++    const kit = createScenes(ctx);
++    const e = { started: false, playing: false, scene: 0, beat: 0, start: 0, frozen: 0, dur: 4000,
++      audio: null, audioOk: false, audioDone: true, asking: false, answered: {}, finished: false, raf: 0, cache: new Map() };
++    eng.current = e;
++
++    const sync = () => setUi({ started: e.started, playing: e.playing, scene: e.scene, beat: e.beat, asking: e.asking, finished: e.finished });
++    const stopAudio = () => { if (e.audio) { e.audio.onended = e.audio.onerror = null; e.audio.pause(); } e.audio = null; e.audioOk = false; };
++    const clip = (id, l) => {
++      const k = l + id; if (!e.cache.has(k)) { const a = new Audio(url(id, l)); a.preload = 'auto'; e.cache.set(k, a); }
++      return e.cache.get(k);
++    };
++    const nextBeat = () => { const sc = scenes[e.scene]; if (e.beat < sc.beats.length - 1) return beat(e.scene, e.beat + 1); return scenes[e.scene + 1]?.beats[0]; };
++
++    const startBeat = () => {
++      stopAudio();
++      const b = beat(e.scene, e.beat); const l = langRef.current;
++      e.start = performance.now(); e.frozen = 0; e.dur = estimate(b[l], l); e.audioDone = true;
++      seen.current.add(e.scene);
++      if (voiceRef.current && e.playing) {
++        const a = clip(b.id, l); a.currentTime = 0; e.audio = a; e.audioDone = false;
++        a.onended = () => { e.audioDone = true; };
++        a.onerror = () => { e.audioDone = true; e.audioOk = false; setNote(l === 'ta' ? 'Tamil voice-over not generated yet. Showing captions.' : 'English voice-over not generated yet. Showing captions.'); };
++        a.play().then(() => { e.audioOk = true; setNote(''); }).catch(() => { e.audioDone = true; });
++        const n = nextBeat(); if (n) clip(n.id, l);    // warm the next clip
++      }
++      sync();
++    };
++    const advance = () => {
++      const sc = scenes[e.scene];
++      if (sc.ask && sc.ask.afterBeat === e.beat + 1 && !e.answered[e.scene]) { e.asking = true; stopAudio(); sync(); return; }
++      if (e.beat < sc.beats.length - 1) { e.beat++; startBeat(); return; }
++      if (e.scene < scenes.length - 1) { e.scene++; e.beat = 0; startBeat(); return; }
++      e.finished = true; e.playing = false; stopAudio(); sync(); onComplete?.();
++    };
++
++    const frame = (now) => {
++      const s = cv.width / W; ctx.setTransform(s, 0, 0, s, 0, 0);
++      if (!e.started) { kit.titleFrame(); e.raf = requestAnimationFrame(frame); return; }
++      let p;
++      const a = e.audio;
++      if (a && e.audioOk && isFinite(a.duration) && a.duration > 0) p = clamp(a.currentTime / a.duration);   // audio clock
++      else p = clamp((e.playing && !e.asking ? now - e.start : e.frozen) / e.dur);                         // timer clock
++      kit.paper(); ctx.save(); kit.draws[e.scene](e.beat, p, now); ctx.restore();   // clear, then draw
++      const timerDone = now - e.start >= e.dur;
++      if (e.playing && !e.asking && e.audioDone && (e.audioOk || timerDone)) advance();
++      e.raf = requestAnimationFrame(frame);
++    };
++
++    e.api = {
++      play() {
++        if (!e.started) { e.started = true; e.playing = true; startBeat(); return; }
++        if (e.finished) { e.finished = false; e.playing = true; e.scene = 0; e.beat = 0; e.answered = {}; startBeat(); return; }
++        e.playing = !e.playing;
++        if (e.playing) { e.start = performance.now() - e.frozen; if (e.audio && !e.audioDone) e.audio.play().catch(() => {}); }
++        else { e.frozen = performance.now() - e.start; e.audio?.pause(); }
++        sync();
++      },
++      go(i) { e.started = true; e.playing = true; e.finished = false; e.asking = false; e.scene = Math.max(0, Math.min(scenes.length - 1, i)); e.beat = 0; startBeat(); },
++      answer(opt) { e.answered[e.scene] = opt; e.asking = false; e.beat++; startBeat(); },
++      restartBeat() { if (e.started && !e.asking && e.playing) startBeat(); },
++      stop: stopAudio,
++    };
++
++    const resize = () => { const d = window.devicePixelRatio || 1; cv.width = Math.round(cv.clientWidth * d); cv.height = Math.round(cv.clientWidth * 9 / 16 * d); };
++    const ro = new ResizeObserver(resize); ro.observe(cv); resize();
++    (document.fonts?.ready || Promise.resolve()).then(() => { e.raf = requestAnimationFrame(frame); });
++    return () => { cancelAnimationFrame(e.raf); stopAudio(); ro.disconnect(); };
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [lessonId, version]);
++
++  // language or voice switch: replay the current beat in the new setting
++  useEffect(() => { eng.current?.api.restartBeat(); if (!voiceOn) { eng.current?.api.stop(); setNote(''); } }, [lang, voiceOn]);
++
++  const api = () => eng.current.api;
++  const cur = ui.started ? beat(ui.scene, ui.beat) : null;
++  const ask = scenes[ui.scene]?.ask;
++
++  return (
++    <div className="lp">
++      <div className="lp-stage">
++        <canvas ref={canvasRef} aria-label="Animated lesson" />
++        {!ui.started && <button className="lp-big" onClick={() => api().play()}>▶ Start the lesson</button>}
++        {ui.asking && ask && (
++          <div className="lp-ask" role="dialog" aria-label="Predict">
++            <p lang={lang}>{ask.q[lang]}</p>
++            <div>{ask.options.map((o) => <button key={o} onClick={() => api().answer(o)}>{o}</button>)}</div>
++            <small lang={lang}>{ask.hint[lang]}</small>
++          </div>
++        )}
++        {ui.finished && <div className="lp-done"><a href="#lab">{lang === 'ta' ? 'Lesson முடிஞ்சது. இப்போ code lab try பண்ணுங்க ↓' : 'Lesson complete. Now try the code lab ↓'}</a></div>}
++      </div>
++
++      <div className="lp-controls">
++        <button onClick={() => api().play()}>{ui.playing ? 'Pause' : ui.finished ? 'Replay' : 'Play'}</button>
++        <button className="lp-ghost" onClick={() => api().go(ui.scene - 1)}>◀ Previous</button>
++        <button className="lp-ghost" onClick={() => api().go(ui.scene + 1)}>Next ▶</button>
++        <label className="lp-voice"><input type="checkbox" checked={voiceOn} onChange={(ev) => setVoiceOn(ev.target.checked)} /> Voice</label>
++      </div>
++      <p className="lp-caption" lang={lang} aria-live="polite">
++        {cur ? cur[lang] : lang === 'ta' ? 'Start அழுத்துங்க. Voice-ஓட சேர்ந்து animation ஓடும்.' : 'Press Start. The animation plays along with the voice.'}
++      </p>
++      {note && <p className="muted">{note}</p>}
++      <ol className="lp-scenes">
++        {scenes.map((s, i) => (
++          <li key={s.id}><button className={(i === ui.scene && ui.started ? 'on ' : '') + (seen.current.has(i) ? 'seen' : '')} onClick={() => api().go(i)}>{i + 1}. {s.title}</button></li>
++        ))}
++      </ol>
++    </div>
++  );
++}
+diff --git a/client/src/lessons/index.js b/client/src/lessons/index.js
+new file mode 100644
+index 0000000..b75088b
+--- /dev/null
++++ b/client/src/lessons/index.js
+@@ -0,0 +1,18 @@
++// Lesson registry. Add a folder per lesson and register it here.
++import probNarration from './probability/narration.json';
++import probScenesA from './probability/scenesA.js';
++import probScenesB from './probability/scenesB.js';
++import probLab from './probability/lab.js';
++import probQuiz from './probability/quiz.js';
++
++export const lessons = {
++  probability: {
++    id: 'probability',
++    title: probNarration.title,
++    breadcrumb: 'CSE › Mathematics for Computing › Probability',
++    narration: probNarration,
++    scenes: { A: probScenesA, B: probScenesB },
++    createLab: probLab,
++    quiz: probQuiz,
++  },
++};
+diff --git a/client/src/lessons/probability/lab.js b/client/src/lessons/probability/lab.js
+new file mode 100644
+index 0000000..e667e74
+--- /dev/null
++++ b/client/src/lessons/probability/lab.js
+@@ -0,0 +1,153 @@
++// Code lab experiments (JavaScript + Python) with their chart drawings.
++// createLab(ctx) returns the experiment list; viz(result, progress) draws on ctx.
++// Pass null when you only need the text and code.
++export const LAB_W = 800, LAB_H = 500;
++
++const PY = {
++  "coin": "import random\nN = 10   # try 10, then 100, then 100000\n\nheads = 0\nseq = \"\"\nfor i in range(N):\n    is_heads = random.random() < 0.5   # 50% chance\n    if is_heads:\n        heads += 1\n    if N <= 40:\n        seq += \"H \" if is_heads else \"T \"\nif seq:\n    print(\"Tosses:\", seq)\nprint(f\"Heads: {heads / N * 100:.1f}%\")\nresult = {\"heads\": heads, \"N\": N}",
++  "dice": "import random\nN = 10000   # number of rolls\n\ncount = {s: 0 for s in range(2, 13)}\nfor i in range(N):\n    d1 = random.randint(1, 6)\n    d2 = random.randint(1, 6)\n    count[d1 + d2] += 1\nprint(f\"Sum 7 came {count[7] / N * 100:.1f}% of the time\")\nprint(f\"Sum 2 came {count[2] / N * 100:.1f}% of the time\")\nresult = {\"count\": count, \"N\": N}",
++  "otp": "import random\nDIGITS = 2        # try 2, then 4, then 6\nATTEMPTS = 3      # tries before the account locks\nTRIALS = 20000    # Python in the browser is slower, so fewer thieves\n\ntotal = 10 ** DIGITS\nbroken = 0\nfor t in range(TRIALS):\n    otp = random.randrange(total)\n    for a in range(ATTEMPTS):\n        if random.randrange(total) == otp:\n            broken += 1\n            break\nprint(f\"Possible OTPs: {total:,}\")\nprint(f\"Thieves who got in: {broken} out of {TRIALS:,}\")\nresult = {\"rate\": broken / TRIALS, \"total\": total, \"ATTEMPTS\": ATTEMPTS}",
++  "hash": "import random\nSLOTS = 365    # table size (or days in a year)\nKEYS = 23      # keys inserted (or people in a room)\nTRIALS = 3000\n\ncollided = 0\nfor t in range(TRIALS):\n    used = set()\n    for k in range(KEYS):\n        slot = random.randrange(SLOTS)   # our \"hash\"\n        if slot in used:\n            collided += 1\n            break\n        used.add(slot)\nprint(f\"Collision happened in {collided / TRIALS * 100:.1f}% of trials\")\nresult = {\"rate\": collided / TRIALS, \"SLOTS\": SLOTS, \"KEYS\": KEYS}",
++  "pi": "import random\nN = 2000   # darts; try 100, then 50000\n\ninside = 0\npoints = []\nfor i in range(N):\n    x, y = random.random(), random.random()\n    hit = x * x + y * y <= 1   # inside the quarter circle?\n    if hit:\n        inside += 1\n    if len(points) < 4000:\n        points.append([x, y, hit])\n# area ratio: quarter circle / square = pi / 4\npi = 4 * inside / N\nprint(f\"Estimated pi = {pi:.4f}   (real pi = 3.1416)\")\nresult = {\"points\": points, \"pi\": pi, \"N\": N}"
++};
++
++export default function createLab(ctx) {
++const C={paper:'#F7F9FC',grid:'#E3E9F3',ink:'#1E3E7B',gold:'#C9A21F',green:'#547B5C',coral:'#C8553D',muted:'#6B7A93',light:'#D7E1F0'};
++const FONT='Catamaran, system-ui, sans-serif';const W=800,H=500;
++
++const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));const ease=x=>1-Math.pow(1-clamp(x),3);
++
++const labs=[
++{id:'coin',title:{en:'Flip a coin',ta:'Coin flip பண்ணுங்க'},
++ why:{en:'Small samples lie, big samples tell the truth. This is why a company never trusts 10 users, and why ML needs lots of data.',ta:'சின்ன sample பொய் சொல்லும், பெரிய sample உண்மை சொல்லும். அதனால தான் company 10 users-ஐ வெச்சு முடிவு எடுக்காது, ML-க்கு நிறைய data தேவைப்படுது.'},
++ code:`const N = 10;   // try 10, then 100, then 100000
++
++let heads = 0, seq = "";
++for (let i = 0; i < N; i++) {
++  const isHeads = Math.random() < 0.5;   // 50% chance
++  if (isHeads) heads++;
++  if (N <= 40) seq += isHeads ? "H " : "T ";
++}
++if (seq) print("Tosses: " + seq);
++print("Heads: " + (heads / N * 100).toFixed(1) + "%");
++return { heads, N };`,
++ viz(r,a){const h=r.heads/r.N,t=1-h;title('Heads vs Tails after '+r.N.toLocaleString('en-IN')+' tosses');
++  const base=430,top=90,bw=180;[[h,'Heads',C.green,180],[t,'Tails',C.coral,440]].forEach(([v,l,c,x])=>{const hh=(base-top)*v*ease(a);box(x,base-hh,bw,hh,8,c);txt(l,x+bw/2,base+32,{size:24,weight:800,align:'center'});txt((v*100).toFixed(1)+'%',x+bw/2,base-hh-12,{size:26,weight:800,align:'center',color:c});});
++  const y=base-(base-top)*.5;dash(140,y,680,y,C.gold);txt('50%',690,y+6,{size:20,weight:800,color:'#7A600A'});},
++ ch:{en:'Run N = 10 five times and write down the Heads %. Then run N = 100000 five times. Which one stays close to 50%? Why?',ta:'N = 10 வெச்சு ஐந்து தடவை run பண்ணி Heads % எழுதுங்க. அப்புறம் N = 100000 ஐந்து தடவை. எது 50%-க்கு பக்கத்துல இருக்கு? ஏன்?'},
++ ans:{en:'With 10 tosses you might see 30% or 70% easily. With 1 lakh tosses you get 49.8% to 50.2%. This is the Law of Large Numbers: the more trials, the closer you get to the true probability.',ta:'10 tosses-ல 30% அல்லது 70% கூட சுலபமா வரும். 1 லட்சம் tosses-ல 49.8%-ல இருந்து 50.2% தான் வரும். இது Law of Large Numbers: trials அதிகமாக ஆக, உண்மையான probability-க்கு பக்கத்துல போவோம்.'}},
++
++{id:'dice',title:{en:'Roll two dice',ta:'ரெண்டு dice உருட்டுங்க'},
++ why:{en:'Some results are more likely because more combinations produce them. Board games, game design and network traffic all follow this idea.',ta:'சில results அதிகமா வரும், ஏன்னா அதை உருவாக்க நிறைய combinations இருக்கு. Board games, game design, network traffic எல்லாமே இந்த idea தான்.'},
++ code:`const N = 10000;   // number of rolls
++
++const count = {};
++for (let s = 2; s <= 12; s++) count[s] = 0;
++
++for (let i = 0; i < N; i++) {
++  const d1 = 1 + Math.floor(Math.random() * 6);
++  const d2 = 1 + Math.floor(Math.random() * 6);
++  count[d1 + d2]++;
++}
++print("Sum 7 came " + (count[7] / N * 100).toFixed(1) + "% of the time");
++print("Sum 2 came " + (count[2] / N * 100).toFixed(1) + "% of the time");
++return { count, N };`,
++ viz(r,a){title('How often each sum came up ('+r.N.toLocaleString('en-IN')+' rolls)');const ways=[0,0,1,2,3,4,5,6,5,4,3,2,1];
++  let mx=0;for(let s=2;s<=12;s++)mx=Math.max(mx,r.count[s]/r.N,ways[s]/36);const base=420,hmax=300,bw=48,gap=14,x0=60;
++  for(let s=2;s<=12;s++){const v=r.count[s]/r.N;const hh=hmax*v/mx*ease(a);const x=x0+(s-2)*(bw+gap);box(x,base-hh,bw,hh,6,s===7?C.gold:C.ink);txt(String(s),x+bw/2,base+28,{size:20,weight:800,align:'center'});
++   const ey=base-hmax*(ways[s]/36)/mx;ctx.beginPath();ctx.arc(x+bw/2,ey,6,0,7);ctx.fillStyle=C.coral;ctx.fill();}
++  txt('Bars: your simulation',470,470,{size:18,weight:700,color:C.ink});ctx.beginPath();ctx.arc(660,464,6,0,7);ctx.fillStyle=C.coral;ctx.fill();txt('Dots: maths (ways ÷ 36)',672,470,{size:18,weight:700,color:C.coral});},
++ ch:{en:'Why is 7 the most common sum, and 2 the rarest? List every pair of dice that makes 7.',ta:'ஏன் 7 தான் அதிகமா வருது, 2 ரொம்ப கம்மியா வருது? 7 வர்ற எல்லா dice pairs-ஐயும் list பண்ணுங்க.'},
++ ans:{en:'7 comes from six pairs: (1,6) (2,5) (3,4) (4,3) (5,2) (6,1), so 6/36 ≈ 16.7%. 2 comes only from (1,1), so 1/36 ≈ 2.8%. More ways means more likely. The simulation dots match the maths.',ta:'7 ஆறு pairs-ல வரும்: (1,6) (2,5) (3,4) (4,3) (5,2) (6,1), அதனால 6/36 ≈ 16.7%. 2 ஒரே ஒரு pair (1,1)-ல தான், அதனால 1/36 ≈ 2.8%. வழிகள் அதிகம்னா chance அதிகம். Simulation dots, maths-ஓட match ஆகுது.'}},
++
++{id:'otp',title:{en:'Can a thief guess your OTP?',ta:'திருடன் உங்க OTP-ஐ guess பண்ண முடியுமா?'},
++ why:{en:'Security engineers choose OTP length and attempt limits using exactly this calculation. Change DIGITS and watch the thief fail.',ta:'Security engineers OTP length-ஐயும், எத்தனை attempts-ன்னும் இதே calculation வெச்சு தான் முடிவு பண்றாங்க. DIGITS-ஐ மாத்தி, திருடன் தோக்குறதை பாருங்க.'},
++ code:`const DIGITS = 2;        // try 2, then 4, then 6
++const ATTEMPTS = 3;      // tries before the account locks
++const TRIALS = 100000;   // how many thieves we simulate
++
++const total = 10 ** DIGITS;
++let broken = 0;
++for (let t = 0; t < TRIALS; t++) {
++  const otp = Math.floor(Math.random() * total);
++  for (let a = 0; a < ATTEMPTS; a++) {
++    const guess = Math.floor(Math.random() * total);
++    if (guess === otp) { broken++; break; }
++  }
++}
++print("Possible OTPs: " + total.toLocaleString("en-IN"));
++print("Thieves who got in: " + broken + " out of " + TRIALS.toLocaleString("en-IN"));
++return { rate: broken / TRIALS, total, ATTEMPTS };`,
++ viz(r,a){title('Chance a thief gets in with '+r.ATTEMPTS+' tries');const theory=Math.min(1,r.ATTEMPTS/r.total);
++  const rows=[['Your simulation',r.rate,C.coral],['Maths: attempts ÷ OTPs',theory,C.ink]];
++  rows.forEach(([l,v,c],i)=>{const y=160+i*130;txt(l,60,y,{size:24,weight:800});box(60,y+18,680,40,20,'#E7ECF4');const w=680*Math.min(1,v/.05)*ease(a);if(v>0)box(60,y+18,Math.max(40,w),40,20,c);txt((v*100).toPrecision(2)+'%',740,y,{size:24,weight:800,align:'right',color:c});});
++  txt('Bar scale: full bar = 5% chance',60,440,{size:18,color:C.muted,weight:700});
++  txt(r.rate===0?'Nobody got in. That\'s the point.':'Too many thieves got in!',60,475,{size:24,weight:800,color:r.rate===0?C.green:C.coral});},
++ ch:{en:'With DIGITS = 6, why does the simulation usually show 0 thieves even after 1 lakh tries? What would happen if there were no attempt limit?',ta:'DIGITS = 6 வெச்சா, 1 லட்சம் tries-லயும் ஏன் பெரும்பாலும் 0 திருடர்கள் தான் வர்றாங்க? Attempt limit இல்லன்னா என்ன ஆகும்?'},
++ ans:{en:'The chance per thief is 3 in 10,00,000. Across 1 lakh thieves you expect only about 0.3 successes, so you usually see 0. Without a limit, a program could try all 10 lakh OTPs and always get in. The lock is what makes the probability tiny.',ta:'ஒரு திருடனுக்கு chance 10 லட்சத்துல 3. 1 லட்சம் திருடர்கள்-ல சராசரியா 0.3 பேர் தான் ஜெயிப்பாங்க, அதனால பெரும்பாலும் 0 வருது. Limit இல்லன்னா, ஒரு program 10 லட்சம் OTP-யையும் try பண்ணி கண்டிப்பா உள்ள போயிடும். Lock தான் probability-ஐ சின்னதா வெச்சிருக்கு.'}},
++
++{id:'hash',title:{en:'Hash collisions (the birthday problem)',ta:'Hash collisions (birthday problem)'},
++ why:{en:'Put keys into a hash table and two will land in the same slot much sooner than you expect. Every HashMap, database index and Git commit ID is designed around this.',ta:'Hash table-ல keys போட்டா, ரெண்டு keys ஒரே slot-ல நீங்க நினைக்கிறதை விட ரொம்ப சீக்கிரம் விழும். ஒவ்வொரு HashMap, database index, Git commit ID-உம் இதை மனசுல வெச்சு தான் design பண்றாங்க.'},
++ code:`const SLOTS = 365;    // table size (or days in a year)
++const KEYS = 23;      // keys inserted (or people in a room)
++const TRIALS = 10000;
++
++let collided = 0;
++for (let t = 0; t < TRIALS; t++) {
++  const used = new Set();
++  for (let k = 0; k < KEYS; k++) {
++    const slot = Math.floor(Math.random() * SLOTS);   // our "hash"
++    if (used.has(slot)) { collided++; break; }
++    used.add(slot);
++  }
++}
++print("Collision happened in " + (collided / TRIALS * 100).toFixed(1) + "% of trials");
++return { rate: collided / TRIALS, SLOTS, KEYS };`,
++ viz(r,a){title('Chance of at least one collision, '+r.SLOTS+' slots');const maxK=Math.max(60,Math.min(r.SLOTS+1,Math.ceil(r.KEYS*1.6)));
++  const ox=80,oy=420,w=660,h=300;line(ox,oy,ox+w,oy,C.ink,2);line(ox,oy,ox,oy-h,C.ink,2);[0,.5,1].forEach(v=>{txt(v*100+'%',ox-10,oy-v*h+6,{size:16,align:'right',color:C.muted});});
++  txt('0',ox,oy+24,{size:16,align:'center',color:C.muted});txt(String(maxK),ox+w,oy+24,{size:16,align:'center',color:C.muted});txt('keys inserted',ox+w,oy+48,{size:16,align:'right',color:C.muted});
++  const th=k=>{let q=1;for(let i=0;i<k;i++)q*=(r.SLOTS-i)/r.SLOTS;return 1-q;};ctx.beginPath();const lim=maxK*ease(a);for(let k=0;k<=lim;k++){const x=ox+k/maxK*w,y=oy-th(k)*h;k?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle=C.ink;ctx.lineWidth=3;ctx.stroke();
++  if(a>.8){const x=ox+Math.min(r.KEYS,maxK)/maxK*w,y=oy-r.rate*h;ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.fillStyle=C.gold;ctx.fill();txt('You: '+r.KEYS+' keys → '+(r.rate*100).toFixed(1)+'%',x>520?x-12:x+14,y-14,{size:20,weight:800,color:'#7A600A',align:x>520?'right':'left'});}
++  txt('Line: maths. Dot: your simulation.',ox,480,{size:17,color:C.muted,weight:700});},
++ ch:{en:'How many keys does it take to reach a 50% collision chance in a 365-slot table? Try SLOTS = 1000. Does it scale as you expected?',ta:'365-slot table-ல 50% collision chance வர எத்தனை keys வேணும்? SLOTS = 1000 try பண்ணுங்க. நீங்க expect பண்ண மாதிரி வருதா?'},
++ ans:{en:'About 23 keys for 365 slots, and roughly 38 for 1000 slots. It grows like the square root of the table size, not linearly. That is why real hash tables resize early and why hash outputs (like SHA-256) are so long.',ta:'365 slots-க்கு சுமார் 23 keys, 1000 slots-க்கு சுமார் 38. இது table size-ஓட square root மாதிரி வளருது, linear-ஆ இல்ல. அதனால தான் real hash tables சீக்கிரமே resize ஆகுது, SHA-256 மாதிரி hash outputs ரொம்ப நீளமா இருக்கு.'}},
++
++{id:'pi',title:{en:'Calculate π by throwing random darts',ta:'Random darts வீசி π-ஐ கண்டுபிடிங்க'},
++ why:{en:'Randomness can compute real answers. This trick, called Monte Carlo simulation, is used in finance, weather models, games and AI.',ta:'Randomness வெச்சே real answers கண்டுபிடிக்கலாம். இந்த trick-க்கு பேர் Monte Carlo simulation. Finance, weather models, games, AI எல்லாத்துலயும் use ஆகுது.'},
++ code:`const N = 2000;   // darts; try 100, then 200000
++
++let inside = 0;
++const points = [];
++for (let i = 0; i < N; i++) {
++  const x = Math.random(), y = Math.random();
++  const hit = x * x + y * y <= 1;   // inside the quarter circle?
++  if (hit) inside++;
++  if (points.length < 4000) points.push([x, y, hit]);
++}
++// area ratio: quarter circle / square = π / 4
++const pi = 4 * inside / N;
++print("Estimated π = " + pi.toFixed(4) + "   (real π = 3.1416)");
++return { points, pi, N };`,
++ viz(r,a){title('π ≈ '+r.pi.toFixed(4)+' from '+r.N.toLocaleString('en-IN')+' darts');const s=360,ox=60,oy=80;box(ox,oy,s,s,0,'#FFFFFF',C.ink,2);
++  ctx.beginPath();ctx.moveTo(ox,oy+s);ctx.arc(ox,oy+s,s,-Math.PI/2,0);ctx.closePath();ctx.fillStyle='rgba(84,123,92,.08)';ctx.fill();ctx.strokeStyle=C.green;ctx.lineWidth=2;ctx.stroke();
++  const n=Math.floor(r.points.length*clamp(a*1.1));for(let i=0;i<n;i++){const [x,y,h]=r.points[i];ctx.fillStyle=h?C.green:C.coral;ctx.fillRect(ox+x*s-1.5,oy+s-y*s-1.5,3,3);}
++  txt('Green: inside the circle',460,160,{size:22,weight:800,color:C.green});txt('Red: outside',460,200,{size:22,weight:800,color:C.coral});
++  txt('π ≈ 4 × green ÷ all',460,280,{size:26,weight:800});txt('Error: '+Math.abs(r.pi-Math.PI).toFixed(4),460,330,{size:22,weight:700,color:C.muted});},
++ ch:{en:'Why does 4 × (inside ÷ total) give π? Hint: compare the area of the quarter circle with the area of the square.',ta:'4 × (inside ÷ total) ஏன் π தருது? Hint: quarter circle area-வையும் square area-வையும் compare பண்ணுங்க.'},
++ ans:{en:'The square has area 1. The quarter circle of radius 1 has area π/4. A random dart lands inside with probability (π/4) ÷ 1, so inside ÷ total ≈ π/4, and multiplying by 4 gives π. More darts, better estimate.',ta:'Square area 1. Radius 1 உள்ள quarter circle area π/4. Random dart உள்ள விழ probability (π/4) ÷ 1, அதனால inside ÷ total ≈ π/4. 4-ஆல பெருக்கினா π. Darts அதிகமானா, answer இன்னும் accurate-ஆ வரும்.'}}
++];
++
++/* drawing helpers (per canvas) */
++
++function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
++function box(x,y,w,h,r,fill,stroke,lw){if(w<=0||h<=0)return;rr(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke();}}
++function txt(s,x,y,o){o=o||{};ctx.save();ctx.font=`${o.weight||600} ${o.size||22}px ${FONT}`;ctx.fillStyle=o.color||C.ink;ctx.textAlign=o.align||'left';ctx.fillText(s,x,y);ctx.restore();}
++function line(x1,y1,x2,y2,c,w){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
++function dash(x1,y1,x2,y2,c){ctx.save();ctx.setLineDash([8,8]);line(x1,y1,x2,y2,c,2);ctx.restore();}
++function title(s){txt(s,30,44,{size:24,weight:800});}
++function paper(){ctx.fillStyle=C.paper;ctx.fillRect(0,0,W,H);ctx.strokeStyle=C.grid;ctx.lineWidth=1;for(let x=0;x<=W;x+=25){ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);ctx.stroke();}for(let y=0;y<=H;y+=25){ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);ctx.stroke();}}
++
++
++  labs.forEach((l) => { l.py = PY[l.id]; });
++  return { labs, paper, txt };
++}
+diff --git a/client/src/lessons/probability/narration.json b/client/src/lessons/probability/narration.json
+new file mode 100644
+index 0000000..5a6e36b
+--- /dev/null
++++ b/client/src/lessons/probability/narration.json
+@@ -0,0 +1,398 @@
++{
++  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, fractions). Faculty review this file; then run: npm run voice (in /server).",
++  "lesson": "probability",
++  "title": {
++    "en": "Why do CSE students need Probability?",
++    "ta": "CSE students-க்கு Probability ஏன் தேவை?"
++  },
++  "versions": {
++    "A": {
++      "label": "Applications first",
++      "scenes": [
++        {
++          "id": "s1",
++          "title": "Your phone guesses",
++          "beats": [
++            {
++              "id": "s1-b1",
++              "en": "Your phone knows a message is spam before you even open it.",
++              "ta": "நீங்க message-ஐ open பண்றதுக்கு முன்னாடியே, உங்க phone அது spam-னு கண்டுபிடிச்சிடுது."
++            },
++            {
++              "id": "s1-b2",
++              "en": "It doesn't know for sure. It calculates how likely it is.",
++              "ta": "அதுக்கு உறுதியா தெரியாது. எவ்வளவு chance இருக்குன்னு calculate பண்ணுது."
++            },
++            {
++              "id": "s1-b3",
++              "en": "That calculation is probability. Let's see why every CSE student needs it.",
++              "ta": "அந்த calculation தான் probability. ஒவ்வொரு CSE student-க்கும் இது ஏன் தேவைன்னு பார்ப்போம்."
++            }
++          ]
++        },
++        {
++          "id": "s2",
++          "title": "Code is certain, the world is not",
++          "beats": [
++            {
++              "id": "s2-b1",
++              "en": "Your code is exact. Same input, same output, every time.",
++              "ta": "உங்க code exact-ஆ இருக்கும். அதே input கொடுத்தா, எப்பவும் அதே output தான்."
++            },
++            {
++              "id": "s2-b2",
++              "en": "But the real world is not. Packets get lost, servers crash, users click unpredictably.",
++              "ta": "ஆனா real world அப்படி இல்ல. Packets காணாம போகும், server crash ஆகும், users எதை click பண்ணுவாங்கன்னு சொல்ல முடியாது."
++            },
++            {
++              "id": "s2-b3",
++              "en": "Probability is the maths of this uncertainty: how often something happens, out of all possibilities.",
++              "ta": "இந்த uncertainty-க்கான maths தான் probability. மொத்த possibilities-ல ஒரு விஷயம் எத்தனை தடவை நடக்குதுன்னு அளக்குறது."
++            }
++          ]
++        },
++        {
++          "id": "s3",
++          "title": "Counting outcomes",
++          "beats": [
++            {
++              "id": "s3-b1",
++              "en": "Roll two dice. How many outcomes are possible? 6 times 6, that's 36.",
++              "ta": "ரெண்டு dice உருட்டுங்க. மொத்தம் எத்தனை outcomes? 6 × 6 = 36.",
++              "say": {
++                "ta": "ரெண்டு dice உருட்டுங்க. மொத்தம் எத்தனை outcomes? ஆறு into ஆறு, மொத்தம் 36."
++              }
++            },
++            {
++              "id": "s3-b2",
++              "en": "Now count the ones that add up to 7. There are six of them.",
++              "ta": "இதுல sum 7 வர்றது எத்தனை? மொத்தம் ஆறு."
++            },
++            {
++              "id": "s3-b3",
++              "en": "So P(sum = 7) is 6 over 36, about 17%. Counting carefully is the first skill, which is why you study permutations and combinations.",
++              "ta": "அதனால P(sum = 7) = 6/36, அதாவது சுமார் 17%. சரியா count பண்றது தான் முதல் skill. அதுக்கு தான் permutations, combinations படிக்கிறோம்.",
++              "say": {
++                "en": "So the probability of getting a sum of 7 is 6 out of 36, about 17 percent. Counting carefully is the first skill, which is why you study permutations and combinations.",
++                "ta": "அதனால sum 7 வர்ற probability, 36-ல 6, அதாவது சுமார் 17 percent. சரியா count பண்றது தான் முதல் skill. அதுக்கு தான் permutations, combinations படிக்கிறோம்."
++              }
++            }
++          ]
++        },
++        {
++          "id": "s4",
++          "title": "Predict: shared birthdays",
++          "beats": [
++            {
++              "id": "s4-b1",
++              "en": "Quick question. In a class of 23 students, what's the chance that two share a birthday?",
++              "ta": "ஒரு சின்ன கேள்வி. 23 பேர் இருக்கிற class-ல, ரெண்டு பேருக்கு ஒரே birthday இருக்க chance எவ்வளவு?"
++            },
++            {
++              "id": "s4-b2",
++              "en": "It's about 50%! Our intuition fails here, but maths doesn't.",
++              "ta": "கிட்டத்தட்ட 50%! இங்க நம்ம intuition தப்பா போகும், maths தப்பா போகாது."
++            },
++            {
++              "id": "s4-b3",
++              "en": "The same maths tells you how soon two keys will collide in a hash table. That's why hash table sizes and hash functions are designed using probability.",
++              "ta": "இதே maths தான் hash table-ல ரெண்டு keys எவ்வளவு சீக்கிரம் ஒரே slot-ல collide ஆகும்னு சொல்லுது. அதனால தான் hash table size, hash function எல்லாம் probability வெச்சு design பண்றாங்க."
++            }
++          ],
++          "ask": {
++            "afterBeat": 1,
++            "q": {
++              "en": "In a class of 23 students, what is the chance that two share a birthday?",
++              "ta": "23 பேர் இருக்கிற class-ல, ரெண்டு பேருக்கு ஒரே birthday இருக்க chance எவ்வளவு?"
++            },
++            "options": [
++              "5%",
++              "25%",
++              "50%",
++              "90%"
++            ],
++            "hint": {
++              "en": "Commit to a guess before you see the answer.",
++              "ta": "Answer பார்க்கிறதுக்கு முன்னாடி ஒரு guess பண்ணுங்க."
++            }
++          }
++        },
++        {
++          "id": "s5",
++          "title": "Bayes and the spam filter",
++          "beats": [
++            {
++              "id": "s5-b1",
++              "en": "Back to spam. Take 100 emails: 20 are spam, 80 are genuine.",
++              "ta": "மறுபடியும் spam-க்கு வருவோம். 100 emails எடுத்துக்கோங்க: 20 spam, 80 genuine."
++            },
++            {
++              "id": "s5-b2",
++              "en": "The word FREE appears in 16 of the spam emails, and in only 4 genuine ones.",
++              "ta": "FREE ங்கிற word 16 spam emails-ல வருது, genuine emails-ல 4-ல மட்டும் தான்."
++            },
++            {
++              "id": "s5-b3",
++              "en": "So if an email says FREE, it is one of these 20, and 16 of them are spam. P(spam given FREE) is 16 over 20, that's 80%. This is Bayes' theorem.",
++              "ta": "அதனால ஒரு email-ல FREE இருந்தா, அது இந்த 20-ல ஒண்ணு. அதுல 16 spam. P(spam | FREE) = 16/20 = 80%. இது தான் Bayes' theorem.",
++              "say": {
++                "en": "So if an email says FREE, it is one of these 20, and 16 of them are spam. The probability of spam, given the word FREE, is 16 out of 20. That is 80 percent. This is Bayes theorem.",
++                "ta": "அதனால ஒரு email-ல FREE இருந்தா, அது இந்த 20-ல ஒண்ணு. அதுல 16 spam. FREE இருக்கிற email spam-ஆ இருக்கிற probability, 20-ல 16, அதாவது 80 percent. இது தான் Bayes theorem."
++              }
++            },
++            {
++              "id": "s5-b4",
++              "en": "Real filters combine hundreds of words like this. That's Naive Bayes, one of the first machine learning algorithms you'll build.",
++              "ta": "உண்மையான filters இப்படி நூற்றுக்கணக்கான words-ஐ சேர்த்து பாக்கும். அது தான் Naive Bayes. நீங்க build பண்ற முதல் ML algorithms-ல ஒண்ணு."
++            }
++          ]
++        },
++        {
++          "id": "s6",
++          "title": "Where CSE uses it",
++          "beats": [
++            {
++              "id": "s6-b1",
++              "en": "Machine learning: every prediction is a probability.",
++              "ta": "Machine learning: ஒவ்வொரு prediction-உம் ஒரு probability தான்."
++            },
++            {
++              "id": "s6-b2",
++              "en": "Algorithms: randomized quicksort picks a random pivot to stay fast on average.",
++              "ta": "Algorithms: randomized quicksort ஒரு random pivot எடுத்து, average-ஆ fast-ஆ ஓடுது."
++            },
++            {
++              "id": "s6-b3",
++              "en": "Networks, cryptography, load balancing, testing, even loot drops in games. All built on probability.",
++              "ta": "Networks, cryptography, load balancing, testing, game-ல loot drop கூட. எல்லாமே probability மேல தான் கட்டப்பட்டிருக்கு."
++            }
++          ]
++        },
++        {
++          "id": "s7",
++          "title": "Recap",
++          "beats": [
++            {
++              "id": "s7-b1",
++              "en": "Probability measures uncertainty: favourable outcomes out of total outcomes.",
++              "ta": "Probability uncertainty-ஐ அளக்குது: மொத்த outcomes-ல favourable outcomes எத்தனை."
++            },
++            {
++              "id": "s7-b2",
++              "en": "Counting, Bayes and randomness show up in machine learning, hashing, algorithms and networks.",
++              "ta": "Counting, Bayes, randomness எல்லாம் machine learning, hashing, algorithms, networks-ல வருது."
++            },
++            {
++              "id": "s7-b3",
++              "en": "Now try the quiz, then explain this in your own words.",
++              "ta": "இப்போ quiz try பண்ணுங்க. அப்புறம் உங்க சொந்த words-ல explain பண்ணுங்க."
++            }
++          ]
++        }
++      ]
++    },
++    "B": {
++      "label": "Life first",
++      "scenes": [
++        {
++          "id": "s1",
++          "title": "What does 70% mean?",
++          "beats": [
++            {
++              "id": "s1-b1",
++              "en": "Your weather app says \"70% chance of rain tomorrow\". What does that actually mean?",
++              "ta": "Weather app-ல \"நாளைக்கு 70% மழை\"ன்னு பார்த்திருப்பீங்க. அதுக்கு உண்மையா என்ன அர்த்தம்?"
++            },
++            {
++              "id": "s1-b2",
++              "en": "Think of 10 days just like tomorrow. On 7 of them it rained, on 3 it didn't. 7 out of 10 is 70%.",
++              "ta": "நாளை மாதிரியே 10 நாள் இருந்தா, அதுல 7 நாள் மழை பெய்யும், 3 நாள் பெய்யாது. 10-ல 7, அது தான் 70%."
++            },
++            {
++              "id": "s1-b3",
++              "en": "That is probability: how many out of how many. 0 means it never happens, 1 means it always happens.",
++              "ta": "இது தான் probability: எத்தனையில எத்தனை. 0 னா நடக்கவே நடக்காது, 1 னா கண்டிப்பா நடக்கும்."
++            }
++          ]
++        },
++        {
++          "id": "s2",
++          "title": "The cricket toss",
++          "beats": [
++            {
++              "id": "s2-b1",
++              "en": "Before the match, the toss. The captain calls Heads. What is his chance of winning it?",
++              "ta": "Match ஆரம்பிக்கும் முன்னாடி toss. Captain \"Heads\"ன்னு சொல்றாரு. Toss win பண்ண chance எவ்வளவு?"
++            },
++            {
++              "id": "s2-b2",
++              "en": "A coin has only two sides, Heads and Tails. We want just one of them.",
++              "ta": "Coin-க்கு ரெண்டே பக்கம் தான்: Heads, Tails. நமக்கு வேண்டியது அதுல ஒண்ணு மட்டும்."
++            },
++            {
++              "id": "s2-b3",
++              "en": "So chance = ways you want ÷ all possible ways = 1 ÷ 2 = 50%. That is the whole probability formula!",
++              "ta": "அதனால chance = வேண்டிய வழிகள் ÷ மொத்த வழிகள் = 1 ÷ 2 = 50%. Probability formula இவ்வளவு தான்!",
++              "say": {
++                "en": "So, chance equals the ways you want, divided by all possible ways. One out of two, that is 50 percent. That is the whole probability formula!",
++                "ta": "அதனால chance-ன்னா, வேண்டிய வழிகளை மொத்த வழிகளால வகுக்கணும். ரெண்டுல ஒண்ணு, அதாவது 50 percent. Probability formula இவ்வளவு தான்!"
++              }
++            }
++          ]
++        },
++        {
++          "id": "s3",
++          "title": "Guessing in exams",
++          "beats": [
++            {
++              "id": "s3-b1",
++              "en": "An exam MCQ with four options. You know nothing, so you guess blindly.",
++              "ta": "Exam-ல ஒரு MCQ, நாலு options. எதுவுமே தெரியாம blind-ஆ guess பண்றீங்க."
++            },
++            {
++              "id": "s3-b2",
++              "en": "One of four is right, so your chance is 1/4 = 25%. Guess all 10 questions and you get only about 2 or 3 right.",
++              "ta": "4-ல 1 தான் சரி, அதனால chance 1/4 = 25%. 10 கேள்வியும் guess பண்ணா, சுமார் 2 அல்லது 3 தான் சரியா வரும்.",
++              "say": {
++                "en": "One of four is right, so your chance is one out of four, 25 percent. Guess all 10 questions and you get only about 2 or 3 right.",
++                "ta": "நாலுல ஒண்ணு தான் சரி. அதனால chance 25 percent. 10 கேள்வியும் guess பண்ணா, சுமார் 2 அல்லது 3 தான் சரியா வரும்."
++              }
++            },
++            {
++              "id": "s3-b3",
++              "en": "But if you studied a little, you can cut two wrong options. Now your chance is 1/2 = 50%.",
++              "ta": "ஆனா கொஞ்சம் படிச்சிருந்தா, ரெண்டு தப்பான options-ஐ cut பண்ணிடலாம். இப்போ chance 1/2 = 50%.",
++              "say": {
++                "en": "But if you studied a little, you can cut two wrong options. Now your chance is one out of two, 50 percent.",
++                "ta": "ஆனா கொஞ்சம் படிச்சிருந்தா, ரெண்டு தப்பான options-ஐ cut பண்ணிடலாம். இப்போ chance ரெண்டுல ஒண்ணு, 50 percent."
++              }
++            },
++            {
++              "id": "s3-b4",
++              "en": "Did you notice? Studying literally changes your probability.",
++              "ta": "கவனிச்சீங்களா? படிக்கிறது உங்க probability-ஐயே மாத்துது."
++            }
++          ]
++        },
++        {
++          "id": "s4",
++          "title": "Why OTP has 6 digits",
++          "beats": [
++            {
++              "id": "s4-b1",
++              "en": "Your bank OTP has 6 digits. Why six? Why not just two?",
++              "ta": "உங்க bank OTP-ல 6 digits இருக்கு. ஏன் 6? ஏன் 2 digits போதாது?"
++            },
++            {
++              "id": "s4-b2",
++              "en": "With 2 digits there are only 100 combinations. A thief gets 3 tries, so his chance is 3/100 = 3%. Far too high.",
++              "ta": "2 digits-னா 100 combinations தான். திருடனுக்கு 3 tries கிடைச்சா, chance 3/100 = 3%. ரொம்ப அதிகம்!",
++              "say": {
++                "en": "With 2 digits there are only 100 combinations. A thief gets 3 tries, so his chance is 3 out of 100. That is 3 percent. Far too high.",
++                "ta": "2 digits-னா 100 combinations தான். திருடனுக்கு 3 tries கிடைச்சா, chance 100-ல 3, அதாவது 3 percent. ரொம்ப அதிகம்!"
++              }
++            },
++            {
++              "id": "s4-b3",
++              "en": "With 6 digits there are 10 lakh combinations. 3 tries give him just 3 in 10 lakh, and then the account locks.",
++              "ta": "6 digits-னா 10 லட்சம் combinations. 3 tries-ல chance 10 லட்சத்துல 3 தான். அதுக்கு அப்புறம் account lock ஆகிடும்."
++            },
++            {
++              "id": "s4-b4",
++              "en": "\"6 digits, only 3 attempts\" was designed by an engineer, using exactly this probability.",
++              "ta": "\"6 digits, 3 attempts மட்டும்\" இந்த rule-ஐ design பண்ணது ஒரு engineer. இதே probability வெச்சு தான்."
++            }
++          ]
++        },
++        {
++          "id": "s5",
++          "title": "Apps guess all day",
++          "beats": [
++            {
++              "id": "s5-b1",
++              "en": "Every app you use daily is constantly guessing.",
++              "ta": "நீங்க தினமும் use பண்ற ஒவ்வொரு app-உம் guess பண்ணிட்டே இருக்கு."
++            },
++            {
++              "id": "s5-b2",
++              "en": "The cricket app shows win chances. Maps estimates when you'll arrive.",
++              "ta": "Cricket app win chance சொல்லுது. Maps நீங்க எப்போ போய் சேருவீங்கன்னு சொல்லுது."
++            },
++            {
++              "id": "s5-b3",
++              "en": "Instagram guesses which reel you'll watch next. Your bank spots fraud payments. All of it is probability.",
++              "ta": "Instagram அடுத்து நீங்க எந்த reel பார்ப்பீங்கன்னு guess பண்ணுது. Bank fraud payment-ஐ கண்டுபிடிக்குது. எல்லாமே probability தான்."
++            }
++          ]
++        },
++        {
++          "id": "s6",
++          "title": "User or builder?",
++          "beats": [
++            {
++              "id": "s6-b1",
++              "en": "Same phone, two kinds of people. One of them just uses the app.",
++              "ta": "ஒரே phone, ரெண்டு வகை மனுஷங்க. ஒருத்தர் app-ஐ use மட்டும் பண்றாரு."
++            },
++            {
++              "id": "s6-b2",
++              "en": "The other builds the system that makes all those guesses. The person who understands probability sits in that chair.",
++              "ta": "இன்னொருத்தர் அந்த guess பண்ற system-ஐ build பண்றாரு. Probability புரிஞ்சவர் தான் அந்த chair-ல உட்கார்றாரு."
++            },
++            {
++              "id": "s6-b3",
++              "en": "Decide which side you want to be on. This subject is your first step.",
++              "ta": "நீங்க எந்த பக்கம் இருக்கணும்னு நீங்களே முடிவு பண்ணுங்க. அதுக்கான முதல் படி இந்த subject தான்."
++            }
++          ]
++        },
++        {
++          "id": "s7",
++          "title": "Probability in code",
++          "beats": [
++            {
++              "id": "s7-b1",
++              "en": "What does probability look like in code? One line is enough for a coin toss.",
++              "ta": "Code-ல probability எப்படி இருக்கும்? ஒரு coin toss-க்கு ஒரே ஒரு line போதும்."
++            },
++            {
++              "id": "s7-b2",
++              "en": "Math.random() gives a random number between 0 and 1. Below 0.5 means Heads, otherwise Tails.",
++              "ta": "Math.random() 0-க்கும் 1-க்கும் நடுவுல ஒரு random number தருது. 0.5-க்கு கீழ இருந்தா Heads, இல்லன்னா Tails.",
++              "say": {
++                "en": "Math dot random gives a random number between 0 and 1. Below 0.5 means Heads, otherwise Tails.",
++                "ta": "Math dot random, 0-க்கும் 1-க்கும் நடுவுல ஒரு random number தருது. 0.5-க்கு கீழ இருந்தா Heads, இல்லன்னா Tails."
++              }
++            },
++            {
++              "id": "s7-b3",
++              "en": "Run it 1000 times and Heads comes close to 50%. What you calculated on paper really happens in the computer.",
++              "ta": "1000 தடவை ஓட்டி பாருங்க, Heads கிட்டத்தட்ட 50% வருது. Paper-ல நீங்க calculate பண்ணது, computer-ல உண்மையா நடக்குது!"
++            }
++          ]
++        },
++        {
++          "id": "s8",
++          "title": "Recap",
++          "beats": [
++            {
++              "id": "s8-b1",
++              "en": "Probability is how many out of how many, a number from 0 to 1.",
++              "ta": "Probability-ன்னா எத்தனையில எத்தனை. 0-ல இருந்து 1 வரைக்கும் ஒரு number."
++            },
++            {
++              "id": "s8-b2",
++              "en": "Studying raises your chances. Literally.",
++              "ta": "படிச்சா உங்க chances உயரும். உண்மையாவே."
++            },
++            {
++              "id": "s8-b3",
++              "en": "Every app you use runs on it. Learn it, and you can build them. Now try the code yourself below.",
++              "ta": "நீங்க use பண்ற ஒவ்வொரு app-உம் இதுல தான் ஓடுது. இதை கத்துக்கிட்டா, நீங்களே build பண்ணலாம். இப்போ கீழ code-ஐ நீங்களே run பண்ணி பாருங்க."
++            }
++          ]
++        }
++      ]
++    }
++  }
++}
+diff --git a/client/src/lessons/probability/quiz.js b/client/src/lessons/probability/quiz.js
+new file mode 100644
+index 0000000..eb0d7c0
+--- /dev/null
++++ b/client/src/lessons/probability/quiz.js
+@@ -0,0 +1,14 @@
++export default [
++  { q: { en: 'An MCQ has 5 options and you guess blindly. What is your chance of being right?', ta: 'ஒரு MCQ-ல 5 options. Blind-ஆ guess பண்ணா, சரியா வர chance எவ்வளவு?' },
++    o: ['1/4 = 25%', '1/5 = 20%', '1/2 = 50%', '5%'], a: 1,
++    e: { en: 'One right answer out of 5: 1/5 = 20%.', ta: '5-ல 1 தான் சரி: 1/5 = 20%.' } },
++  { q: { en: 'You roll two dice. Which sum is most likely?', ta: 'ரெண்டு dice உருட்டுறீங்க. எந்த sum அதிகமா வரும்?' },
++    o: ['2', '7', '12', 'All sums are equally likely'], a: 1,
++    e: { en: '7 can be made in 6 ways out of 36. 2 and 12 have only 1 way each.', ta: '7-ஐ 36-ல 6 வழிகள்ல உருவாக்கலாம். 2, 12-க்கு ஒரே ஒரு வழி தான்.' } },
++  { q: { en: 'Which of these can never be a probability?', ta: 'இதுல எது probability-ஆ இருக்கவே முடியாது?' },
++    o: ['0', '0.5', '1', '1.2'], a: 3,
++    e: { en: 'Probability is always between 0 (impossible) and 1 (certain).', ta: 'Probability எப்பவும் 0 (நடக்காது) முதல் 1 (கண்டிப்பா நடக்கும்) வரைக்கும் தான்.' } },
++  { q: { en: 'Why does a bank lock your account after 3 wrong OTP attempts?', ta: '3 தடவை தப்பான OTP போட்டா bank ஏன் account-ஐ lock பண்ணுது?' },
++    o: ['To save electricity', 'To keep a thief\'s chance tiny: 3 in 10 lakh', 'Because OTPs expire anyway', 'Because 3 is lucky'], a: 1,
++    e: { en: 'With 10 lakh possible OTPs, 3 guesses give only a 3 in 10 lakh chance. Unlimited guesses would eventually succeed.', ta: '10 லட்சம் OTP-ல 3 guess-க்கு chance 10 லட்சத்துல 3 தான். Limit இல்லன்னா கடைசியில கண்டுபிடிச்சிடுவாங்க.' } },
++];
+diff --git a/client/src/lessons/probability/scenesA.js b/client/src/lessons/probability/scenesA.js
+new file mode 100644
+index 0000000..544b1c5
+--- /dev/null
++++ b/client/src/lessons/probability/scenesA.js
+@@ -0,0 +1,127 @@
++// Generated from the pilot artifact. Canvas drawing code for each scene, in order.
++// Narration text lives in narration.json (same scene order). Edit visuals here, words there.
++// The player calls paper() to clear the stage before every frame.
++export const W = 1280, H = 720;
++
++export default function createScenes(ctx) {
++const W=1280,H=720;
++const C={paper:'#F7F9FC',grid:'#E3E9F3',gridMajor:'#CBD7EA',ink:'#1E3E7B',gold:'#C9A21F',goldSoft:'rgba(201,162,31,.25)',green:'#547B5C',coral:'#C8553D',muted:'#6B7A93',white:'#FFFFFF',light:'#D7E1F0'};
++
++const FONT='Catamaran, "Noto Sans Tamil", system-ui, sans-serif';
++const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
++const ease=x=>{x=clamp(x);return 1-Math.pow(1-x,3)};
++
++function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
++function box(x,y,w,h,r,fill,stroke,lw){rr(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke();}}
++function txt(s,x,y,o){o=o||{};ctx.save();ctx.globalAlpha*=o.alpha==null?1:o.alpha;ctx.font=`${o.weight||600} ${o.size||28}px ${FONT}`;ctx.fillStyle=o.color||C.ink;ctx.textAlign=o.align||'left';ctx.textBaseline=o.base||'alphabetic';ctx.fillText(s,x,y);ctx.restore();}
++function line(x1,y1,x2,y2,col,lw,dash){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=lw||2;if(dash)ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
++function arrow(x1,y,x2,col,a){ctx.save();ctx.globalAlpha*=a;line(x1,y,x2,y,col,3);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x2+2,y);ctx.lineTo(x2-12,y-8);ctx.lineTo(x2-12,y+8);ctx.fill();ctx.restore();}
++function paper(){ctx.fillStyle=C.paper;ctx.fillRect(0,0,W,H);for(let x=0;x<=W;x+=20){ctx.strokeStyle=x%100===0?C.gridMajor:C.grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);ctx.stroke();}for(let y=0;y<=H;y+=20){ctx.strokeStyle=y%100===0?C.gridMajor:C.grid;ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);ctx.stroke();}}
++function die(cx,cy,s,rot,n){ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);box(-s/2,-s/2,s,s,s*.18,C.white,C.ink,4);const p={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]}[n];ctx.fillStyle=C.ink;p.forEach(([a,b])=>{ctx.beginPath();ctx.arc(a*s*.27,b*s*.27,s*.08,0,7);ctx.fill();});ctx.restore();}
++function bday(n){let q=1;for(let k=0;k<n;k++)q*=(365-k)/365;return 1-q;}
++
++
++
++
++  const draws = [
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  box(450,40,380,640,44,C.white,C.ink,4);box(590,58,100,14,7,C.ink);
++  const m=[['Bank','Your OTP is 4821. Do not share.'],['+91 90xxx xxx21','WIN ₹50,000 FREE!!! Click now'],['CSE HoD','Lab moved to 2 pm today'],['Amma','Saaptiya? Call me']];
++  m.forEach((r,i)=>{const a=ease((P(0)-i*.18)/.4);if(a<=0)return;const x=475+(1-a)*160,y=100+i*135;ctx.save();ctx.globalAlpha=a;
++   const spam=i===1&&b>=1;box(x,y,330,114,14,spam?'#FBEDEA':'#F1F5FB',spam?C.coral:C.gridMajor,spam?3:2);
++   txt(r[0],x+18,y+36,{size:22,weight:700});txt(r[1],x+18,y+66,{size:19,weight:500,color:C.muted});
++   if(i===1&&b>=1){const v=P(1);box(x+18,y+82,290,12,6,'#F2D6CF');box(x+18,y+82,Math.max(12,290*.97*v),12,6,C.coral);txt(Math.round(97*v)+'% spam',x+312,y+36,{size:20,weight:700,color:C.coral,align:'right'});}
++   ctx.restore();});
++  const s=P(2);if(s>0){ctx.save();ctx.globalAlpha=s;ctx.translate(230,330);ctx.rotate(-.12);const k=.7+.3*ease(s*1.5);ctx.scale(k,k);box(-170,-50,340,100,12,'rgba(255,255,255,.9)',C.coral,5);txt('P(spam) = 0.97',0,16,{size:44,weight:800,color:C.coral,align:'center'});ctx.restore();
++   txt('Not 100% sure.',870,320,{size:36,weight:700,alpha:s});txt('Just very likely.',870,370,{size:36,weight:700,alpha:ease(s*1.5-.3),color:C.coral});}
++ },
++    function draw(b,p,t){const P=k=>b>k?1:b===k?p:0;const a=P(0);
++  txt('In code: same input, same output',120,100,{size:30,weight:700,alpha:ease(a*3)});
++  for(let r=0;r<3;r++){const v=ease((a-r*.25)/.35);if(v<=0)continue;const y=130+r*68;ctx.save();ctx.globalAlpha=v;
++   box(120,y,170,50,10,C.white,C.ink,2);txt('x = 5',205,y+34,{size:24,align:'center'});arrow(300,y+25,400,C.ink,1);
++   box(410,y,230,50,10,'#EAF0FA',C.ink,2);txt('f(x) = 2x',525,y+34,{size:24,align:'center',weight:700});arrow(650,y+25,750,C.ink,1);
++   box(760,y,110,50,10,C.white,C.green,3);txt('10',815,y+34,{size:26,weight:800,align:'center',color:C.green});
++   if(r===2)txt('always 10',900,y+34,{size:24,color:C.green,weight:700});ctx.restore();}
++  const q=P(1);if(q>0){ctx.save();ctx.globalAlpha=ease(q*2);line(80,360,1200,360,C.gridMajor,2,[8,8]);
++   txt('In the real world: packets get lost',120,420,{size:30,weight:700});
++   box(120,470,200,110,14,C.white,C.ink,3);txt('Your phone',220,532,{size:24,align:'center',weight:700});
++   box(960,470,200,110,14,C.white,C.ink,3);txt('Server',1060,532,{size:24,align:'center',weight:700});
++   for(let i=0;i<10;i++){const f=((t/6000)+i*.1)%1;const drop=i===3||i===7;let x=330+f*620,y=525;
++    if(drop&&f>.5){x=640;y=525+(f-.5)*300;ctx.globalAlpha=ease(q*2)*clamp(1-(f-.5)*2.2);box(x-18,y-14,36,28,6,'#FBEDEA',C.coral,2);line(x-8,y-6,x+8,y+6,C.coral,3);line(x+8,y-6,x-8,y+6,C.coral,3);ctx.globalAlpha=ease(q*2);}
++    else box(x-18,y-14,36,28,6,'#EAF0FA',C.ink,2);}
++   txt('2 of every 10 lost, so P(loss) ≈ 0.2',640,660,{size:26,weight:700,align:'center',color:C.coral});ctx.restore();}
++  const s=P(2);if(s>0){ctx.save();ctx.globalAlpha=.88*ease(s*2);ctx.fillStyle=C.paper;ctx.fillRect(0,0,W,H);ctx.restore();
++   ctx.save();ctx.globalAlpha=ease(s*2);box(230,200,820,300,20,C.white,C.ink,4);
++   txt('P(A)  =',300,370,{size:52,weight:800});line(520,352,980,352,C.ink,4);
++   txt('favourable outcomes',750,320,{size:38,weight:700,align:'center',color:C.green});txt('total outcomes',750,410,{size:38,weight:700,align:'center'});ctx.restore();}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;const gx=190,gy=140,cs=74;
++  die(110,95,56,-.2,3);die(180,82,56,.18,4);
++  for(let i=0;i<6;i++){txt(String(i+1),gx+i*cs+cs/2,gy-14,{size:22,align:'center',color:C.muted,weight:700});txt(String(i+1),gx-22,gy+i*cs+cs/2+8,{size:22,align:'center',color:C.muted,weight:700});}
++  const n=Math.ceil(P(0)*36);const k7=Math.ceil(P(1)*6);
++  for(let r=0;r<6;r++)for(let c=0;c<6;c++){const idx=r*6+c;if(idx>=n)continue;const sum=r+c+2;const is7=sum===7&&r<k7&&b>=1;
++   box(gx+c*cs+3,gy+r*cs+3,cs-6,cs-6,8,is7?C.goldSoft:C.white,is7?C.gold:C.gridMajor,is7?3:2);txt(String(sum),gx+c*cs+cs/2,gy+r*cs+cs/2+9,{size:26,align:'center',weight:is7?800:600,color:is7?'#7A600A':C.ink});}
++  txt('Rows: die 1. Columns: die 2. Each cell shows the sum.',gx,gy+6*cs+40,{size:20,color:C.muted});
++  const X=760;txt('Outcomes',X,200,{size:26,color:C.muted});txt(String(n),X,270,{size:72,weight:800});
++  if(b>=1){txt('Sum = 7',X,350,{size:26,color:C.muted,alpha:ease(P(1)*3)});txt(String(k7),X,420,{size:72,weight:800,color:C.gold,alpha:ease(P(1)*3)});}
++  const s=P(2);if(s>0){txt('P(sum = 7) = 6 / 36 ≈ 16.7%',X,520,{size:40,weight:800,alpha:ease(s*2)});txt('That\'s why you learn',X,580,{size:26,color:C.muted,alpha:ease(s*2-.4)});txt('permutations and combinations',X,615,{size:26,weight:700,color:C.green,alpha:ease(s*2-.4)});}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  const dates=['12 Mar','28 Jan','03 Sep','17 Nov','09 Feb','21 Jun','04 Jul','30 Oct','15 Apr','08 Dec','26 May','11 Aug','19 Jan','02 Mar','23 Sep','14 Feb','06 Nov','04 Jul','27 Apr','10 Oct','31 Dec','18 Jun','05 May'];
++  const fade=1-ease(P(2)*2);
++  if(fade>0){ctx.save();ctx.globalAlpha=fade;txt('23 students',110,112,{size:30,weight:700});
++   const hi=b>=1?ease(P(1)*2):0;
++   const pos=i=>[150+(i%5)*105,175+Math.floor(i/5)*102];
++   if(hi>0){const [x1,y1]=pos(6),[x2,y2]=pos(17);ctx.save();ctx.globalAlpha*=hi;line(x1,y1,x2,y2,C.gold,4,[10,8]);ctx.restore();}
++   dates.forEach((d,i)=>{const [x,y]=pos(i);const dup=(i===6||i===17)&&hi>0;ctx.beginPath();ctx.arc(x,y,40,0,7);ctx.fillStyle=dup?'#F8EFCF':C.white;ctx.fill();ctx.lineWidth=dup?4:2;ctx.strokeStyle=dup?C.gold:C.ink;ctx.stroke();txt(d,x,y+7,{size:18,align:'center',weight:dup?800:600,color:dup?'#7A600A':C.ink});});
++   ctx.restore();}
++  if(b===0)txt('?',960,470,{size:240,weight:800,align:'center',color:C.gridMajor});
++  if(b>=1){const a=ease(P(1)*3);const ox=720,oy=600,w=480,h=400;ctx.save();ctx.globalAlpha=a;
++   txt('Chance of a shared birthday',ox,150,{size:28,weight:700});line(ox,oy,ox+w,oy,C.ink,2);line(ox,oy,ox,oy-h,C.ink,2);
++   [0,.5,1].forEach(v=>{txt(Math.round(v*100)+'%',ox-12,oy-v*h+7,{size:18,align:'right',color:C.muted});line(ox,oy-v*h,ox+w,oy-v*h,C.grid,1);});
++   [0,23,60].forEach(v=>txt(String(v),ox+v/60*w,oy+28,{size:18,align:'center',color:C.muted}));txt('people in the room',ox+w,oy+56,{size:18,align:'right',color:C.muted});
++   const nMax=b>1?60:60*P(1);ctx.beginPath();for(let n=0;n<=nMax;n+=.5){const x=ox+n/60*w,y=oy-bday(Math.floor(n))*h;n===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.strokeStyle=C.ink;ctx.lineWidth=4;ctx.stroke();
++   if(nMax>=23){const x=ox+23/60*w,y=oy-bday(23)*h;line(x,oy,x,y,C.gold,2,[6,6]);line(ox,y,x,y,C.gold,2,[6,6]);ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.fillStyle=C.gold;ctx.fill();txt('23 people → 50.7%',x+16,y-14,{size:24,weight:800,color:'#7A600A'});}
++   ctx.restore();}
++  const s=P(2);if(s>0){ctx.save();ctx.globalAlpha=ease(s*2);txt('Hash table with 8 slots',110,112,{size:30,weight:700});
++   for(let i=0;i<8;i++){box(110,140+i*58,70,48,8,C.white,C.gridMajor,2);txt(String(i),145,172+i*58,{size:22,align:'center',color:C.muted,weight:700});}
++   const keys=[['cat',2],['sun',5],['dog',3],['ram',0],['key',6],['map',3]];const cnt={};
++   keys.forEach(([k,sl],j)=>{const v=ease((s-.1-j*.12)/.15);const c=cnt[sl]||0;cnt[sl]=c+1;if(v<=0)return;const x=200+c*120,y=140+sl*58-(1-v)*120;const col=c>0;
++    ctx.save();ctx.globalAlpha*=v;box(x,y,100,48,8,col?'#FBEDEA':'#EAF0FA',col?C.coral:C.ink,col?3:2);txt(k,x+50,y+32,{size:22,align:'center',weight:700,color:col?C.coral:C.ink});ctx.restore();
++    if(col&&v>.9){box(110,140+sl*58,70,48,8,null,C.coral,3);txt('Collision!',450,y+32,{size:24,weight:800,color:C.coral});}});
++   ctx.restore();}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;const gx=110,gy=130,st=54,cz=46;
++  const freeG=[27,45,63,88];const isFree=i=>i<16||freeG.includes(i);const order=[...Array(16).keys(),...freeG];
++  box(gx,gy-44,22,22,4,C.coral);txt('spam',gx+30,gy-26,{size:20,weight:700});box(gx+110,gy-44,22,22,4,C.light,C.ink,1.5);txt('genuine',gx+140,gy-26,{size:20,weight:700});
++  if(b>=1)box(gx+260,gy-46,26,26,4,null,C.gold,4),txt('contains FREE',gx+296,gy-26,{size:20,weight:700,color:'#7A600A'});
++  const n=Math.ceil(P(0)*100);const kf=Math.ceil(P(1)*20);const dim=b>=2?1-.85*ease(P(2)*1.5):1;
++  for(let i=0;i<n;i++){const r=Math.floor(i/10),c=i%10,x=gx+c*st,y=gy+r*st;const f=isFree(i);const shown=f&&b>=1&&order.indexOf(i)<kf;
++   ctx.save();ctx.globalAlpha=(f&&b>=2)?1:(b>=2?dim:1);box(x,y,cz,cz,6,i<20?C.coral:C.light,i<20?null:C.ink,1.5);if(shown)box(x-3,y-3,cz+6,cz+6,8,null,C.gold,4);ctx.restore();}
++  const X=730;txt('100 emails',X,170,{size:34,weight:800});txt('20 spam, 80 genuine',X,210,{size:24,color:C.muted});
++  if(b>=1){const a=ease(P(1)*2);txt('Emails with FREE:',X,280,{size:26,weight:700,alpha:a});txt('16 spam',X,320,{size:26,weight:800,color:C.coral,alpha:a});txt('4 genuine',X+140,320,{size:26,weight:800,alpha:a});}
++  if(b>=2){const a=ease(P(2)*2);txt('P(spam | FREE)',X,400,{size:32,weight:800,alpha:a});txt('= 16 / 20 = 80%',X,445,{size:40,weight:800,color:C.coral,alpha:a});txt('Bayes\' theorem, with counts',X,482,{size:22,color:C.muted,alpha:a});}
++  if(b>=3){const a=ease(P(3)*2);txt('Example word scores, P(spam | word)',X,540,{size:22,weight:700,alpha:a});
++   [['WIN',.9],['FREE',.8],['OTP',.1],['meeting',.05]].forEach(([w,v],i)=>{const y=560+i*36;txt(w,X,y+22,{size:20,weight:700,alpha:a});box(X+100,y+6,300,20,5,'#E7ECF4');box(X+100,y+6,Math.max(6,300*v*ease(P(3)*1.5)),20,5,v>.5?C.coral:C.green);txt(Math.round(v*100)+'%',X+410,y+22,{size:18,weight:700,alpha:a});});}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;const cx=640,cy=370;
++  const items=[['Machine learning','every prediction is P(y | x)',0],['Randomized algorithms','random pivot in quicksort',1],['Networks','packet loss and retries',2],['Cryptography','unguessable random keys',2],['Load balancing','spreading traffic',2],['Testing','A/B experiments',2],['Games','loot drop rates',2]];
++  let g2=0;items.forEach((it,i)=>{const ang=-Math.PI/2+i*2*Math.PI/items.length;const x=cx+Math.cos(ang)*430,y=cy+Math.sin(ang)*255;
++   let a;if(it[2]<2)a=ease(P(it[2])*2);else{a=ease(P(2)*5-g2*.8);g2++;}if(a<=0)return;
++   ctx.save();ctx.globalAlpha=a;line(cx+Math.cos(ang)*105,cy+Math.sin(ang)*105,x-Math.cos(ang)*60,y-Math.sin(ang)*38,C.gridMajor,3);
++   box(x-135,y-38,270,76,14,C.white,C.ink,2.5);txt(it[0],x,y-4,{size:24,weight:800,align:'center'});txt(it[1],x,y+24,{size:18,align:'center',color:C.muted});ctx.restore();});
++  ctx.beginPath();ctx.arc(cx,cy,100,0,7);ctx.fillStyle=C.ink;ctx.fill();txt('Probability',cx,cy+10,{size:30,weight:800,align:'center',color:C.white});
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;txt('What you learned',160,150,{size:44,weight:800});
++  ['Probability = favourable outcomes / total outcomes','Counting, Bayes and randomness power ML, hashing, networks','Next: the quiz, then explain it in your own words'].forEach((s,i)=>{const a=ease(P(i)*2.5);if(a<=0)return;const y=270+i*110;
++   ctx.save();ctx.globalAlpha=a;ctx.beginPath();ctx.arc(190,y-10,26,0,7);ctx.fillStyle=C.green;ctx.fill();ctx.strokeStyle=C.white;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(178,y-10);ctx.lineTo(187,y);ctx.lineTo(204,y-22);ctx.stroke();
++   txt(s,240,y,{size:32,weight:700});ctx.restore();});
++ }
++  ];
++function titleFrame(){paper();txt('Why do CSE students need',120,270,{size:54,weight:700});txt('Probability?',120,370,{size:96,weight:800});
++ txt('A visual lesson in Tamil and English',120,440,{size:28,color:C.muted});die(1000,250,120,-.25,5);die(1090,390,120,.2,2);
++ box(120,480,280,6,3,C.gold);}
++
++
++  return { draws, titleFrame, paper };
++}
+diff --git a/client/src/lessons/probability/scenesB.js b/client/src/lessons/probability/scenesB.js
+new file mode 100644
+index 0000000..bea4810
+--- /dev/null
++++ b/client/src/lessons/probability/scenesB.js
+@@ -0,0 +1,130 @@
++// Generated from the pilot artifact. Canvas drawing code for each scene, in order.
++// Narration text lives in narration.json (same scene order). Edit visuals here, words there.
++// The player calls paper() to clear the stage before every frame.
++export const W = 1280, H = 720;
++
++export default function createScenes(ctx) {
++const W=1280,H=720;
++const C={paper:'#F7F9FC',grid:'#E3E9F3',gridMajor:'#CBD7EA',ink:'#1E3E7B',gold:'#C9A21F',goldSoft:'rgba(201,162,31,.25)',green:'#547B5C',coral:'#C8553D',muted:'#6B7A93',white:'#FFFFFF',light:'#D7E1F0'};
++
++const FONT='Catamaran, "Noto Sans Tamil", system-ui, sans-serif';
++const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
++const ease=x=>{x=clamp(x);return 1-Math.pow(1-x,3)};
++
++function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
++function box(x,y,w,h,r,fill,stroke,lw){rr(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke();}}
++function txt(s,x,y,o){o=o||{};ctx.save();ctx.globalAlpha*=o.alpha==null?1:o.alpha;ctx.font=`${o.weight||600} ${o.size||28}px ${o.font||FONT}`;ctx.fillStyle=o.color||C.ink;ctx.textAlign=o.align||'left';ctx.textBaseline=o.base||'alphabetic';ctx.fillText(s,x,y);ctx.restore();}
++function line(x1,y1,x2,y2,col,lw,dash){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=lw||2;if(dash)ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
++function arrow(x1,y,x2,col,a){ctx.save();ctx.globalAlpha*=a;line(x1,y,x2,y,col,3);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x2+2,y);ctx.lineTo(x2-12,y-8);ctx.lineTo(x2-12,y+8);ctx.fill();ctx.restore();}
++function paper(){ctx.fillStyle=C.paper;ctx.fillRect(0,0,W,H);for(let x=0;x<=W;x+=20){ctx.strokeStyle=x%100===0?C.gridMajor:C.grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);ctx.stroke();}for(let y=0;y<=H;y+=20){ctx.strokeStyle=y%100===0?C.gridMajor:C.grid;ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);ctx.stroke();}}
++function die(cx,cy,s,rot,n){ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);box(-s/2,-s/2,s,s,s*.18,C.white,C.ink,4);const p={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]}[n];ctx.fillStyle=C.ink;p.forEach(([a,b])=>{ctx.beginPath();ctx.arc(a*s*.27,b*s*.27,s*.08,0,7);ctx.fill();});ctx.restore();}
++function bday(n){let q=1;for(let k=0;k<n;k++)q*=(365-k)/365;return 1-q;}
++
++
++
++const MONO='ui-monospace, Menlo, Consolas, "Courier New", monospace';
++function cloud(x,y,s,col){ctx.fillStyle=col;[[0,0,1],[-.62,.18,.7],[.62,.18,.75],[.22,-.32,.72]].forEach(([dx,dy,r])=>{ctx.beginPath();ctx.arc(x+dx*s,y+dy*s,r*s*.55,0,7);ctx.fill();});}
++function drops(x,y,n,gap){for(let i=0;i<n;i++)line(x+i*gap,y,x+i*gap-8,y+26,'#4F7BC0',4);}
++function sun(x,y,r){ctx.save();ctx.strokeStyle=C.gold;ctx.lineWidth=5;for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*r*1.3,y+Math.sin(a)*r*1.3);ctx.lineTo(x+Math.cos(a)*r*1.7,y+Math.sin(a)*r*1.7);ctx.stroke();}ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle=C.gold;ctx.fill();ctx.restore();}
++function coin(x,y,r,sx,label,ring){ctx.save();ctx.translate(x,y);ctx.scale(Math.max(.04,sx),1);ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.fillStyle='#E9C75A';ctx.fill();ctx.lineWidth=6;ctx.strokeStyle='#9A7A12';ctx.stroke();ctx.beginPath();ctx.arc(0,0,r*.78,0,7);ctx.lineWidth=2;ctx.stroke();txt(label,0,r*.28,{size:r*.8,weight:800,align:'center',color:'#7A600A'});ctx.restore();
++ if(ring){ctx.beginPath();ctx.arc(x,y,r+22,0,7);ctx.strokeStyle=C.green;ctx.lineWidth=6;ctx.stroke();}}
++function person(x,y,col){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,38,0,7);ctx.fill();rr(x-58,y+48,116,110,40);ctx.fill();}
++function bar(x,y,w,h,v,col){box(x,y,w,h,h/2,'#E7ECF4');if(v>0)box(x,y,Math.max(h,w*v),h,h/2,col);}
++function banner(s,a,col){ctx.save();ctx.globalAlpha=a;box(100,585,1080,86,16,'#FBF5E1',C.gold,4);txt(s,640,641,{size:36,weight:800,align:'center',color:col||C.ink});ctx.restore();}
++function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
++const R=mulberry(7);const FLIPS=[];for(let i=0;i<1000;i++)FLIPS.push(R()<.5);
++const RUN=[];{let h=0;FLIPS.forEach((f,i)=>{if(f)h++;RUN.push(h/(i+1));});}
++const CODE=['function toss() {','  return Math.random() < 0.5 ? "Heads" : "Tails";','}','','let heads = 0;','for (let i = 0; i < 1000; i++) {','  if (toss() === "Heads") heads++;','}','console.log(heads / 1000);  // close to 0.5'];
++
++
++  const draws = [
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  const c1=1-ease(P(1)*2);if(c1>0){ctx.save();ctx.globalAlpha=c1;box(400,90,480,380,28,C.white,C.ink,4);txt('Weather',440,145,{size:26,weight:700,color:C.muted});txt('Tomorrow',440,185,{size:32,weight:800});
++   cloud(560,300,90,'#9DB3D6');drops(510,360,5,26);txt('70%',840,320,{size:96,weight:800,align:'right'});txt('chance of rain',840,368,{size:26,align:'right',color:C.muted});
++   txt('What does 70% really mean?',640,560,{size:40,weight:800,align:'center',alpha:ease(P(0)*2-.6),color:C.coral});ctx.restore();}
++  const ta=b===1?ease(P(1)*2):b>1?1-ease(P(2)*2):0;
++  if(ta>0){ctx.save();ctx.globalAlpha=ta;for(let i=0;i<10;i++){const v=b>1?1:ease((P(1)*1.5-i*.08)/.2);if(v<=0)continue;const x=170+(i%5)*190,y=110+Math.floor(i/5)*190;ctx.save();ctx.globalAlpha*=v;
++    if(i<7){box(x,y,160,160,16,'#EAF0FA',C.ink,2);cloud(x+80,y+62,50,'#9DB3D6');drops(x+48,y+98,4,22);}else{box(x,y,160,160,16,'#FBF5E1',C.gold,2);sun(x+80,y+72,26);}
++    txt('Day '+(i+1),x+80,y+148,{size:18,align:'center',color:C.muted,weight:700});ctx.restore();}
++   txt('7 rainy days out of 10   =   7 / 10   =   0.7   =   70%',640,560,{size:34,weight:800,align:'center',alpha:ease(P(1)*3-1.8)});ctx.restore();}
++  const s=P(2);if(s>0){ctx.save();ctx.globalAlpha=ease(s*2);txt('Every chance is a number from 0 to 1',640,150,{size:40,weight:800,align:'center'});
++   line(140,400,1140,400,C.ink,6);[[0,'0'],[.5,'0.5'],[1,'1']].forEach(([v,l])=>{const x=140+v*1000;line(x,386,x,414,C.ink,4);txt(l,x,448,{size:24,weight:800,align:'center'});});
++   txt('Impossible',140,480,{size:22,color:C.muted,align:'center'});txt('Certain',1140,480,{size:22,color:C.muted,align:'center'});
++   const mk=[[1,'Sun rises tomorrow',-1,C.green,'right'],[.02,'Lottery jackpot (almost 0)',-1,C.coral,'left'],[.5,'Coin shows Heads',1,C.gold,'center'],[.7,'Rain tomorrow',1,'#4F7BC0','center']];
++   mk.forEach(([v,l,dir,col,al],i)=>{const a=ease(s*5-1-i*.6);if(a<=0)return;const x=140+v*1000;ctx.save();ctx.globalAlpha*=a;const y2=dir<0?290:(i===3?600:545);line(x,400,x,dir<0?305:y2-30,col,3);ctx.beginPath();ctx.arc(x,400,11,0,7);ctx.fillStyle=col;ctx.fill();
++    txt(l,al==='right'?1160:al==='left'?120:x,y2,{size:24,weight:800,align:al,color:col});ctx.restore();});ctx.restore();}
++ },
++    function draw(b,p,t){const P=k=>b>k?1:b===k?p:0;
++  if(b===0){txt('Captain calls: Heads',640,130,{size:40,weight:800,align:'center'});const c=Math.cos(t/160);coin(640,340,120,Math.abs(c),c>0?'H':'T');txt('Chance to win the toss = ?',640,570,{size:36,weight:800,align:'center',color:C.coral,alpha:ease(p*2-.8)});}
++  if(b>=1){const a=b===1?ease(P(1)*2):1-.8*ease(P(2)*2);ctx.save();ctx.globalAlpha=a;txt('Only 2 possible ways',640,130,{size:40,weight:800,align:'center'});
++   coin(450,330,110,1,'H',true);coin(830,330,110,1,'T');txt('Heads: what we want',450,520,{size:28,weight:800,align:'center',color:C.green});txt('Tails',830,520,{size:28,weight:700,align:'center',color:C.muted});ctx.restore();}
++  const s=P(2);if(s>0){ctx.save();ctx.globalAlpha=ease(s*2);box(200,170,880,380,22,C.white,C.ink,4);
++   txt('Chance  =',260,320,{size:48,weight:800});line(520,302,1010,302,C.ink,4);txt('ways you want',765,270,{size:38,weight:800,align:'center',color:C.green});txt('all possible ways',765,356,{size:38,weight:800,align:'center'});
++   txt('=  1 / 2  =  50%',640,470,{size:52,weight:800,align:'center',color:C.gold,alpha:ease(s*3-1)});ctx.restore();}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  box(90,100,540,460,20,C.white,C.ink,3);txt('Q7. Which gate gives output 1',120,160,{size:27,weight:800});txt('only when both inputs are 1?',120,196,{size:27,weight:800});
++  [['A','OR'],['B','AND'],['C','XOR'],['D','NOR']].forEach(([k,o],i)=>{const y=240+i*74;const cut=i>=2&&b>=2;const ca=cut?ease(P(2)*2):0;ctx.save();ctx.globalAlpha=1-.55*ca;
++   box(120,y,480,56,12,'#F1F5FB',C.gridMajor,2);txt(k,150,y+38,{size:26,weight:800,color:C.muted});txt(o,200,y+38,{size:26,weight:700});ctx.restore();if(ca>0)line(130,y+28,130+460*ca,y+28,C.coral,5);});
++  const X=700;
++  if(b===0)txt('?',930,420,{size:240,weight:800,align:'center',color:C.gridMajor});
++  if(b>=1){const a=ease(P(1)*2);ctx.save();ctx.globalAlpha=a;txt('Blind guess: 1 / 4 = 25%',X,160,{size:32,weight:800});bar(X,180,460,30,.25*ease(P(1)*2),C.coral);
++   const fa=b>=2?1-.7*ease(P(2)*2):1;ctx.globalAlpha=a*fa;txt('Guess all 10 questions:',X,270,{size:24,weight:700,color:C.muted});
++   for(let i=0;i<10;i++){const v=ease(P(1)*3-1-i*.1);if(v<=0)continue;const x=X+i*46,y=290,ok=i===3||i===7;ctx.save();ctx.globalAlpha*=v;box(x,y,38,38,8,ok?'#E5EFE7':'#FBEDEA',ok?C.green:C.coral,2);txt(ok?'✓':'✗',x+19,y+28,{size:22,weight:800,align:'center',color:ok?C.green:C.coral});ctx.restore();}
++   txt('About 2 or 3 right. That\'s a fail.',X,375,{size:26,weight:800,color:C.coral,alpha:ease(P(1)*3-2)});ctx.restore();}
++  if(b>=2){const a=ease(P(2)*2);ctx.save();ctx.globalAlpha=a;txt('Studied a little: cut 2 options',X,450,{size:28,weight:800,color:C.green});txt('1 / 2 = 50%',X,492,{size:32,weight:800,color:C.green});bar(X,510,460,30,.5*ease(P(2)*2-.3),C.green);ctx.restore();}
++  if(b>=3)banner('Studying literally changes your probability.',ease(P(3)*2),C.ink);
++ },
++    function draw(b,p,t){const P=k=>b>k?1:b===k?p:0;
++  const a0=1-ease(P(1)*3);if(a0>0){ctx.save();ctx.globalAlpha=a0;txt('Your bank OTP',640,150,{size:40,weight:800,align:'center'});
++   for(let i=0;i<6;i++){const x=640-3*100+i*100+10;box(x,200,80,100,14,C.white,C.ink,3);txt(String(Math.floor((t/90+i*37)%10)),x+40,270,{size:52,weight:800,align:'center',font:MONO});}
++   txt('Why 6 digits? Why not 2?',640,420,{size:44,weight:800,align:'center',color:C.coral,alpha:ease(P(0)*2-.5)});ctx.restore();}
++  function panel(x,n,sz,title,comb,res,col,a){ctx.save();ctx.globalAlpha=a;txt(title,x,140,{size:34,weight:800});for(let i=0;i<n;i++){box(x+i*(sz+10),170,sz,sz*1.2,10,C.white,C.ink,2.5);txt(String(Math.floor((t/110+i*53)%10)),x+i*(sz+10)+sz/2,170+sz*.85,{size:sz*.6,weight:800,align:'center'});}
++   txt(comb,x,330,{size:30,weight:800});txt('Thief gets 3 tries',x,375,{size:24,color:C.muted,weight:700});txt(res,x,440,{size:40,weight:800,color:col});ctx.restore();}
++  if(b>=1)panel(130,2,70,'2-digit OTP','100 combinations','3 / 100 = 3%',C.coral,ease(P(1)*2));
++  if(b>=1){ctx.save();ctx.globalAlpha=ease(P(1)*3-1.5);txt('Too risky',130,490,{size:26,weight:800,color:C.coral});ctx.restore();}
++  if(b>=2){panel(680,6,62,'6-digit OTP','10,00,000 combinations','3 in 10 lakh',C.green,ease(P(2)*2));ctx.save();ctx.globalAlpha=ease(P(2)*3-1.5);txt('= 0.0003%, then account locks',680,490,{size:26,weight:800,color:C.green});ctx.restore();line(640,130,640,500,C.gridMajor,2,[8,8]);}
++  if(b>=3)banner('6 digits + only 3 attempts: an engineer\'s probability decision',ease(P(3)*2));
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  if(b===0){txt('Apps guess.',640,320,{size:80,weight:800,align:'center',alpha:ease(p*2)});txt('All day long.',640,410,{size:80,weight:800,align:'center',color:C.coral,alpha:ease(p*2-.6)});return;}
++  txt('Every app you use is guessing',640,80,{size:34,weight:800,align:'center'});
++  const cards=[['Cricket app','Win chance for the chasing team',.64,'64%',C.ink],['Maps','Reach in 25 min: very likely',.8,'likely',C.ink],['Instagram','You will watch this reel',.82,'82%',C.ink],['Bank','This payment looks like fraud',.91,'91%, blocked',C.coral]];
++  cards.forEach((c,i)=>{const beat=i<2?1:2;if(b<beat)return;const a=ease(P(beat)*3-(i%2)*.8);if(a<=0)return;const x=i%2?660:120,y=i<2?120:390;ctx.save();ctx.globalAlpha=a;
++   box(x,y,500,240,18,C.white,C.ink,2.5);txt(c[0],x+30,y+52,{size:30,weight:800});txt(c[1],x+30,y+96,{size:24,color:C.muted,weight:600});bar(x+30,y+160,440,30,c[2]*a,c[4]);txt(c[3],x+470,y+145,{size:24,weight:800,align:'right',color:c[4]});ctx.restore();});
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;
++  const a0=ease(P(0)*2);ctx.save();ctx.globalAlpha=a0*(b>=1?.55+.45*(1-ease(P(1))):1);txt('Uses the app',340,110,{size:36,weight:800,align:'center',color:C.muted});person(340,200,'#A9B7CE');box(385,265,34,58,6,C.ink);
++   ['Watches reels','Books a cab','Checks the score'].forEach((s,i)=>txt(s,340,430+i*48,{size:26,weight:700,align:'center',color:C.muted}));ctx.restore();
++  if(b>=1){const a=ease(P(1)*2);ctx.save();ctx.globalAlpha=a;box(700,70,480,530,22,'#FBF5E1',C.gold,4);txt('Builds the app',940,120,{size:36,weight:800,align:'center'});person(940,200,C.ink);box(870,300,140,16,4,'#6B7A93');
++   ['Designs the reel feed','Predicts cab arrival','Builds the win predictor'].forEach((s,i)=>txt(s,940,430+i*48,{size:26,weight:800,align:'center',alpha:ease(P(1)*3-1-i*.4)}));ctx.restore();}
++  if(b>=2){const a=ease(P(2)*2);ctx.save();ctx.globalAlpha=a;arrow(420,650,860,C.gold,1);txt('Probability',640,635,{size:30,weight:800,align:'center',color:'#7A600A'});ctx.restore();}
++ },
++    function draw(b,p,t){const P=k=>b>k?1:b===k?p:0;
++  box(50,90,650,520,18,'#16294F');const total=CODE.join('\n').length;let left=Math.floor(total*ease(P(0)*1.2));
++  if(b>=1){ctx.save();ctx.globalAlpha=.35;box(62,146,626,40,6,C.gold);ctx.restore();}
++  CODE.forEach((l,i)=>{const s=l.slice(0,Math.max(0,left));left-=l.length+1;const col=l.trim().startsWith('console')?'#F2D27A':(l.includes('//')?'#9FB6DE':'#FFFFFF');
++   ctx.save();ctx.font=`500 19px ${MONO}`;ctx.fillStyle=col;ctx.fillText(s,78,135+i*50);ctx.restore();});
++  const X=760;
++  if(b>=1){const a=ease(P(1)*2);ctx.save();ctx.globalAlpha=a*(b>=2?.9:1);txt('Math.random()',X,150,{size:30,weight:800,font:MONO});
++   line(X,250,1200,250,C.ink,4);box(X,242,220,16,8,'rgba(84,123,92,.35)');box(X+220,242,220,16,8,'rgba(200,85,61,.3)');[[0,'0'],[.5,'0.5'],[1,'1']].forEach(([v,l])=>{txt(l,X+v*440,290,{size:20,weight:800,align:'center'});});
++   txt('Heads',X+110,325,{size:22,weight:800,align:'center',color:C.green});txt('Tails',X+330,325,{size:22,weight:800,align:'center',color:C.coral});
++   const k=Math.floor(t/800);const v=mulberry(k+11)();const x=X+v*440;ctx.beginPath();ctx.arc(x,250,13,0,7);ctx.fillStyle=v<.5?C.green:C.coral;ctx.fill();
++   txt(v.toFixed(2)+(v<.5?'  → Heads':'  → Tails'),X,205,{size:26,weight:800,color:v<.5?C.green:C.coral});ctx.restore();}
++  if(b>=2){const a=ease(P(2)*2);const ox=X,oy=610,w=440,h=220;ctx.save();ctx.globalAlpha=a;
++   line(ox,oy,ox+w,oy,C.ink,2);line(ox,oy,ox,oy-h,C.ink,2);line(ox,oy-h/2,ox+w,oy-h/2,C.gold,2,[6,6]);txt('50%',ox-8,oy-h/2+6,{size:18,align:'right',weight:800,color:'#7A600A'});txt('100%',ox-8,oy-h+6,{size:16,align:'right',color:C.muted});txt('0',ox-8,oy+6,{size:16,align:'right',color:C.muted});
++   const n=Math.max(1,Math.floor(1000*ease(P(2)*1.2)));ctx.beginPath();for(let i=0;i<n;i++){const x=ox+i/999*w,y=oy-RUN[i]*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle=C.ink;ctx.lineWidth=3;ctx.stroke();
++   txt(`After ${n} tosses: ${(RUN[n-1]*100).toFixed(1)}% Heads`,ox,oy+40,{size:24,weight:800});ctx.restore();}
++ },
++    function draw(b,p){const P=k=>b>k?1:b===k?p:0;txt('Remember three things',160,150,{size:44,weight:800});
++  ['Probability = ways you want ÷ all ways (0 to 1)','Studying raises your chances. Literally.','Every app runs on it. Learn it, build them.'].forEach((s,i)=>{const a=ease(P(i)*2.5);if(a<=0)return;const y=270+i*110;
++   ctx.save();ctx.globalAlpha=a;ctx.beginPath();ctx.arc(190,y-10,26,0,7);ctx.fillStyle=C.green;ctx.fill();ctx.strokeStyle=C.white;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(178,y-10);ctx.lineTo(187,y);ctx.lineTo(204,y-22);ctx.stroke();
++   txt(s,240,y,{size:34,weight:700});ctx.restore();});
++ }
++  ];
++function titleFrame(){paper();txt('Probability.',120,300,{size:110,weight:800});txt('Why should I even study this?',120,380,{size:48,weight:700,color:C.coral});
++ txt('Starts from zero. Tamil and English.',120,450,{size:28,color:C.muted});coin(1010,280,100,1,'H');cloud(1010,470,70,'#9DB3D6');drops(975,520,4,24);}
++
++
++  return { draws, titleFrame, paper };
++}
+diff --git a/client/src/pages/Feedback.jsx b/client/src/pages/Feedback.jsx
+new file mode 100644
+index 0000000..2a9dcbd
+--- /dev/null
++++ b/client/src/pages/Feedback.jsx
+@@ -0,0 +1,135 @@
++// Student flow: choose version → pre-check → open lesson → post-check + rating → done.
++// Section teachers share a link like /feedback?v=B so each section gets one version.
++import { useEffect, useState } from 'react';
++import { useSearchParams } from 'react-router-dom';
++import api from '../api/axios';
++
++function Questions({ questions, answers, setAnswers }) {
++  return questions.map((q, i) => (
++    <div className="card" key={q.id}>
++      <p><b>{i + 1}. {q.text}</b></p>
++      {q.options.map((o, j) => (
++        <label key={j} className="fb-opt">
++          <input type="radio" name={q.id} checked={answers[q.id] === j}
++                 onChange={() => setAnswers({ ...answers, [q.id]: j })} />
++          <span>{o}</span>
++        </label>
++      ))}
++    </div>
++  ));
++}
++
++function Scale({ label, value, onChange }) {
++  return (
++    <div className="card">
++      <p><b>{label}</b></p>
++      <div className="fb-scale">
++        {[1, 2, 3, 4, 5].map((n) => (
++          <button key={n} type="button" className={value === n ? 'tag active' : 'tag'} onClick={() => onChange(n)}>{n}</button>
++        ))}
++      </div>
++      <p className="muted">1 = not at all, 5 = very much</p>
++    </div>
++  );
++}
++
++export default function Feedback() {
++  const [params] = useSearchParams();
++  const [meta, setMeta] = useState(null);
++  const [mine, setMine] = useState(undefined);
++  const [version, setVersion] = useState(['A', 'B', 'C'].includes(params.get('v')) ? params.get('v') : '');
++  const [answers, setAnswers] = useState({});
++  const [rating, setRating] = useState({ interest: 0, clarity: 0, likedMost: '', language: '', comment: '' });
++  const [error, setError] = useState('');
++  const [busy, setBusy] = useState(false);
++
++  useEffect(() => {
++    Promise.all([api.get('/feedback/questions'), api.get('/feedback/mine')]).then(([q, m]) => {
++      setMeta(q.data);
++      setMine(m.data);
++    });
++  }, []);
++
++  if (!meta || mine === undefined) return <p>Loading…</p>;
++  const qs = meta.questions;
++  const allAnswered = qs.every((q) => Number.isInteger(answers[q.id]));
++  const stage = !mine ? 'pre' : !mine.post?.at ? 'post' : 'done';
++
++  const send = async (url, body) => {
++    setError(''); setBusy(true);
++    try { const { data } = await api.post(url, body); setMine(data); setAnswers({}); window.scrollTo(0, 0); }
++    catch (e) { setError(e.response?.data?.message || 'Could not save. Try again.'); }
++    finally { setBusy(false); }
++  };
++
++  if (stage === 'pre') return (
++    <div>
++      <h2>Before the lesson</h2>
++      <p className="muted">Three quick questions. Choose "I don't know" if you are not sure. There are no marks for this.</p>
++      {!params.get('v') && (
++        <div className="card">
++          <p><b>Which version did your teacher give you?</b></p>
++          <select value={version} onChange={(e) => setVersion(e.target.value)}>
++            <option value="">Select</option>
++            {Object.entries(meta.versions).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
++          </select>
++        </div>
++      )}
++      <Questions questions={qs} answers={answers} setAnswers={setAnswers} />
++      {error && <p className="error">{error}</p>}
++      <button disabled={!version || !allAnswered || busy} onClick={() => send('/feedback/pre', { version, answers })}>
++        Save and start the lesson
++      </button>
++    </div>
++  );
++
++  if (stage === 'post') {
++    const url = meta.versions[mine.version]?.url;
++    const ready = allAnswered && rating.interest && rating.clarity;
++    return (
++      <div>
++        <h2>Watch the lesson</h2>
++        <div className="card">
++          <p>Open the lesson, go through it fully, then come back to this tab.</p>
++          <a className="fb-open" href={url} target="_blank" rel="noopener noreferrer">
++            Open {meta.versions[mine.version]?.label}
++          </a>
++        </div>
++        <>
++            <h2 style={{ marginTop: 24 }}>After the lesson</h2>
++            <p className="muted">The same three questions again, then tell us what you thought.</p>
++            <Questions questions={qs} answers={answers} setAnswers={setAnswers} />
++            <Scale label="After this lesson, do you want to learn more about probability?" value={rating.interest}
++                   onChange={(v) => setRating({ ...rating, interest: v })} />
++            <Scale label="Was it easy to understand?" value={rating.clarity}
++                   onChange={(v) => setRating({ ...rating, clarity: v })} />
++            <div className="card">
++              <p><b>Which part did you like most?</b></p>
++              <select value={rating.likedMost} onChange={(e) => setRating({ ...rating, likedMost: e.target.value })}>
++                <option value="">Select</option>
++                {meta.liked.map((l) => <option key={l}>{l}</option>)}
++              </select>
++              <p><b>Which language did you use?</b></p>
++              <select value={rating.language} onChange={(e) => setRating({ ...rating, language: e.target.value })}>
++                <option value="">Select</option><option value="tamil">Tamil</option>
++                <option value="english">English</option><option value="both">Both</option>
++              </select>
++              <p><b>Anything confusing, or anything you want added? (optional)</b></p>
++              <textarea rows={3} maxLength={1000} value={rating.comment}
++                        onChange={(e) => setRating({ ...rating, comment: e.target.value })} />
++            </div>
++            {error && <p className="error">{error}</p>}
++            <button disabled={!ready || busy} onClick={() => send('/feedback/post', { answers, ...rating })}>Submit feedback</button>
++        </>
++      </div>
++    );
++  }
++
++  return (
++    <div className="card">
++      <h2>Thank you!</h2>
++      <p>Before the lesson you got <b>{mine.pre.score} / {qs.length}</b>. After: <b>{mine.post.score} / {qs.length}</b>.</p>
++      <p className="muted">Your feedback decides how every future lesson is made.</p>
++    </div>
++  );
++}
+diff --git a/client/src/pages/FeedbackResults.jsx b/client/src/pages/FeedbackResults.jsx
+new file mode 100644
+index 0000000..036ae09
+--- /dev/null
++++ b/client/src/pages/FeedbackResults.jsx
+@@ -0,0 +1,48 @@
++// Admin view: which lesson version works best? Reads one $facet aggregation.
++import { useEffect, useState } from 'react';
++import api from '../api/axios';
++
++const f1 = (n) => (n == null ? '–' : n.toFixed(1));
++
++export default function FeedbackResults() {
++  const [data, setData] = useState(null);
++  const load = () => api.get('/feedback/summary').then((r) => setData(r.data));
++  useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, []);
++  if (!data) return <p>Loading…</p>;
++  const qn = data.questionCount;
++
++  return (
++    <div>
++      <h2>Lesson feedback: Probability</h2>
++      <p className="muted">Refreshes every 15 seconds. Scores are out of {qn}. Gain counts only students who finished both checks.</p>
++      <div className="card">
++        <table>
++          <thead><tr><th>Version</th><th>Started</th><th>Finished</th><th>Before</th><th>After</th><th>Gain</th><th>Want more (1–5)</th><th>Clarity (1–5)</th><th>Rated 4+</th></tr></thead>
++          <tbody>
++            {data.byVersion.map((v) => (
++              <tr key={v._id}>
++                <td><b>{v._id}</b></td><td>{v.started}</td><td>{v.completed}</td>
++                <td>{f1(v.avgPre)}</td><td>{f1(v.avgPost)}</td><td><b>{v.avgGain == null ? '–' : (v.avgGain > 0 ? '+' : '') + v.avgGain.toFixed(2)}</b></td>
++                <td>{f1(v.avgInterest)}</td><td>{f1(v.avgClarity)}</td>
++                <td>{v.completed ? Math.round((v.wantMore / v.completed) * 100) + '%' : '–'}</td>
++              </tr>
++            ))}
++          </tbody>
++        </table>
++      </div>
++      <div className="card">
++        <h3>What students liked most</h3>
++        <table><tbody>
++          {data.likedMost.map((l, i) => <tr key={i}><td>{l._id.version}</td><td>{l._id.part}</td><td>{l.count}</td></tr>)}
++        </tbody></table>
++      </div>
++      <div className="card">
++        <h3>Comments</h3>
++        {data.comments.length === 0 && <p className="muted">No comments yet.</p>}
++        {data.comments.map((c, i) => (
++          <p key={i} style={{ marginBottom: 8 }}><span className="badge">{c.version}</span> <span className="muted">{c.department} · wants more: {c.interest}/5</span><br />{c.comment}</p>
++        ))}
++      </div>
++    </div>
++  );
++}
+diff --git a/client/src/pages/Lesson.jsx b/client/src/pages/Lesson.jsx
+new file mode 100644
+index 0000000..209446a
+--- /dev/null
++++ b/client/src/pages/Lesson.jsx
+@@ -0,0 +1,69 @@
++// /lesson/:id?v=A|B|C  — Story (A or B) → Code lab → Quiz.
++// v=C shows the code lab only (used in the pilot comparison).
++import { useState } from 'react';
++import { useParams, useSearchParams, Link } from 'react-router-dom';
++import { lessons } from '../lessons/index.js';
++import LessonPlayer from '../components/LessonPlayer.jsx';
++import CodeLab from '../components/CodeLab.jsx';
++
++function Quiz({ quiz, lang }) {
++  const [picked, setPicked] = useState({});
++  const [checked, setChecked] = useState(false);
++  const score = quiz.filter((q, i) => picked[i] === q.a).length;
++  return (
++    <div>
++      {quiz.map((q, i) => (
++        <div className={'card quiz-q ' + (checked ? (picked[i] === q.a ? 'ok' : 'bad') : '')} key={i}>
++          <p lang={lang}><b>{i + 1}. {q.q[lang]}</b></p>
++          {q.o.map((o, j) => (
++            <label key={j} className="fb-opt"><input type="radio" name={'q' + i} checked={picked[i] === j} onChange={() => { setPicked({ ...picked, [i]: j }); setChecked(false); }} /><span>{o}</span></label>
++          ))}
++          {checked && <p className="quiz-fb" lang={lang}>{picked[i] === q.a ? '✓ ' : '✗ '}{q.e[lang]}</p>}
++        </div>
++      ))}
++      <button disabled={Object.keys(picked).length < quiz.length} onClick={() => setChecked(true)}>Check answers</button>
++      {checked && <b style={{ marginLeft: 12 }}>{score} / {quiz.length}</b>}
++    </div>
++  );
++}
++
++export default function Lesson() {
++  const { id } = useParams();
++  const [params] = useSearchParams();
++  const lesson = lessons[id];
++  const [lang, setLang] = useState('ta');
++  if (!lesson) return <p>Lesson not found. <Link to="/notes">Back</Link></p>;
++
++  const v = ['A', 'B', 'C'].includes(params.get('v')) ? params.get('v') : 'B';
++  const story = lesson.narration.versions[v];
++
++  return (
++    <div className="lesson">
++      <p className="muted">{lesson.breadcrumb}</p>
++      <div className="lesson-top">
++        <h2 lang={lang}>{lesson.title[lang]}</h2>
++        <div className="seg" role="group" aria-label="Language">
++          <button aria-pressed={lang === 'ta'} onClick={() => setLang('ta')} lang="ta">தமிழ்</button>
++          <button aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
++        </div>
++      </div>
++
++      {story && (
++        <section>
++          <h3 className="lesson-h">1. Watch</h3>
++          <LessonPlayer lessonId={lesson.id} version={v} story={story} createScenes={lesson.scenes[v]} lang={lang} />
++        </section>
++      )}
++
++      <section id="lab">
++        <h3 className="lesson-h">{story ? '2. Try it in code' : 'Code lab'}</h3>
++        <CodeLab createLab={lesson.createLab} lang={lang} />
++      </section>
++
++      <section>
++        <h3 className="lesson-h">{story ? '3. Check yourself' : 'Check yourself'}</h3>
++        <Quiz quiz={lesson.quiz} lang={lang} />
++      </section>
++    </div>
++  );
++}
+diff --git a/client/src/styles.css b/client/src/styles.css
+index 14db1a4..66ebe83 100644
+--- a/client/src/styles.css
++++ b/client/src/styles.css
+@@ -40,3 +40,53 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eef1f7; }
+ .rule.ok { color: #2fa14f; }
+ .rule.bad { color: #8a94a6; }
+ button:disabled { opacity: 0.45; cursor: not-allowed; }
++
++/* ---- lesson feedback ---- */
++.fb-opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
++.fb-opt input { width: auto; margin: 4px 0 0; }
++.fb-scale { display: flex; gap: 6px; }
++.fb-scale .tag { min-width: 44px; }
++.fb-open { display: inline-block; background: #547B5C; color: #fff; padding: 10px 18px;
++           border-radius: 6px; text-decoration: none; font-weight: 600; }
++
++/* ---- lessons: player ---- */
++.lesson { font-family: Catamaran, system-ui, sans-serif; }
++.lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 12px; }
++.lesson-h { margin: 28px 0 10px; font-size: 22px; }
++.seg { display: inline-flex; border: 1px solid #cfd6e4; border-radius: 8px; overflow: hidden; }
++.seg button { background: #fff; color: #6b7688; border-radius: 0; padding: 7px 14px; font-weight: 600; }
++.seg button[aria-pressed="true"] { background: #1E3E7B; color: #fff; }
++.lp-stage { position: relative; border: 2px solid #1E3E7B; border-radius: 12px; overflow: hidden; background: #F7F9FC; }
++.lp-stage canvas { display: block; width: 100%; aspect-ratio: 16 / 9; }
++.lp-big { position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%); font-size: 18px; font-weight: 700; border-radius: 30px; padding: 12px 28px; }
++.lp-ask { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(247,249,252,.92); padding: 16px; text-align: center; }
++.lp-ask p { font-size: clamp(17px, 2.4vw, 24px); font-weight: 700; max-width: 600px; }
++.lp-ask div { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
++.lp-ask div button { background: #fff; color: #1E3E7B; border: 2px solid #1E3E7B; font-size: 20px; font-weight: 700; min-width: 84px; }
++.lp-done { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 14px; background: linear-gradient(transparent, rgba(247,249,252,.95) 45%); }
++.lp-done a { background: #547B5C; color: #fff; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-weight: 700; }
++.lp-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0 8px; }
++.lp-ghost { background: #fff; color: #1a2333; border: 1px solid #cfd6e4; }
++.lp-voice { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; }
++.lp-voice input { width: auto; margin: 0; }
++.lp-caption { background: #fff; border-left: 5px solid #C9A21F; border-radius: 8px; padding: 12px 16px; min-height: 80px; font-size: clamp(17px, 2.2vw, 21px); font-weight: 600; line-height: 1.5; }
++.lp-scenes { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
++.lp-scenes button { background: transparent; color: #6b7688; border: 1px solid #cfd6e4; border-radius: 20px; padding: 4px 11px; font-size: 13px; }
++.lp-scenes button.seen { color: #1a2333; }
++.lp-scenes button.on { border-color: #1E3E7B; background: #fff; color: #1a2333; }
++/* ---- lessons: code lab ---- */
++.lab-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
++.lab-exp { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
++.lab-head { display: flex; gap: 10px; align-items: center; }
++.lab-num { background: #1E3E7B; color: #fff; border-radius: 16px; padding: 0 10px; font-weight: 800; font-size: 14px; }
++.lab-why { color: #6b7688; margin: 6px 0 12px; }
++.lab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
++@media (max-width: 760px) { .lab-grid { grid-template-columns: 1fr; } }
++.lab-grid textarea { min-height: 290px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.5; background: #16294F; color: #fff; border-color: #16294F; tab-size: 4; }
++.lab-grid canvas { width: 100%; aspect-ratio: 16 / 10; display: block; border: 1px solid #cfd6e4; border-radius: 8px; }
++.lab-btns { display: flex; gap: 8px; }
++.lab-out { background: #f4f6fa; border-radius: 6px; padding: 8px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13.5px; white-space: pre-wrap; margin: 8px 0 0; min-height: 40px; }
++.lab-ch { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #cfd6e4; }
++.lab-ch summary { cursor: pointer; font-weight: 700; color: #1E3E7B; margin-top: 6px; }
++.quiz-q.ok { border-left: 5px solid #547B5C; } .quiz-q.bad { border-left: 5px solid #b3372f; }
++.quiz-fb { margin-top: 6px; font-size: 15px; }
+diff --git a/server/.env.example b/server/.env.example
+index 9dcd834..b74da3b 100644
+--- a/server/.env.example
++++ b/server/.env.example
+@@ -5,3 +5,8 @@ JWT_SECRET=change_this_to_a_long_random_string
+ JWT_EXPIRES_IN=1d
+ CLIENT_URL=http://localhost:5173
+ NODE_ENV=development
++
++# Voice-over generation (run locally only: npm run voice)
++SARVAM_API_KEY=
++VOICE_SPEAKER=kavitha
++VOICE_PACE=0.92
+diff --git a/server/controllers/feedbackController.js b/server/controllers/feedbackController.js
+new file mode 100644
+index 0000000..1ad94f2
+--- /dev/null
++++ b/server/controllers/feedbackController.js
+@@ -0,0 +1,155 @@
++// ---------------------------------------------------------------
++// Lesson feedback: pre-check → lesson → post-check + rating.
++// Scoring happens on the SERVER. Never send answers to the client.
++// ---------------------------------------------------------------
++const Feedback = require('../models/Feedback');
++
++const LESSON = 'probability-why';
++
++// Lessons now live inside this app (see client/src/lessons).
++// A = applications-first story, B = life-first story, C = code lab only.
++const VERSIONS = {
++  A: { label: 'Version A', url: '/lesson/probability?v=A' },
++  B: { label: 'Version B', url: '/lesson/probability?v=B' },
++  C: { label: 'Version C', url: '/lesson/probability?v=C' },
++};
++
++// Same 3 questions before and after. Every version covers these ideas.
++// "Don't know" is always offered so students don't blind-guess.
++const QUESTIONS = [
++  {
++    id: 'q1',
++    text: 'The weather app says "probability of rain = 0.7". What does it mean?',
++    options: ['It will rain for 7 hours', 'On 10 days like this, it rains on about 7', 'Rain is 70% impossible', "I don't know"],
++    answer: 1,
++  },
++  {
++    id: 'q2',
++    text: 'An MCQ has 4 options and you guess without knowing. What is your chance of being right?',
++    options: ['1/2 = 50%', '1/4 = 25%', '4/1', "I don't know"],
++    answer: 1,
++  },
++  {
++    id: 'q3',
++    text: 'Why should a CSE / IT student learn probability?',
++    options: [
++      'Only to pass the maths exam',
++      'Spam filters, recommendations, security and AI are built on it',
++      'Coding never needs it',
++      "I don't know",
++    ],
++    answer: 1,
++  },
++];
++
++const LIKED = ['Everyday examples', 'Animations', 'Tamil narration', 'Predict / guess moments', 'Running the code', 'Quiz'];
++
++const scoreOf = (answers = {}) =>
++  QUESTIONS.reduce((s, q) => s + (Number(answers[q.id]) === q.answer ? 1 : 0), 0);
++
++const cleanAnswers = (answers = {}) =>
++  Object.fromEntries(QUESTIONS.map((q) => [q.id, Number.isInteger(answers[q.id]) ? answers[q.id] : -1]));
++
++const rating1to5 = (v) => Number.isInteger(v) && v >= 1 && v <= 5;
++
++// Express 4 does not catch async errors — wrap every handler.
++const ah = (fn) => (req, res, next) => fn(req, res, next).catch(next);
++
++// GET /api/feedback/questions
++exports.questions = (req, res) =>
++  res.json({
++    lesson: LESSON,
++    versions: VERSIONS,
++    liked: LIKED,
++    questions: QUESTIONS.map(({ answer, ...q }) => q), // strip answers
++  });
++
++// GET /api/feedback/mine  — lets the student resume where they stopped
++exports.mine = ah(async (req, res) => {
++  const fb = await Feedback.findOne({ user: req.user._id, lesson: LESSON }).lean();
++  res.json(fb);
++});
++
++// POST /api/feedback/pre   { version, answers }
++exports.submitPre = ah(async (req, res) => {
++  const { version, answers } = req.body;
++  if (!VERSIONS[version]) return res.status(400).json({ message: 'Pick version A, B or C' });
++
++  const exists = await Feedback.findOne({ user: req.user._id, lesson: LESSON });
++  if (exists) return res.status(409).json({ message: 'Pre-check already submitted' });
++
++  const a = cleanAnswers(answers);
++  const fb = await Feedback.create({
++    user: req.user._id,
++    lesson: LESSON,
++    version,
++    department: req.user.profile?.department,
++    year: req.user.profile?.year,
++    pre: { answers: a, score: scoreOf(a), at: new Date() },
++  });
++  res.status(201).json(fb);
++});
++
++// POST /api/feedback/post  { answers, interest, clarity, likedMost, language, comment }
++exports.submitPost = ah(async (req, res) => {
++  const fb = await Feedback.findOne({ user: req.user._id, lesson: LESSON });
++  if (!fb) return res.status(400).json({ message: 'Do the pre-check first' });
++  if (fb.post?.at) return res.status(409).json({ message: 'Feedback already submitted' });
++
++  const { answers, interest, clarity, likedMost, language, comment } = req.body;
++  if (!rating1to5(interest) || !rating1to5(clarity))
++    return res.status(400).json({ message: 'Please give both ratings (1 to 5)' });
++
++  const a = cleanAnswers(answers);
++  fb.post = { answers: a, score: scoreOf(a), at: new Date() };
++  fb.rating = {
++    interest,
++    clarity,
++    likedMost: LIKED.includes(likedMost) ? likedMost : undefined,
++    language: ['tamil', 'english', 'both'].includes(language) ? language : undefined,
++    comment: (comment || '').slice(0, 1000),
++  };
++  await fb.save();
++  res.json(fb);
++});
++
++// GET /api/feedback/summary  (admin) — ONE aggregation, three answers via $facet
++exports.summary = ah(async (req, res) => {
++  const completed = { $ifNull: ['$post.at', false] };
++  const [result] = await Feedback.aggregate([
++    { $match: { lesson: LESSON } },
++    {
++      $facet: {
++        byVersion: [
++          {
++            $group: {
++              _id: '$version',
++              started: { $sum: 1 },
++              completed: { $sum: { $cond: [completed, 1, 0] } },
++              avgPre: { $avg: '$pre.score' },
++              avgPost: { $avg: '$post.score' },
++              // gain only for students who finished both checks ($avg skips null)
++              avgGain: { $avg: { $cond: [completed, { $subtract: ['$post.score', '$pre.score'] }, null] } },
++              avgInterest: { $avg: '$rating.interest' },
++              avgClarity: { $avg: '$rating.clarity' },
++              wantMore: { $sum: { $cond: [{ $gte: ['$rating.interest', 4] }, 1, 0] } },
++            },
++          },
++          { $sort: { _id: 1 } },
++        ],
++        likedMost: [
++          { $match: { 'rating.likedMost': { $exists: true, $ne: null } } },
++          { $group: { _id: { version: '$version', part: '$rating.likedMost' }, count: { $sum: 1 } } },
++          { $sort: { count: -1 } },
++        ],
++        comments: [
++          { $match: { 'rating.comment': { $gt: '' } } },
++          { $sort: { 'post.at': -1 } },
++          { $limit: 40 },
++          { $project: { _id: 0, version: 1, department: 1, interest: '$rating.interest', comment: '$rating.comment' } },
++        ],
++      },
++    },
++  ]);
++  res.json({ ...result, questionCount: QUESTIONS.length });
++});
+diff --git a/server/models/Feedback.js b/server/models/Feedback.js
+new file mode 100644
+index 0000000..8300828
+--- /dev/null
++++ b/server/models/Feedback.js
+@@ -0,0 +1,41 @@
++// ---------------------------------------------------------------
++// Feedback schema — one document per student per lesson.
++// Lesson: sub-documents (pre, post, rating) keep a whole
++// "before → lesson → after" journey inside ONE document.
++// ---------------------------------------------------------------
++const mongoose = require('mongoose');
++
++const checkSchema = new mongoose.Schema(
++  {
++    answers: { type: Map, of: Number },   // { q1: 1, q2: 0, q3: 2 }
++    score: { type: Number, min: 0 },
++    at: Date,
++  },
++  { _id: false }
++);
++
++const feedbackSchema = new mongoose.Schema(
++  {
++    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
++    lesson: { type: String, required: true },            // e.g. 'probability-why'
++    version: { type: String, enum: ['A', 'B', 'C'], required: true },
++    department: String,                                   // copied from user profile
++    year: Number,
++    pre: checkSchema,                                     // concept check BEFORE the lesson
++    post: checkSchema,                                    // same questions AFTER the lesson
++    rating: {
++      interest: { type: Number, min: 1, max: 5 },         // "Do you want to learn more?"
++      clarity: { type: Number, min: 1, max: 5 },          // "Was it easy to understand?"
++      likedMost: String,
++      language: { type: String, enum: ['tamil', 'english', 'both'] },
++      comment: { type: String, maxlength: 1000, trim: true },
++    },
++  },
++  { timestamps: true }
++);
++
++// One attempt per student per lesson (compound unique index)
++feedbackSchema.index({ user: 1, lesson: 1 }, { unique: true });
++feedbackSchema.index({ lesson: 1, version: 1 });
++
++module.exports = mongoose.model('Feedback', feedbackSchema);
+diff --git a/server/package.json b/server/package.json
+index 2973599..9253a01 100644
+--- a/server/package.json
++++ b/server/package.json
+@@ -6,7 +6,9 @@
+   "scripts": {
+     "dev": "nodemon server.js",
+     "start": "node server.js",
+-    "seed": "node utils/seed.js"
++    "seed": "node utils/seed.js",
++    "voice": "node scripts/generateVoice.js",
++    "voice:audition": "node scripts/auditionVoices.js"
+   },
+   "dependencies": {
+     "bcryptjs": "^2.4.3",
+diff --git a/server/routes/feedbackRoutes.js b/server/routes/feedbackRoutes.js
+new file mode 100644
+index 0000000..65bebe6
+--- /dev/null
++++ b/server/routes/feedbackRoutes.js
+@@ -0,0 +1,12 @@
++// trackActivity (protect + heartbeat) is applied in server.js
++const router = require('express').Router();
++const c = require('../controllers/feedbackController');
++const { adminOnly } = require('../middleware/auth');
++
++router.get('/questions', c.questions);
++router.get('/mine', c.mine);
++router.post('/pre', c.submitPre);
++router.post('/post', c.submitPost);
++router.get('/summary', adminOnly, c.summary);
++
++module.exports = router;
+diff --git a/server/scripts/auditionVoices.js b/server/scripts/auditionVoices.js
+new file mode 100644
+index 0000000..a24ac6a
+--- /dev/null
++++ b/server/scripts/auditionVoices.js
+@@ -0,0 +1,47 @@
++// ---------------------------------------------------------------
++// auditionVoices.js — hear candidate Sarvam voices before choosing.
++//   npm run voice:audition
++//   npm run voice:audition -- --speakers mani,kavitha,vijay
++// Writes server/voice-audition/*.mp3 and index.html. Open index.html
++// in your browser, listen, then set VOICE_SPEAKER in server/.env.
++// ---------------------------------------------------------------
++const fs = require('fs');
++const path = require('path');
++require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
++
++const KEY = process.env.SARVAM_API_KEY || process.env.SARVAM_KEY || process.env.SARVAM_API_SUBSCRIPTION_KEY;
++const BASE = process.env.SARVAM_BASE_URL || 'https://api.sarvam.ai';
++const OUT = path.join(__dirname, '..', 'voice-audition');
++const args = process.argv.slice(2);
++const i = args.indexOf('--speakers');
++const SPEAKERS = (i >= 0 ? args[i + 1] : 'kavitha,mani,gokul,vijay,priya,shubh').split(',').map((s) => s.trim().toLowerCase());
++const PACE = Number(process.env.VOICE_PACE || 0.92);
++
++const LINES = {
++  ta: 'ஆனா கொஞ்சம் படிச்சிருந்தா, ரெண்டு தப்பான options-ஐ cut பண்ணிடலாம். இப்போ chance ரெண்டுல ஒண்ணு, 50 percent. கவனிச்சீங்களா? படிக்கிறது உங்க probability-ஐயே மாத்துது.',
++  en: 'But if you studied a little, you can cut two wrong options. Now your chance is one out of two, 50 percent. Did you notice? Studying literally changes your probability.',
++};
++
++async function main() {
++  if (!KEY) { console.error('No Sarvam key found. Add SARVAM_API_KEY=... to server/.env'); process.exit(1); }
++  fs.mkdirSync(OUT, { recursive: true });
++  const rows = [];
++  for (const sp of SPEAKERS) for (const [lang, text] of Object.entries(LINES)) {
++    const res = await fetch(`${BASE}/text-to-speech`, {
++      method: 'POST', headers: { 'api-subscription-key': KEY, 'Content-Type': 'application/json' },
++      body: JSON.stringify({ text, language_code: lang === 'ta' ? 'ta-IN' : 'en-IN', model: 'bulbul:v3', speaker: sp, pace: PACE, temperature: 0.5, output_audio_codec: 'mp3' }),
++    });
++    if (!res.ok) { console.error(`✗ ${sp} ${lang}: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`); continue; }
++    const json = await res.json();
++    const file = `${sp}-${lang}.mp3`;
++    fs.writeFileSync(path.join(OUT, file), Buffer.from(json.audios.join(''), 'base64'));
++    rows.push([sp, lang, file]); console.log(`✓ ${file}`);
++  }
++  const html = `<!doctype html><meta charset="utf-8"><title>Voice audition</title>
++<style>body{font-family:system-ui;max-width:760px;margin:30px auto;padding:0 16px}td{padding:8px}</style>
++<h1>Pick the lesson voice</h1><p>Same lines, different speakers. Choose one voice for all lessons, then set <code>VOICE_SPEAKER</code> in server/.env.</p>
++<table>${SPEAKERS.map((sp) => `<tr><td><b>${sp}</b></td>${['ta', 'en'].map((l) => rows.find((r) => r[0] === sp && r[1] === l) ? `<td>${l === 'ta' ? 'Tamil' : 'English'}<br><audio controls src="${sp}-${l}.mp3"></audio></td>` : '<td>failed</td>').join('')}</tr>`).join('')}</table>`;
++  fs.writeFileSync(path.join(OUT, 'index.html'), html);
++  console.log(`\nOpen ${path.join(OUT, 'index.html')} in your browser.`);
++}
++main();
+diff --git a/server/scripts/generateVoice.js b/server/scripts/generateVoice.js
+new file mode 100644
+index 0000000..a0b6fbc
+--- /dev/null
++++ b/server/scripts/generateVoice.js
+@@ -0,0 +1,132 @@
++// ---------------------------------------------------------------
++// generateVoice.js — one-time voice-over generation with Sarvam.
++//
++//   npm run voice                      all lessons, all versions, ta + en
++//   npm run voice -- --lesson probability --version B --lang ta
++//   npm run voice -- --dry             show what would be generated + characters
++//   npm run voice -- --force           regenerate everything
++//
++// Reads  client/src/lessons/<lesson>/narration.json
++// Writes client/public/audio/<lesson>/<version>/<lang>/<beatId>.mp3
++// Keeps  client/public/audio/<lesson>/manifest.json so unchanged lines are
++//        skipped. Edit one sentence → only that clip is regenerated.
++// The API key stays on this machine. It is never shipped to the browser.
++// ---------------------------------------------------------------
++const fs = require('fs');
++const path = require('path');
++const crypto = require('crypto');
++require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
++
++const ROOT = path.join(__dirname, '..', '..');
++const LESSONS_DIR = path.join(ROOT, 'client', 'src', 'lessons');
++const AUDIO_DIR = path.join(ROOT, 'client', 'public', 'audio');
++
++const KEY = process.env.SARVAM_API_KEY || process.env.SARVAM_KEY || process.env.SARVAM_API_SUBSCRIPTION_KEY;
++const BASE = process.env.SARVAM_BASE_URL || 'https://api.sarvam.ai';
++
++const args = process.argv.slice(2);
++const arg = (name, def) => { const i = args.indexOf('--' + name); return i >= 0 ? args[i + 1] : def; };
++const flag = (name) => args.includes('--' + name);
++
++const CONFIG = {
++  model: 'bulbul:v3',
++  speaker: (arg('speaker') || process.env.VOICE_SPEAKER || 'kavitha').toLowerCase(),
++  pace: Number(arg('pace') || process.env.VOICE_PACE || 0.92),
++  temperature: Number(process.env.VOICE_TEMPERATURE || 0.5),
++  sampleRate: Number(process.env.VOICE_SAMPLE_RATE || 22050),
++  codec: 'mp3',
++};
++const LANG_CODE = { ta: 'ta-IN', en: 'en-IN' };
++
++// Symbols read badly aloud. `say` fields handle the hard cases; this catches the rest.
++function speakable(text, lang) {
++  return text
++    .replace(/(\d)\s*%/g, '$1 percent')
++    .replace(/÷/g, lang === 'ta' ? ' வகுத்தல் ' : ' divided by ')
++    .replace(/×/g, lang === 'ta' ? ' into ' : ' times ')
++    .replace(/≈/g, lang === 'ta' ? ' சுமார் ' : ' about ')
++    .replace(/→/g, ', ')
++    .replace(/\s+/g, ' ')
++    .trim();
++}
++
++function jobsFor(lessonId) {
++  const file = path.join(LESSONS_DIR, lessonId, 'narration.json');
++  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
++  const jobs = [];
++  for (const [v, ver] of Object.entries(data.versions)) {
++    if (arg('version') && arg('version') !== v) continue;
++    for (const scene of ver.scenes) for (const beat of scene.beats) for (const lang of ['ta', 'en']) {
++      if (arg('lang') && arg('lang') !== lang) continue;
++      const text = speakable((beat.say && beat.say[lang]) || beat[lang], lang);
++      const rel = `${v}/${lang}/${beat.id}.mp3`;
++      const hash = crypto.createHash('sha1').update(JSON.stringify([text, CONFIG, LANG_CODE[lang]])).digest('hex').slice(0, 16);
++      jobs.push({ lessonId, rel, lang, text, hash });
++    }
++  }
++  return jobs;
++}
++
++async function tts(text, lang) {
++  const body = {
++    text, language_code: LANG_CODE[lang], model: CONFIG.model, speaker: CONFIG.speaker,
++    pace: CONFIG.pace, temperature: CONFIG.temperature, speech_sample_rate: CONFIG.sampleRate, output_audio_codec: CONFIG.codec,
++  };
++  for (let attempt = 1; attempt <= 4; attempt++) {
++    const res = await fetch(`${BASE}/text-to-speech`, {
++      method: 'POST', headers: { 'api-subscription-key': KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
++    });
++    if (res.ok) {
++      const json = await res.json();
++      if (!json.audios?.length) throw new Error('No audio in response');
++      return Buffer.from(json.audios.join(''), 'base64');
++    }
++    const detail = await res.text();
++    if ((res.status === 429 || res.status >= 500) && attempt < 4) { await new Promise((r) => setTimeout(r, 1500 * attempt)); continue; }
++    if (res.status === 403) throw new Error('403 Forbidden: check the Sarvam key in server/.env');
++    throw new Error(`HTTP ${res.status}: ${detail.slice(0, 300)}`);
++  }
++}
++
++async function main() {
++  const [major] = process.versions.node.split('.').map(Number);
++  if (major < 18) { console.error('Node 18 or newer is needed (built-in fetch).'); process.exit(1); }
++
++  const lessonIds = arg('lesson') ? [arg('lesson')] : fs.readdirSync(LESSONS_DIR).filter((d) => fs.existsSync(path.join(LESSONS_DIR, d, 'narration.json')));
++  console.log(`Voice: ${CONFIG.speaker}, pace ${CONFIG.pace}, ${CONFIG.model}, ${CONFIG.codec}`);
++
++  let made = 0, skipped = 0, failed = 0, chars = 0;
++  for (const lessonId of lessonIds) {
++    const outDir = path.join(AUDIO_DIR, lessonId);
++    const manifestFile = path.join(outDir, 'manifest.json');
++    const manifest = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, 'utf8')) : {};
++    const jobs = jobsFor(lessonId);
++    const todo = jobs.filter((j) => flag('force') || manifest[j.rel]?.hash !== j.hash || !fs.existsSync(path.join(outDir, j.rel)));
++    const todoChars = todo.reduce((s, j) => s + j.text.length, 0);
++    console.log(`\n${lessonId}: ${jobs.length} clips, ${todo.length} to generate (${todoChars.toLocaleString('en-IN')} characters)`);
++    skipped += jobs.length - todo.length;
++
++    if (flag('dry')) { todo.forEach((j) => console.log(`  ${j.rel.padEnd(18)} ${j.text.slice(0, 70)}${j.text.length > 70 ? '…' : ''}`)); continue; }
++    if (!KEY) { console.error('\nNo Sarvam key found. Add SARVAM_API_KEY=... to server/.env'); process.exit(1); }
++
++    for (const j of todo) {
++      try {
++        const audio = await tts(j.text, j.lang);
++        const file = path.join(outDir, j.rel);
++        fs.mkdirSync(path.dirname(file), { recursive: true });
++        fs.writeFileSync(file, audio);
++        manifest[j.rel] = { hash: j.hash, chars: j.text.length, speaker: CONFIG.speaker, bytes: audio.length, at: new Date().toISOString() };
++        fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2));   // save after every clip: safe to stop and resume
++        made++; chars += j.text.length;
++        console.log(`  ✓ ${j.rel}  ${(audio.length / 1024).toFixed(0)} KB`);
++      } catch (e) {
++        failed++; console.error(`  ✗ ${j.rel}  ${e.message}`);
++        if (/403/.test(e.message)) process.exit(1);
++      }
++    }
++  }
++  console.log(`\nDone. Generated ${made}, unchanged ${skipped}, failed ${failed}. Characters sent: ${chars.toLocaleString('en-IN')}.`);
++  if (failed) process.exitCode = 1;
++}
++
++main();
+diff --git a/server/server.js b/server/server.js
+index 6932718..3120a26 100644
+--- a/server/server.js
++++ b/server/server.js
+@@ -23,6 +23,7 @@ app.get('/', (req, res) => res.json({ status: 'API running', time: new Date() })
+ app.use('/api/auth', require('./routes/authRoutes'));
+ app.use('/api/notes', trackActivity, require('./routes/noteRoutes'));
+ app.use('/api/admin', trackActivity, require('./routes/adminRoutes'));
++app.use('/api/feedback', trackActivity, require('./routes/feedbackRoutes'));
+ 
+ // ---- 404 + error handler ----
+ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
