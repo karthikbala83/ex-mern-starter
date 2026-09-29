@@ -60,9 +60,12 @@ export default function Signup() {
         referralCode,
       });
       nav('/home');                  // the fork: Fun Game or Enovix
+      // Stays disabled on success — see the note in Login.jsx. Double
+      // submitting a signup is worse than a double login: the second one
+      // fails on the unique email index and shows the new student an
+      // "Email already registered" error for the account they just made.
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed');
-    } finally {
       setBusy(false);
     }
   };

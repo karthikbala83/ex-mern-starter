@@ -55,11 +55,15 @@ export default function Login() {
     try {
       await login(email, password);
       nav('/home');                  // the fork: Fun Game or Enovix
+      // NOTE: busy stays true on purpose. A `finally` here would re-enable
+      // the button on success too, and there is a real gap between asking
+      // to navigate and this component unmounting — long enough to flash
+      // "Login" back and to accept a second click, which would sign in
+      // twice and open a second session. Only a FAILURE hands the form back.
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
       shake();                       // feel the failure, not just read it
-    } finally {
-      setBusy(false);                // runs on success AND failure — never strand the button
+      setBusy(false);                // they are staying here, so give the button back
     }
   };
 
