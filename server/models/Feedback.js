@@ -1,41 +1,39 @@
 // ---------------------------------------------------------------
-// Feedback schema — one document per student per lesson.
-// Lesson: sub-documents (pre, post, rating) keep a whole
-// "before → lesson → after" journey inside ONE document.
+// Feedback — students write, admin searches.
+// Lesson: validation lives on the MODEL. Whether the message
+// arrives from our React form, from Postman, or from a curl one-liner,
+// the same minlength/maxlength/min/max rules apply. The browser form
+// is a convenience; the schema is the law.
 // ---------------------------------------------------------------
 const mongoose = require('mongoose');
 
-const checkSchema = new mongoose.Schema(
-  {
-    answers: { type: Map, of: Number },   // { q1: 1, q2: 0, q3: 2 }
-    score: { type: Number, min: 0 },
-    at: Date,
-  },
-  { _id: false }
-);
-
 const feedbackSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    lesson: { type: String, required: true },            // e.g. 'probability-why'
-    version: { type: String, enum: ['A', 'B', 'C'], required: true },
-    department: String,                                   // copied from user profile
-    year: Number,
-    pre: checkSchema,                                     // concept check BEFORE the lesson
-    post: checkSchema,                                    // same questions AFTER the lesson
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+
+    message: {
+      type: String,
+      required: [true, 'Message is required'],
+      minlength: [10, 'Message must be at least 10 characters'],
+      maxlength: [500, 'Message must be under 500 characters'],
+      trim: true,
+    },
+
     rating: {
-      interest: { type: Number, min: 1, max: 5 },         // "Do you want to learn more?"
-      clarity: { type: Number, min: 1, max: 5 },          // "Was it easy to understand?"
-      likedMost: String,
-      language: { type: String, enum: ['tamil', 'english', 'both'] },
-      comment: { type: String, maxlength: 1000, trim: true },
+      type: Number,
+      required: [true, 'Rating is required'],
+      min: [1, 'Rating must be 1-5'],
+      max: [5, 'Rating must be 1-5'],
     },
   },
   { timestamps: true }
 );
 
-// One attempt per student per lesson (compound unique index)
-feedbackSchema.index({ user: 1, lesson: 1 }, { unique: true });
-feedbackSchema.index({ lesson: 1, version: 1 });
+// ---- TEXT index — Mongo's built-in search engine. ----
+// This lets admins run { $text: { $search: 'wifi' } } instead of a slow regex scan.
+// Mongo tokenises the message, drops stop-words ("the", "is"), stems words
+// ("running" -> "run"), and can rank results by relevance ($meta: 'textScore').
+// Limit: ONE text index per collection — so choose the field that matters.
+feedbackSchema.index({ message: 'text' });
 
 module.exports = mongoose.model('Feedback', feedbackSchema);

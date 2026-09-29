@@ -1,12 +1,8 @@
-// trackActivity (protect + heartbeat) is applied in server.js
 const router = require('express').Router();
 const c = require('../controllers/feedbackController');
-const { adminOnly } = require('../middleware/auth');
 
-router.get('/questions', c.questions);
-router.get('/mine', c.mine);
-router.post('/pre', c.submitPre);
-router.post('/post', c.submitPost);
-router.get('/summary', adminOnly, c.summary);
+// Rate limiting lives in the controller, not here — see the comment there
+// for why the database, and not memory, is the right place to count.
+router.post('/', c.submit);
 
 module.exports = router;

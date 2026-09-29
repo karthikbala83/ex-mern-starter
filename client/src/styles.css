@@ -41,6 +41,127 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eef1f7; }
 .rule.bad { color: #8a94a6; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* ================= CAMPUS ARENA ================= */
+
+/* ---- Game arena: a fixed box so random dot coords always land inside ---- */
+/* position:relative is what makes the dot's absolute left/top measure from
+   the ARENA's corner and not the page's. Remove it and dots fly off-screen. */
+.arena { position: relative; margin: 16px 0; border-radius: 14px;
+         background: linear-gradient(160deg, #1E3E7B, #2c5aa8); overflow: hidden;
+         box-shadow: 0 4px 16px rgba(30,62,123,0.25); }
+.arena-center { position: absolute; inset: 0; display: flex; flex-direction: column;
+         align-items: center; justify-content: center; gap: 10px; color: #fff; text-align: center; }
+.arena-center .muted { color: #c7d3ea; }
+.countdown { font-size: 90px; font-weight: 700; }
+.dot { position: absolute; border-radius: 50%; background: #C9A21F; color: #1a2333;
+       font-weight: 700; font-size: 18px; padding: 0; border: 3px solid #fff;
+       box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.big-score { font-size: 46px; font-weight: 700; margin: 4px 0; }
+.big-score small { font-size: 18px; font-weight: 400; margin-left: 4px; }
+.result .info { color: #ffe27a; }
+
+/* ---- Leaderboard ---- */
+.my-rank { display: flex; align-items: center; gap: 16px; }
+.rank-num { font-size: 38px; font-weight: 700; color: #1E3E7B; }
+.medal-1 { background: #fdf6dc; } .medal-2 { background: #f1f3f6; } .medal-3 { background: #f8ece2; }
+.medal td:first-child { font-size: 18px; }
+
+/* ---- Referral ---- */
+.ref-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.ref-row input { margin-bottom: 0; }
+.ref-row button { white-space: nowrap; }
+.ref-code { background: #e6ebf5; padding: 8px 14px; border-radius: 6px;
+            font-size: 16px; letter-spacing: 1px; font-weight: 700; }
+.ref-list { margin: 0; padding-left: 18px; font-size: 14px; }
+.tree { list-style: none; padding: 0; margin: 8px 0 0; font-size: 14px; }
+.tree li { padding: 3px 0; }
+
+/* ---- Notification bell ---- */
+.bell-wrap { position: relative; display: inline-block; margin-left: 16px; }
+.bell { font-size: 18px; margin-left: 0; position: relative; }
+.bell-badge { position: absolute; top: -6px; right: -10px; background: #b3372f;
+              color: #fff; font-size: 11px; font-weight: 700; border-radius: 10px;
+              padding: 1px 6px; }
+.bell-panel { position: absolute; right: 0; top: 30px; width: 280px; z-index: 30;
+              background: #fff; color: #1a2333; border-radius: 10px; padding: 12px;
+              box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+.bell-item { border-bottom: 1px solid #eef1f7; padding: 6px 0; }
+.bell-item:last-child { border-bottom: none; }
+.bell-item p { font-size: 13px; margin-top: 4px; }
+
+/* ---- Toasts: fixed so they never shift the page underneath ---- */
+.toast-stack { position: fixed; top: 70px; right: 20px; z-index: 50;
+               display: flex; flex-direction: column; gap: 8px; }
+.toast { background: #1a2333; color: #fff; padding: 12px 16px; border-radius: 8px;
+         font-size: 14px; max-width: 300px; cursor: pointer;
+         box-shadow: 0 4px 14px rgba(0,0,0,0.22); }
+.toast-success { background: #2c6e49; }
+.toast-warn { background: #9c5b1f; }
+
+/* ---- Star rating ---- */
+.stars { display: flex; gap: 4px; margin-bottom: 10px; }
+.star { background: none; border: none; font-size: 28px; color: #cfd6e4;
+        padding: 0 2px; line-height: 1; }
+.star.on { color: #C9A21F; }
+
+/* ---- Site footer (every page) ---- */
+/* #root is a flex column so the footer sits at the BOTTOM of short pages
+   (Login, Feedback) instead of floating up under the card. `flex: 1` on
+   the main area makes it absorb the leftover height. */
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+.container { flex: 1; }
+.site-footer { text-align: center; padding: 18px 16px; font-size: 13px;
+               color: #6b7688; border-top: 1px solid #e3e8f0; background: #fff; }
+.site-footer a { color: #1E3E7B; font-weight: 600; text-decoration: none; }
+.site-footer a:hover { color: #C9A21F; text-decoration: underline; }
+
+/* ---- Split auth layout (login / signup / forgot / reset) ---- */
+/* Two columns on a desktop, one on a phone. `grid-template-columns`
+   with a fixed-ish left and a flexible right keeps the form width
+   comfortable no matter how wide the screen gets. */
+.auth-split { display: grid; grid-template-columns: 5fr 6fr;
+              max-width: 880px; margin: 40px auto; border-radius: 16px;
+              overflow: hidden; background: #fff;
+              box-shadow: 0 10px 40px rgba(30,62,123,0.16); }
+
+/* Left: the college / brand panel */
+.auth-brand { background: linear-gradient(160deg, #1E3E7B 0%, #2c5aa8 100%);
+              color: #fff; padding: 44px 32px; display: flex;
+              flex-direction: column; align-items: center; justify-content: center;
+              text-align: center; gap: 6px; }
+.auth-logo { width: 88px; height: 88px; object-fit: contain; background: #fff;
+             border-radius: 50%; padding: 8px; margin-bottom: 10px; }
+/* Shown only until a real college-logo.png is dropped into public/ */
+.auth-logo-fallback { width: 88px; height: 88px; border-radius: 50%;
+             background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.4);
+             display: flex; align-items: center; justify-content: center;
+             font-size: 28px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.auth-college { font-size: 19px; font-weight: 700; line-height: 1.3; margin: 0; }
+.auth-product { font-size: 14px; color: #C9A21F; font-weight: 700;
+                letter-spacing: 1.5px; text-transform: uppercase; margin: 2px 0 0; }
+.auth-tagline { font-size: 13px; color: #c7d3ea; margin: 10px 0 0; }
+
+/* Right: whichever form the route rendered */
+.auth-pane { padding: 44px 40px; display: flex; align-items: center; }
+.auth-form { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.auth-form h2 { margin: 0; font-size: 24px; }
+.auth-hint { color: #6b7688; font-size: 14px; margin: -4px 0 8px; }
+.auth-form p { font-size: 14px; margin: 0; }
+.auth-form input { margin-bottom: 0; }
+
+/* Phones: stack, and shrink the brand panel to a slim header so the
+   form stays above the fold instead of being pushed off it. */
+@media (max-width: 760px) {
+  .auth-split { grid-template-columns: 1fr; margin: 16px; }
+  .auth-brand { padding: 26px 20px; }
+  .auth-logo, .auth-logo-fallback { width: 60px; height: 60px; font-size: 20px; }
+  .auth-college { font-size: 16px; }
+  .auth-tagline { display: none; }
+  .auth-pane { padding: 28px 22px; }
+}
+
+/* ================= ENOVIX (lessons) ================= */
+
 /* ---- lesson feedback ---- */
 .fb-opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
 .fb-opt input { width: auto; margin: 4px 0 0; }
@@ -90,3 +211,29 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .lab-ch summary { cursor: pointer; font-weight: 700; color: #1E3E7B; margin-top: 6px; }
 .quiz-q.ok { border-left: 5px solid #547B5C; } .quiz-q.bad { border-left: 5px solid #b3372f; }
 .quiz-fb { margin-top: 6px; font-size: 15px; }
+
+/* ---- Home: the two-product fork ---- */
+/* auto-fit + minmax: two columns on a laptop, one on a phone, with no
+   media query at all — the grid decides based on available width. */
+.home-grid { display: grid; gap: 16px; margin: 18px 0;
+             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.home-card { display: block; text-decoration: none; color: inherit; background: #fff;
+             border-radius: 14px; padding: 22px; border: 2px solid transparent;
+             box-shadow: 0 2px 10px rgba(30,62,123,0.10); transition: transform .15s, box-shadow .15s, border-color .15s; }
+.home-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(30,62,123,0.18); }
+.home-card h3 { margin: 8px 0 6px; font-size: 20px; }
+.home-card p { color: #6b7688; font-size: 14px; margin: 0 0 12px; }
+.home-emoji { font-size: 34px; line-height: 1; }
+.home-go { font-weight: 700; font-size: 14px; }
+.home-card-game:hover { border-color: #1E3E7B; }
+.home-card-game .home-go { color: #1E3E7B; }
+.home-card-learn:hover { border-color: #547B5C; }
+.home-card-learn .home-go { color: #547B5C; }
+
+/* NavLink adds .active to the current route — show students where they are. */
+.nav a.active { border-bottom: 2px solid #C9A21F; padding-bottom: 2px; }
+
+/* Enovix listing header: title left, language toggle right */
+.lang-switch { display: flex; gap: 6px; }
+.lang-switch button { background: #e6ebf5; color: #1a2333; font-size: 14px; padding: 6px 14px; }
+.lang-switch button[aria-pressed="true"] { background: #1E3E7B; color: #fff; }

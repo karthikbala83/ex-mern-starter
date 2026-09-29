@@ -4,3 +4,8 @@ dist/
 build/
 .DS_Store
 *.log
+
+
+# local bundles / patches
+*.zip
+*.patch

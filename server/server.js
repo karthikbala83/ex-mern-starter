@@ -12,7 +12,17 @@ const trackActivity = require('./middleware/trackActivity');
 const app = express();
 
 // ---- Global middleware ----
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// An Origin header is scheme + host + port and NEVER has a path — the browser
+// sends "https://site.netlify.app", not "https://site.netlify.app/". If
+// CLIENT_URL is pasted from the address bar it usually carries a trailing
+// slash, the two strings stop matching exactly, and every request fails CORS
+// while the preflight still answers 204 — so the server looks perfectly
+// healthy and only the browser complains. Strip it here so a stray slash in
+// an env var can never cost anyone an afternoon again.
+const clientOrigin = (process.env.CLIENT_URL || '').replace(/\/+$/, '');
+if (!clientOrigin) console.warn('CLIENT_URL is not set — CORS will allow any origin.');
+
+app.use(cors({ origin: clientOrigin || undefined, credentials: true }));
 app.use(express.json());
 
 // ---- Connect database ----
@@ -23,7 +33,20 @@ app.get('/', (req, res) => res.json({ status: 'API running', time: new Date() })
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/notes', trackActivity, require('./routes/noteRoutes'));
 app.use('/api/admin', trackActivity, require('./routes/adminRoutes'));
+
+// ---- Campus Arena ----
+// Same shape as above: trackActivity = [protect, touch], so these are all
+// logged-in-only AND they keep the live admin dashboard's heartbeat ticking.
+app.use('/api/game', trackActivity, require('./routes/gameRoutes'));
+app.use('/api/users', trackActivity, require('./routes/userRoutes'));
+app.use('/api/notifications', trackActivity, require('./routes/notificationRoutes'));
 app.use('/api/feedback', trackActivity, require('./routes/feedbackRoutes'));
+
+// ---- Enovix (animated lessons) ----
+// Mounted on its own prefix with its own controller and model, so the
+// lesson pre/post concept check and the arena's free-text feedback can
+// never collide. Two features, two collections, one login.
+app.use('/api/lesson-feedback', trackActivity, require('./routes/lessonFeedbackRoutes'));
 
 // ---- 404 + error handler ----
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
