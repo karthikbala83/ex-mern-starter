@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'In a right-angled triangle, sin θ equals…', ta: 'Right-angled triangle-ல sin θ = …' },
+    o: ['adjacent ÷ hypotenuse', 'opposite ÷ hypotenuse', 'opposite ÷ adjacent', 'hypotenuse ÷ opposite'], a: 1,
+    e: { en: 'sin θ = opposite ÷ hypotenuse. cos uses the adjacent side; tan divides opposite by adjacent.', ta: 'sin θ = opposite ÷ hypotenuse. cos adjacent side-ஐ use பண்ணுது; tan opposite-ஐ adjacent-ஆல வகுக்குது.' } },
+  { q: { en: 'Why can an angle alone tell us a length, like the height of a tank?', ta: 'ஒரு angle மட்டும் வெச்சு, ஒரு tank-ஓட உயரம் மாதிரி நீளத்தை எப்படி சொல்ல முடியுது?' },
+    o: ['Because all tanks are the same height', 'Because the ratios depend only on the angle, not the triangle\'s size', 'Because of GPS', 'It cannot'], a: 1,
+    e: { en: 'sin 30° is 0.5 for every right triangle, big or small. Know one side and the angle, and the ratio gives the other side.', ta: 'பெரிசோ சின்னதோ, எல்லா right triangle-க்கும் sin 30° = 0.5. ஒரு side-உம் angle-உம் தெரிஞ்சா, ratio மத்த side-ஐ தரும்.' } },
+  { q: { en: 'Math.sin(90) in JavaScript prints 0.894, not 1. Why?', ta: 'JavaScript-ல Math.sin(90) 1 இல்லாம 0.894 காட்டுது. ஏன்?' },
+    o: ['JavaScript has a bug', 'Machines measure angles in radians, and 90 radians is not 90°', 'sin 90° is really 0.894', 'It needs Math.round'], a: 1,
+    e: { en: 'Convert first: Math.sin(90 * Math.PI / 180) gives 1. Or use a package like mathjs that accepts degrees.', ta: 'முதல்ல convert பண்ணுங்க: Math.sin(90 * Math.PI / 180) = 1. இல்லன்னா degrees ஏத்துக்கிற mathjs மாதிரி package use பண்ணுங்க.' } },
+  { q: { en: 'How does Math.sin calculate its answer?', ta: 'Math.sin அதோட answer-ஐ எப்படி calculate பண்ணுது?' },
+    o: ['It looks it up in a huge table', 'It adds up a short polynomial, like x − x³/6 + x⁵/120', 'It asks the internet', 'It draws a triangle and measures it'], a: 1,
+    e: { en: 'Libraries shrink the angle into a small range, then evaluate a tuned polynomial: only multiplication and addition. The idea goes back to Madhava of Sangamagrama.', ta: 'Libraries angle-ஐ சின்ன range-க்குள்ள கொண்டு வந்து, tune பண்ண polynomial-ஐ calculate பண்ணுது: பெருக்கல், கூட்டல் மட்டும். இந்த idea Sangamagrama Madhava-ல இருந்து வந்தது.' } },
+  { q: { en: 'Ignoring air resistance, which throwing angle sends a cricket ball the farthest?', ta: 'Air resistance இல்லன்னா, எந்த angle-ல throw பண்ணா cricket ball அதிக தூரம் போகும்?' },
+    o: ['30°', '45°', '60°', '90°'], a: 1,
+    e: { en: 'Range depends on sin(2θ), which is largest when 2θ = 90°, so θ = 45°.', ta: 'Range sin(2θ)-ஐ பொறுத்தது. 2θ = 90° ஆனா அது அதிகம், அதனால θ = 45°.' } },
+];

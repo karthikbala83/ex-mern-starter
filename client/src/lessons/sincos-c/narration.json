@@ -1,0 +1,227 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson sincos-c (in /server).",
+  "lesson": "sincos-c",
+  "title": {
+    "en": "sin & cos C: waves everywhere",
+    "ta": "sin & cos C: எங்கும் waves"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "Robot rain",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "Monsoon arrives in Campus Quest! But the rain looks wrong: every drop falls in a perfectly straight line, like a robot.",
+              "ta": "Campus Quest-க்கு monsoon வந்தாச்சு! ஆனா மழை சரியா இல்ல: ஒவ்வொரு drop-உம் robot மாதிரி perfect straight line-ல விழுது."
+            },
+            {
+              "id": "s1-b2",
+              "en": "Real rain sways with the wind, back and forth, again and again. Anything that goes back and forth over time is a wave, and waves are made of sin and cos.",
+              "ta": "உண்மையான மழை wind-ல முன்னும் பின்னும், திரும்ப திரும்ப ஆடும். Time-ல முன்னும் பின்னும் போற எதுவும் ஒரு wave. Waves sin, cos-ஆல தான் உருவாகுது."
+            },
+            {
+              "id": "s1-b3",
+              "en": "Part C: waves in games, in your home's electricity, in your heartbeat, in hospital scanners and in data.",
+              "ta": "Part C: games-ல, வீட்டு electricity-ல, உங்க heartbeat-ல, hospital scanners-ல, data-ல waves."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "What makes a wave",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Remember the point spinning on a circle? Plot its height against time and you get the sine wave.",
+              "ta": "Circle-ல சுழலுற point ஞாபகம் இருக்கா? அதோட உயரத்தை time-க்கு எதிரா வரைஞ்சா sine wave வருது."
+            },
+            {
+              "id": "s2-b2",
+              "en": "Two numbers describe any wave. Amplitude: how far it swings. Period: how long one full swing takes. Frequency is swings per second, which is 1 ÷ period.",
+              "ta": "எந்த wave-ஐயும் ரெண்டு numbers விவரிக்கும். Amplitude: எவ்வளவு தூரம் ஆடுது. Period: ஒரு முழு ஆட்டத்துக்கு எவ்வளவு time. Frequency-ன்னா ஒரு second-ல எத்தனை ஆட்டம், அதாவது 1 ÷ period.",
+              "say": {
+                "en": "Two numbers describe any wave. Amplitude: how far it swings. Period: how long one full swing takes. Frequency is swings per second, which is 1 divided by the period.",
+                "ta": "எந்த wave-ஐயும் ரெண்டு numbers விவரிக்கும். Amplitude: எவ்வளவு தூரம் ஆடுது. Period: ஒரு முழு ஆட்டத்துக்கு எவ்வளவு time. Frequency-ன்னா ஒரு second-ல எத்தனை ஆட்டம், அதாவது 1-ஐ period-ஆல வகுக்கிறது."
+              }
+            },
+            {
+              "id": "s2-b3",
+              "en": "In code: y = A × sin(2π × f × t). Make A bigger and the wave gets taller. Make f bigger and it gets faster.",
+              "ta": "Code-ல: y = A × sin(2π × f × t). A-ஐ பெருசாக்கினா wave உயரமாகும். f-ஐ பெருசாக்கினா வேகமாகும்.",
+              "say": {
+                "en": "In code: y equals A times sin of 2 pi times f times t. Make A bigger and the wave gets taller. Make f bigger and it gets faster.",
+                "ta": "Code-ல: y-ன்னா A into sin of 2 pi into f into t. A-ஐ பெருசாக்கினா wave உயரமாகும். f-ஐ பெருசாக்கினா வேகமாகும்."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Make it rain",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Now, rain. In games like Minecraft and racing games, rain is hundreds of tiny drops. First, they simply fall with gravity.",
+              "ta": "இப்போ மழை. Minecraft, racing games மாதிரி games-ல மழை-ன்னா நூற்றுக்கணக்கான சின்ன drops. முதல்ல, அவை gravity-ல நேரா விழுது."
+            },
+            {
+              "id": "s3-b2",
+              "en": "Add wind. Each drop's sideways position follows sin of time, so the rain sways naturally instead of moving like a robot.",
+              "ta": "இப்போ wind சேர்ப்போம். ஒவ்வொரு drop-ஓட பக்கவாட்டு position sin of time-ஐ follow பண்ணுது. அதனால மழை robot மாதிரி இல்லாம இயற்கையா ஆடுது."
+            },
+            {
+              "id": "s3-b3",
+              "en": "Where drops land, ripples spread. Each ripple's height is sin of distance minus time: the same wave, now in circles. Your mission will add the wind sway yourself.",
+              "ta": "Drops விழுற இடத்துல ripples பரவுது. Ripple-ஓட உயரம் sin of distance minus time. அதே wave தான், இப்போ circle-ஆ. Wind sway-ஐ உங்க mission-ல நீங்களே சேர்ப்பீங்க."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Electricity at home",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "The electricity in your home is a sine wave. In India it swings back and forth 50 times every second: 50 hertz.",
+              "ta": "உங்க வீட்டு electricity ஒரு sine wave. இந்தியாவுல அது ஒவ்வொரு second-உம் 50 தடவை முன்னும் பின்னும் ஆடுது: 50 hertz."
+            },
+            {
+              "id": "s4-b2",
+              "en": "So one full swing takes 1 ÷ 50 of a second: 20 milliseconds. The voltage swings between about +325 and −325 volts. The 230 volts on your bill is its effective value.",
+              "ta": "அதனால ஒரு முழு ஆட்டத்துக்கு 1 ÷ 50 second: 20 milliseconds. Voltage சுமார் +325-க்கும் −325 volts-க்கும் நடுவுல ஆடுது. Bill-ல வர்ற 230 volts அதோட effective value.",
+              "say": {
+                "en": "So one full swing takes 1 by 50 of a second: 20 milliseconds. The voltage swings between about plus 325 and minus 325 volts. The 230 volts you hear about is its effective value.",
+                "ta": "அதனால ஒரு முழு ஆட்டத்துக்கு 1 by 50 second: 20 milliseconds. Voltage சுமார் plus 325-க்கும் minus 325 volts-க்கும் நடுவுல ஆடுது. நாம சொல்ற 230 volts அதோட effective value."
+              }
+            },
+            {
+              "id": "s4-b3",
+              "en": "Every fan, motor and transformer is designed around this wave. EEE engineers work with sin and cos every single day.",
+              "ta": "ஒவ்வொரு fan, motor, transformer-உம் இந்த wave-ஐ வெச்சு தான் design பண்றாங்க. EEE engineers தினமும் sin, cos-ஓட தான் வேலை செய்றாங்க."
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "Your heartbeat",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Your heartbeat is a repeating wave too. A smartwatch reads it as a signal, peak after peak.",
+              "ta": "உங்க heartbeat-உம் ஒரு repeating wave தான். Smartwatch அதை peak after peak-ஆ ஒரு signal-ஆ படிக்குது."
+            },
+            {
+              "id": "s5-b2",
+              "en": "Measure the time between two peaks. If it is 0.8 seconds, the heart beats 60 ÷ 0.8 = 75 times per minute.",
+              "ta": "ரெண்டு peaks-க்கு நடுவுல இருக்கிற time-ஐ அளங்க. 0.8 second-ன்னா, heart நிமிஷத்துக்கு 60 ÷ 0.8 = 75 தடவை துடிக்குது.",
+              "say": {
+                "en": "Measure the time between two peaks. If it is 0.8 seconds, the heart beats 60 divided by 0.8, which is 75 times per minute.",
+                "ta": "ரெண்டு peaks-க்கு நடுவுல இருக்கிற time-ஐ அளங்க. 0.8 second-ன்னா, heart நிமிஷத்துக்கு 60-ஐ 0.8-ஆல வகுத்தா, 75 தடவை துடிக்குது."
+              }
+            },
+            {
+              "id": "s5-b3",
+              "en": "The shape matters too. If the gaps between peaks keep changing, the rhythm is irregular, and that is something a doctor wants to check. Health apps look for exactly this pattern.",
+              "ta": "Shape-உம் முக்கியம். Peaks-க்கு நடுவுல இருக்கிற gap மாறிக்கிட்டே இருந்தா, rhythm irregular. அதை doctor check பண்ண விரும்புவாங்க. Health apps இந்த pattern-ஐ தான் தேடுது."
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "Waves inside your body: CT scans",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "A CT scanner rotates X-rays around your body. Every single point inside you traces a sine wave in the scanner's data. Doctors actually call this picture a sinogram.",
+              "ta": "CT scanner உங்க உடம்பை சுத்தி X-ray-ஐ சுழல விடுது. உடம்புக்குள்ள இருக்கிற ஒவ்வொரு point-உம் scanner data-ல ஒரு sine wave வரையுது. Doctors இந்த படத்தை sinogram-னே சொல்றாங்க."
+            },
+            {
+              "id": "s6-b2",
+              "en": "Why a sine wave? As the scanner turns by angle θ, a point at position (x, y) appears on the detector at x·cos θ + y·sin θ. That is exactly the circle idea from Part 1.",
+              "ta": "ஏன் sine wave? Scanner θ angle திரும்பும் போது, (x, y)-ல இருக்கிற ஒரு point detector-ல x·cos θ + y·sin θ-ல தெரியுது. இது Part 1-ல பார்த்த அதே circle idea தான்.",
+              "say": {
+                "en": "Why a sine wave? As the scanner turns by angle theta, a point at position x, y appears on the detector at x cos theta plus y sin theta. That is exactly the circle idea from Part 1.",
+                "ta": "ஏன் sine wave? Scanner theta angle திரும்பும் போது, x, y-ல இருக்கிற ஒரு point, detector-ல x cos theta plus y sin theta-ல தெரியுது. இது Part 1-ல பார்த்த அதே circle idea தான்."
+              }
+            },
+            {
+              "id": "s6-b3",
+              "en": "The computer runs this maths backwards, turning sine waves back into points, to rebuild a picture of your body. That is how a tumour too small to feel can be found early.",
+              "ta": "Computer இந்த maths-ஐ reverse-ஆ ஓட்டி, sine waves-ஐ மறுபடியும் points-ஆ மாத்தி, உடம்போட படத்தை உருவாக்குது. இப்படி தான் கையால உணர முடியாத சின்ன tumour-ஐயும் சீக்கிரம் கண்டுபிடிக்க முடியுது."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Seasons in data",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Chennai's temperature rises and falls every year like a wave: coolest around December and January, hottest around May and June.",
+              "ta": "Chennai temperature ஒவ்வொரு வருஷமும் ஒரு wave மாதிரி ஏறி இறங்குது: December, January-ல குளிர், May, June-ல ரொம்ப வெயில்."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Data analysts fit a sine wave to data like this. The fitted wave predicts next year's hot months, which helps plan electricity supply and even AC sales.",
+              "ta": "Data analysts இந்த மாதிரி data-க்கு ஒரு sine wave fit பண்றாங்க. அந்த wave அடுத்த வருஷம் எந்த மாசம் வெயில் அதிகம்னு predict பண்ணுது. Electricity supply, AC sales கூட plan பண்ண இது உதவுது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "Forecasting tools model seasons with sine and cosine terms. Real data is never a perfect wave, and measuring how far it strays is part of the skill.",
+              "ta": "Forecasting tools seasons-ஐ sine, cosine terms வெச்சு model பண்ணுது. Real data எப்பவும் perfect wave-ஆ இருக்காது. அது wave-ல இருந்து எவ்வளவு விலகுதுன்னு அளக்கிறதும் இந்த skill-ஓட ஒரு பகுதி."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Many waves in one",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Real signals are messy: music, your voice, a machine's vibration. But any messy repeating wave can be built by adding simple sine waves together.",
+              "ta": "Real signals குழப்பமா இருக்கும்: music, உங்க குரல், ஒரு machine-ஓட vibration. ஆனா எந்த குழப்பமான repeating wave-ஐயும், simple sine waves-ஐ கூட்டி உருவாக்கலாம்."
+            },
+            {
+              "id": "s8-b2",
+              "en": "Going the other way, splitting a messy wave back into its simple waves, is called the Fourier transform. Shazam uses it to recognise songs, and factories use it to hear a failing machine before it breaks.",
+              "ta": "அதை reverse-ஆ பண்றது, அதாவது குழப்பமான wave-ஐ simple waves-ஆ பிரிக்கிறது, Fourier transform. Shazam பாட்டை கண்டுபிடிக்க இதை use பண்ணுது. Factories ஒரு machine கெடுறதுக்கு முன்னாடியே அதோட சத்தத்தை கேட்க இதை use பண்ணுது."
+            },
+            {
+              "id": "s8-b3",
+              "en": "Fourier gets its own lesson soon. For now, remember: every wave is sin and cos underneath.",
+              "ta": "Fourier-க்கு சீக்கிரம் தனி lesson வரும். இப்போதைக்கு ஞாபகம் வெச்சுக்கோங்க: ஒவ்வொரு wave-க்கு அடியிலும் sin, cos தான்."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Part C recap",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "A wave is sin over time. Amplitude is how far it swings; frequency is how many swings per second.",
+              "ta": "Wave-ன்னா time-ல sin. Amplitude எவ்வளவு ஆடுதுன்னு சொல்லுது; frequency ஒரு second-ல எத்தனை ஆட்டம்னு சொல்லுது."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Rain in games, 50 hertz electricity, heartbeats, CT scans and seasons in data are all waves.",
+              "ta": "Games-ல மழை, 50 hertz electricity, heartbeat, CT scans, data-ல seasons எல்லாமே waves தான்."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Now try the practice problems, the code lab and your mission: make it rain on campus.",
+              "ta": "இப்போ practice problems, code lab, அப்புறம் உங்க mission: campus-ல மழை பெய்ய வைங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'A wave repeats every 0.02 seconds. What is its frequency?', ta: 'ஒரு wave 0.02 seconds-க்கு ஒரு தடவை repeat ஆகுது. அதோட frequency என்ன?' },
+    o: ['0.02 Hz', '2 Hz', '50 Hz', '200 Hz'], a: 2,
+    e: { en: 'Frequency = 1 ÷ period = 1 ÷ 0.02 = 50 Hz: exactly Indian mains electricity.', ta: 'Frequency = 1 ÷ period = 1 ÷ 0.02 = 50 Hz: இந்திய mains electricity சரியா இது தான்.' } },
+  { q: { en: 'In y = A × sin(2π × f × t), what happens if you double A?', ta: 'y = A × sin(2π × f × t)-ல A-ஐ ரெட்டிப்பு பண்ணா என்ன ஆகும்?' },
+    o: ['The wave gets twice as fast', 'The wave gets twice as tall', 'The wave disappears', 'Nothing'], a: 1,
+    e: { en: 'A is the amplitude: it sets the height. f sets the speed.', ta: 'A தான் amplitude: உயரத்தை தீர்மானிக்குது. f வேகத்தை தீர்மானிக்குது.' } },
+  { q: { en: 'Home supply is "230 V", yet the wave peaks at about 325 V. Why?', ta: 'வீட்டு supply "230 V", ஆனா wave சுமார் 325 V வரை போகுது. ஏன்?' },
+    o: ['The meter is wrong', '230 V is the effective (RMS) value; peak = RMS × √2', 'Voltage drops at night', '325 V is only in factories'], a: 1,
+    e: { en: 'A sine wave is not at its peak most of the time. Its effective heating power equals a steady 230 V, and 230 × √2 ≈ 325 V.', ta: 'Sine wave பெரும்பாலான நேரம் peak-ல இருக்காது. அதோட effective power ஒரு steady 230 V-க்கு சமம், 230 × √2 ≈ 325 V.' } },
+  { q: { en: 'A smartwatch sees 1 second between heartbeat peaks. What heart rate does it show?', ta: 'Smartwatch heartbeat peaks-க்கு நடுவுல 1 second பார்க்குது. என்ன heart rate காட்டும்?' },
+    o: ['1 bpm', '60 bpm', '100 bpm', '120 bpm'], a: 1,
+    e: { en: '60 ÷ 1 = 60 beats per minute.', ta: '60 ÷ 1 = நிமிஷத்துக்கு 60 beats.' } },
+  { q: { en: 'Why is a CT scanner\'s raw data called a sinogram?', ta: 'CT scanner-ஓட raw data-க்கு ஏன் sinogram-ன்னு பேர்?' },
+    o: ['A doctor named Sino invented it', 'Each point inside the body traces a sine wave as the scanner rotates', 'It only scans the sinuses', 'The image is blurry'], a: 1,
+    e: { en: 'At scanner angle θ, a point (x, y) appears at x·cos θ + y·sin θ, a sine wave. The computer reverses this to rebuild the image.', ta: 'Scanner angle θ-ல, (x, y) point x·cos θ + y·sin θ-ல தெரியுது, அது ஒரு sine wave. Computer இதை reverse பண்ணி படத்தை உருவாக்குது.' } },
+];

@@ -1,0 +1,27 @@
+// Practice problems: numeric answers checked within ±tol. `code` is a one-line JS check students can run.
+export default [
+ {type:{en:'Aptitude: heights',ta:'Aptitude: உயரம்'},q:{en:'Standing 20 m from the college flagpole, you look up at its top at 45°. How tall is the flagpole?',ta:'College flagpole-ல இருந்து 20 m தூரத்துல நின்னு, அதோட உச்சியை 45°-ல பார்க்கிறீங்க. Flagpole எவ்வளவு உயரம்?'},unit:'m',ans:20,tol:0.2,
+  hint:{en:'You know the adjacent side and want the opposite side. Which ratio links them? What is tan 45°?',ta:'Adjacent side தெரியும், opposite side வேணும். எந்த ratio இணைக்குது? tan 45° எவ்வளவு?'},
+  sol:{en:'h = 20 × tan 45° = 20 × 1 = 20 m.',ta:'h = 20 × tan 45° = 20 × 1 = 20 m.'},code:'20 * Math.tan(45 * Math.PI / 180)'},
+ {type:{en:'Aptitude: ladder',ta:'Aptitude: ஏணி'},q:{en:'A 10 m ladder leans against the hostel wall, making 60° with the ground. How high up the wall does it reach?',ta:'10 m ஏணி hostel சுவர்ல சாய்ஞ்சிருக்கு, தரையோட 60° angle. சுவர்ல எவ்வளவு உயரம் வரைக்கும் போகுது?'},unit:'m',ans:8.66,tol:0.05,
+  hint:{en:'The ladder is the hypotenuse. You want the opposite side, so use sin.',ta:'ஏணி தான் hypotenuse. Opposite side வேணும், அதனால sin.'},
+  sol:{en:'height = 10 × sin 60° = 10 × 0.866 = 8.66 m.',ta:'உயரம் = 10 × sin 60° = 10 × 0.866 = 8.66 m.'},code:'10 * Math.sin(60 * Math.PI / 180)'},
+ {type:{en:'Aptitude: shadows',ta:'Aptitude: நிழல்'},q:{en:'The library is 24 m tall and its shadow is 41.6 m long. What is the sun\'s angle of elevation, in degrees?',ta:'Library 24 m உயரம், அதோட நிழல் 41.6 m நீளம். சூரியனோட angle of elevation எத்தனை degrees?'},unit:'°',ans:30,tol:0.5,
+  hint:{en:'tan θ = height ÷ shadow. Then find the angle whose tan is that value (the reverse of tan).',ta:'tan θ = உயரம் ÷ நிழல். அப்புறம் அந்த tan value-க்கான angle-ஐ கண்டுபிடிங்க (tan-ஓட reverse).'},
+  sol:{en:'tan θ = 24 ÷ 41.6 = 0.577, and tan 30° = 0.577, so θ = 30°.',ta:'tan θ = 24 ÷ 41.6 = 0.577. tan 30° = 0.577, அதனால θ = 30°.'},code:'Math.atan(24 / 41.6) * 180 / Math.PI'},
+ {type:{en:'Circle coordinates',ta:'Circle coordinates'},q:{en:'A runner on the circular campus track (radius 50 m, centre at (0, 0)) is at an angle of 30°. What is her x coordinate?',ta:'Campus-ல இருக்கிற வட்ட track-ல (radius 50 m, centre (0, 0)) ஒரு runner 30° angle-ல இருக்காங்க. அவங்க x coordinate என்ன?'},unit:'m',ans:43.3,tol:0.1,
+  hint:{en:'x = centre x + r·cos θ.',ta:'x = centre x + r·cos θ.'},
+  sol:{en:'x = 0 + 50 × cos 30° = 50 × 0.866 = 43.3 m. (And y = 50 × sin 30° = 25 m.)',ta:'x = 0 + 50 × cos 30° = 50 × 0.866 = 43.3 m. (y = 50 × sin 30° = 25 m.)'},code:'50 * Math.cos(30 * Math.PI / 180)'},
+ {type:{en:'Code: radians',ta:'Code: radians'},q:{en:'Convert 45° to radians (3 decimal places).',ta:'45°-ஐ radians-ஆ மாத்துங்க (3 decimal places).'},unit:'rad',ans:0.785,tol:0.002,
+  hint:{en:'radians = degrees × π ÷ 180.',ta:'radians = degrees × π ÷ 180.'},
+  sol:{en:'45 × π ÷ 180 = π ÷ 4 ≈ 0.785 rad.',ta:'45 × π ÷ 180 = π ÷ 4 ≈ 0.785 rad.'},code:'45 * Math.PI / 180'},
+ {type:{en:'Code: predict the output',ta:'Code: output என்ன?'},q:{en:'What does Math.sin(Math.PI / 6) return, approximately?',ta:'Math.sin(Math.PI / 6) தோராயமா என்ன return பண்ணும்?'},unit:'',ans:0.5,tol:0.001,
+  hint:{en:'Math.PI / 6 radians is how many degrees?',ta:'Math.PI / 6 radians-ன்னா எத்தனை degrees?'},
+  sol:{en:'π/6 rad = 30°, and sin 30° = 0.5. JavaScript actually prints 0.49999999999999994, a tiny floating-point rounding: a lesson of its own.',ta:'π/6 rad = 30°, sin 30° = 0.5. JavaScript உண்மையில 0.49999999999999994 காட்டும். இது ஒரு சின்ன floating-point rounding: அதுவே ஒரு தனி lesson.'},code:'Math.sin(Math.PI / 6)'},
+ {type:{en:'Code: build sin yourself',ta:'Code: sin-ஐ நீங்களே build பண்ணுங்க'},q:{en:'Using only the first two steps, sin x ≈ x − x³/6, estimate sin(0.5 radians). Give 3 decimal places.',ta:'முதல் ரெண்டு steps மட்டும் use பண்ணி, sin x ≈ x − x³/6, sin(0.5 radians)-ஐ estimate பண்ணுங்க. 3 decimal places.'},unit:'',ans:0.479,tol:0.001,
+  hint:{en:'x = 0.5, so x³ = 0.125. Then 0.125 ÷ 6 = ?',ta:'x = 0.5, அதனால x³ = 0.125. அப்புறம் 0.125 ÷ 6 = ?'},
+  sol:{en:'0.5 − 0.125 ÷ 6 = 0.5 − 0.0208 = 0.479. The true value is 0.4794, already very close after two steps.',ta:'0.5 − 0.125 ÷ 6 = 0.5 − 0.0208 = 0.479. உண்மையான value 0.4794, ரெண்டு steps-லயே ரொம்ப பக்கத்துல.'},code:'0.5 - 0.5 ** 3 / 6'},
+ {type:{en:'Physics: projectiles',ta:'Physics: projectiles'},q:{en:'A fielder throws at 45° with a speed of 25 m/s. Ignoring air, how far does the ball travel? Use range = v² × sin(2θ) ÷ 9.8.',ta:'Fielder 45°-ல 25 m/s speed-ல throw பண்றாரு. Air-ஐ விட்டுட்டா ball எவ்வளவு தூரம் போகும்? range = v² × sin(2θ) ÷ 9.8.'},unit:'m',ans:63.8,tol:0.3,
+  hint:{en:'sin(90°) = 1.',ta:'sin(90°) = 1.'},
+  sol:{en:'25² × sin 90° ÷ 9.8 = 625 × 1 ÷ 9.8 ≈ 63.8 m.',ta:'25² × sin 90° ÷ 9.8 = 625 × 1 ÷ 9.8 ≈ 63.8 m.'},code:'25 ** 2 * Math.sin(2 * 45 * Math.PI / 180) / 9.8'}
+];

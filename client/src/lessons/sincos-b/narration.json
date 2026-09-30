@@ -1,0 +1,268 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson sincos-b (in /server).",
+  "lesson": "sincos-b",
+  "title": {
+    "en": "sin & cos B: on the Earth, in every map",
+    "ta": "sin & cos B: பூமியில, ஒவ்வொரு map-லயும்"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "How far from the gate?",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "CampusOps lets you mark attendance from your phone, but only when you are really on campus. How does the app know how far you are from the college gate?",
+              "ta": "CampusOps-ல phone-ல இருந்தே attendance போடலாம், ஆனா உண்மையா campus-க்குள்ள இருந்தா மட்டும். College gate-ல இருந்து நீங்க எவ்வளவு தூரத்துல இருக்கீங்கன்னு app-க்கு எப்படி தெரியுது?"
+            },
+            {
+              "id": "s1-b2",
+              "en": "Your phone's GPS does not give kilometres. It gives two angles: latitude and longitude. To turn angles into a distance, we need sin and cos.",
+              "ta": "உங்க phone GPS kilometres தரல. ரெண்டு angles தருது: latitude, longitude. Angles-ஐ distance-ஆ மாத்த, sin, cos வேணும்."
+            },
+            {
+              "id": "s1-b3",
+              "en": "In this lesson we will build that distance step by step, using only what you already know. Then we will see why real apps use a package.",
+              "ta": "இந்த lesson-ல அந்த distance-ஐ, உங்களுக்கு ஏற்கனவே தெரிஞ்சதை மட்டும் வெச்சு, step by step build பண்ணுவோம். அப்புறம் real apps ஏன் package use பண்ணுதுன்னு பார்ப்போம்."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "Why angles for the Earth?",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Here is Chennai on GPS: 13.08° north, 80.27° east. Two angles, measured from the centre of the Earth. Why angles, and not kilometres?",
+              "ta": "GPS-ல Chennai: 13.08° வடக்கு, 80.27° கிழக்கு. பூமியோட centre-ல இருந்து அளந்த ரெண்டு angles. ஏன் kilometres இல்லாம angles?",
+              "say": {
+                "en": "Here is Chennai on GPS: 13.08 degrees north, 80.27 degrees east. Two angles, measured from the centre of the Earth. Why angles, and not kilometres?",
+                "ta": "GPS-ல Chennai: 13.08 degrees வடக்கு, 80.27 degrees கிழக்கு. பூமியோட centre-ல இருந்து அளந்த ரெண்டு angles. ஏன் kilometres இல்லாம angles?"
+              }
+            },
+            {
+              "id": "s2-b2",
+              "en": "Because the Earth is a ball. Latitude is how far you are tilted north or south of the equator, measured from the Earth's centre. Longitude is how far you have turned east or west of a fixed line through Greenwich in London.",
+              "ta": "ஏன்னா பூமி ஒரு பந்து. Latitude-ன்னா equator-ல இருந்து வடக்கா, தெற்கா எவ்வளவு சாய்ஞ்சிருக்கீங்க, பூமியோட centre-ல இருந்து அளந்தது. Longitude-ன்னா London-ல Greenwich வழியா போற ஒரு fixed line-ல இருந்து கிழக்கா, மேற்கா எவ்வளவு திரும்பியிருக்கீங்க."
+            },
+            {
+              "id": "s2-b3",
+              "en": "A flat kilometre grid cannot wrap a ball without stretching, just as you cannot flatten an orange peel without tearing it. Angles work the same everywhere on a sphere. So to turn angles into kilometres, we need circle maths: sin and cos.",
+              "ta": "ஒரு flat kilometre grid-ஐ, இழுக்காம ஒரு பந்தை சுத்தி போர்த்த முடியாது. ஆரஞ்சு தோலை கிழிக்காம flat-ஆ விரிக்க முடியாத மாதிரி. Angles sphere-ல எல்லா இடத்துலயும் ஒரே மாதிரி வேலை செய்யுது. அதனால angles-ஐ kilometres-ஆ மாத்த, circle maths வேணும்: sin, cos."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "One degree of latitude",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "On any circle, the distance along the edge equals the radius times the angle in radians. The Earth's radius is about 6,371 kilometres.",
+              "ta": "எந்த circle-லயும், ஓரத்து வழியா போற தூரம் = radius × angle (radians-ல). பூமியோட radius சுமார் 6,371 kilometre.",
+              "say": {
+                "en": "On any circle, the distance along the edge equals the radius times the angle in radians. The Earth's radius is about 6,371 kilometres.",
+                "ta": "எந்த circle-லயும், ஓரத்து வழியா போற தூரம், radius into angle, radians-ல. பூமியோட radius சுமார் 6,371 kilometre."
+              }
+            },
+            {
+              "id": "s3-b2",
+              "en": "One degree is π ÷ 180 radians. So one degree of latitude is 6,371 × π ÷ 180, about 111 kilometres, anywhere on Earth. Chennai is about 2 degrees north of Coimbatore: roughly 230 kilometres of that trip is northward.",
+              "ta": "ஒரு degree = π ÷ 180 radians. அதனால ஒரு degree latitude = 6,371 × π ÷ 180, சுமார் 111 kilometre, பூமியில எங்க இருந்தாலும். Coimbatore-ல இருந்து Chennai சுமார் 2 degrees வடக்கு: அந்த பயணத்துல சுமார் 230 kilometre வடக்கு நோக்கி.",
+              "say": {
+                "en": "One degree is pi divided by 180 radians. So one degree of latitude is 6,371 times pi by 180, about 111 kilometres, anywhere on Earth. Chennai is about 2 degrees north of Coimbatore, so roughly 230 kilometres of that trip is northward.",
+                "ta": "ஒரு degree-ன்னா pi by 180 radians. அதனால ஒரு degree latitude, 6,371 into pi by 180, சுமார் 111 kilometre, பூமியில எங்க இருந்தாலும். Coimbatore-ல இருந்து Chennai சுமார் 2 degrees வடக்கு. அதனால அந்த பயணத்துல சுமார் 230 kilometre வடக்கு நோக்கி."
+              }
+            },
+            {
+              "id": "s3-b3",
+              "en": "This is exactly why code uses radians: arc = radius × angle is only true when the angle is in radians.",
+              "ta": "அதனால தான் code radians use பண்ணுது: arc = radius × angle, angle radians-ல இருந்தா மட்டும் தான் சரி.",
+              "say": {
+                "en": "This is exactly why code uses radians: arc equals radius times angle is only true when the angle is in radians.",
+                "ta": "அதனால தான் code radians use பண்ணுது: arc-ன்னா radius into angle, angle radians-ல இருந்தா மட்டும் தான் அது சரி."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Why longitude needs cos",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "Lines of longitude all meet at the North and South Poles. So one degree of longitude is wide at the equator and shrinks to nothing at the poles.",
+              "ta": "Longitude lines எல்லாம் North, South Poles-ல ஒண்ணா சேருது. அதனால ஒரு degree longitude equator-ல அகலமா இருக்கும், poles-ல ஒண்ணுமே இல்லாம சுருங்கிடும்."
+            },
+            {
+              "id": "s4-b2",
+              "en": "At latitude φ, you travel around a smaller circle, whose radius is R·cos φ. So one degree of longitude = 111 × cos φ kilometres.",
+              "ta": "Latitude φ-ல, நீங்க ஒரு சின்ன circle-ல சுத்துறீங்க. அதோட radius R·cos φ. அதனால ஒரு degree longitude = 111 × cos φ kilometre.",
+              "say": {
+                "en": "At latitude phi, you travel around a smaller circle, whose radius is R times cos phi. So one degree of longitude is 111 times cos phi kilometres.",
+                "ta": "Latitude phi-ல, நீங்க ஒரு சின்ன circle-ல சுத்துறீங்க. அதோட radius R into cos phi. அதனால ஒரு degree longitude, 111 into cos phi kilometre."
+              }
+            },
+            {
+              "id": "s4-b3",
+              "en": "At the equator, cos 0° = 1: 111 km. In Chennai, at 13° north, about 108 km. In London, at 51.5° north, only about 69 km. At the pole, cos 90° = 0. This is where cos enters every map calculation.",
+              "ta": "Equator-ல cos 0° = 1: 111 km. 13° வடக்குல இருக்கிற Chennai-ல சுமார் 108 km. 51.5° வடக்குல இருக்கிற London-ல சுமார் 69 km தான். Pole-ல cos 90° = 0. இப்படி தான் ஒவ்வொரு map calculation-லயும் cos வருது.",
+              "say": {
+                "en": "At the equator, cos 0 is 1, so 111 kilometres. In Chennai, at 13 degrees north, about 108 kilometres. In London, at 51.5 degrees north, only about 69 kilometres. At the pole, cos 90 is 0. This is where cos enters every map calculation.",
+                "ta": "Equator-ல cos 0, 1. அதனால 111 kilometre. 13 degrees வடக்குல இருக்கிற Chennai-ல சுமார் 108 kilometre. 51.5 degrees வடக்குல இருக்கிற London-ல சுமார் 69 kilometre தான். Pole-ல cos 90, 0. இப்படி தான் ஒவ்வொரு map calculation-லயும் cos வருது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "Step 3: Pythagoras finishes it",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Let us put it together for Coimbatore to Chennai. We already found the north part: about 230 kilometres.",
+              "ta": "Coimbatore-ல இருந்து Chennai-க்கு எல்லாத்தையும் சேர்ப்போம். வடக்கு பகுதியை ஏற்கனவே கண்டுபிடிச்சோம்: சுமார் 230 kilometre."
+            },
+            {
+              "id": "s5-b2",
+              "en": "Now the east part. Chennai is 3.31 degrees east of Coimbatore. Around 12 degrees north, one degree of longitude is 111 × cos 12°, about 109 kilometres. So 3.31 × 109 ≈ 360 kilometres east.",
+              "ta": "இப்போ கிழக்கு பகுதி. Chennai, Coimbatore-ஐ விட 3.31 degrees கிழக்கு. சுமார் 12 degrees வடக்குல, ஒரு degree longitude = 111 × cos 12°, சுமார் 109 kilometre. அதனால 3.31 × 109 ≈ 360 kilometre கிழக்கு.",
+              "say": {
+                "en": "Now the east part. Chennai is 3.31 degrees east of Coimbatore. Around 12 degrees north, one degree of longitude is 111 times cos 12, about 109 kilometres. So 3.31 times 109 is about 360 kilometres east.",
+                "ta": "இப்போ கிழக்கு பகுதி. Chennai, Coimbatore-ஐ விட 3.31 degrees கிழக்கு. சுமார் 12 degrees வடக்குல, ஒரு degree longitude, 111 into cos 12, சுமார் 109 kilometre. அதனால 3.31 into 109, சுமார் 360 kilometre கிழக்கு."
+              }
+            },
+            {
+              "id": "s5-b3",
+              "en": "North and east are at right angles, so Pythagoras finishes it: √(230² + 360²) ≈ 427 kilometres. That is the real distance, with nothing but school maths.",
+              "ta": "வடக்கும் கிழக்கும் right angle-ல இருக்கு, அதனால Pythagoras முடிச்சு வைக்குது: √(230² + 360²) ≈ 427 kilometre. இது தான் உண்மையான தூரம், school maths மட்டும் வெச்சு.",
+              "say": {
+                "en": "North and east are at right angles, so Pythagoras finishes it: the square root of 230 squared plus 360 squared, about 427 kilometres. That is the real distance, with nothing but school maths.",
+                "ta": "வடக்கும் கிழக்கும் right angle-ல இருக்கு, அதனால Pythagoras முடிச்சு வைக்குது: 230 square plus 360 square-ஓட square root, சுமார் 427 kilometre. இது தான் உண்மையான தூரம், school maths மட்டும் வெச்சு."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "When does our method break?",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Our method treats the ground between two cities as flat, and uses one cos value for the whole trip. For a city or a state, that is perfectly fine: Coimbatore to Chennai comes out exactly right.",
+              "ta": "நம்ம method ரெண்டு நகரங்களுக்கு நடுவுல இருக்கிற நிலத்தை flat-ஆ எடுத்துக்குது, முழு பயணத்துக்கும் ஒரே cos value use பண்ணுது. ஒரு city, ஒரு state அளவுக்கு இது சரியா வேலை செய்யும்: Coimbatore-Chennai சரியா வருது."
+            },
+            {
+              "id": "s6-b2",
+              "en": "But try Chennai to London. The Earth curves away beneath you, and the latitude, and so cos, keeps changing along the way. Our method says 8,682 kilometres; the truth is 8,211. That is 5.7% off. Chennai to New York is 15.8% off.",
+              "ta": "ஆனா Chennai-ல இருந்து London try பண்ணுங்க. பூமி கீழ வளைஞ்சு போகுது, வழியில latitude-உம் அதனால cos-உம் மாறிக்கிட்டே இருக்கு. நம்ம method 8,682 kilometre-ன்னு சொல்லுது; உண்மை 8,211. 5.7% தப்பு. Chennai-New York 15.8% தப்பு."
+            },
+            {
+              "id": "s6-b3",
+              "en": "So for long distances, engineers do the same idea on the curved surface itself. That version is called the haversine formula. You do not need to memorise it. You need to know when you need it, and which package does it for you.",
+              "ta": "அதனால நீண்ட தூரத்துக்கு, engineers இதே idea-வை வளைஞ்ச மேற்பரப்பு மேலயே பண்றாங்க. அந்த version-க்கு பேர் haversine formula. அதை மனப்பாடம் பண்ண வேண்டாம். எப்போ தேவை, எந்த package அதை பண்ணும்னு தெரிஞ்சா போதும்."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Let the package do it",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "In real projects, nobody types these formulas by hand. For JavaScript there are geolib and Turf.js. For Python there is geopy.",
+              "ta": "Real projects-ல யாரும் இந்த formulas-ஐ கையால type பண்றதில்ல. JavaScript-க்கு geolib, Turf.js இருக்கு. Python-க்கு geopy."
+            },
+            {
+              "id": "s7-b2",
+              "en": "One line each, and they all agree: Coimbatore to Chennai, 427 kilometres. For long trips they handle the Earth's curve for you.",
+              "ta": "ஒவ்வொண்ணுக்கும் ஒரே line, எல்லாமே ஒத்துப்போகுது: Coimbatore-Chennai 427 kilometre. நீண்ட பயணங்களுக்கு பூமியோட வளைவையும் அவையே பார்த்துக்கும்."
+            },
+            {
+              "id": "s7-b3",
+              "en": "They do much more: the direction between two places, whether someone is inside a circle, the nearest shop. Understanding the maths tells you which function to call, and when to trust its answer.",
+              "ta": "அவை இன்னும் நிறைய பண்ணும்: ரெண்டு இடங்களுக்கு நடுவுல direction, ஒருத்தர் circle-க்குள்ள இருக்காங்களா, பக்கத்துல இருக்கிற கடை. Maths புரிஞ்சா, எந்த function-ஐ call பண்ணணும், அதோட answer-ஐ எப்போ நம்பலாம்னு தெரியும்."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Find your friend",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "At a college fest, your friend shares their live location. Your map shows an arrow pointing straight to them. How does it know which way?",
+              "ta": "College fest-ல உங்க friend live location share பண்றாங்க. உங்க map அவங்க பக்கம் ஒரு arrow காட்டுது. எந்த பக்கம்னு அதுக்கு எப்படி தெரியுது?"
+            },
+            {
+              "id": "s8-b2",
+              "en": "The app takes the difference in x and y and uses atan2, the reverse of tan, to get the direction angle. The distance comes from Pythagoras.",
+              "ta": "App x, y வித்தியாசத்தை எடுத்து, tan-ஓட reverse ஆன atan2 use பண்ணி direction angle-ஐ கண்டுபிடிக்குது. Distance Pythagoras-ல இருந்து வருது."
+            },
+            {
+              "id": "s8-b3",
+              "en": "On a real map, geolib.getCompassDirection gives you the answer as a word, like north-east. Drones, delivery robots and self-driving cars run this same calculation many times every second to steer.",
+              "ta": "Real map-ல geolib.getCompassDirection answer-ஐ north-east மாதிரி ஒரு வார்த்தையா தருது. Drones, delivery robots, self-driving cars இதே calculation-ஐ ஒவ்வொரு second-உம் பல தடவை ஓட்டி தான் திரும்புது.",
+              "say": {
+                "en": "On a real map, geolib dot get compass direction gives you the answer as a word, like north-east. Drones, delivery robots and self-driving cars run this same calculation many times every second to steer.",
+                "ta": "Real map-ல geolib dot get compass direction answer-ஐ north-east மாதிரி ஒரு வார்த்தையா தருது. Drones, delivery robots, self-driving cars இதே calculation-ஐ ஒவ்வொரு second-உம் பல தடவை ஓட்டி தான் திரும்புது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Enterprise: geofenced attendance",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Back to CampusOps. The college gate is the centre, and the allowed radius is 150 metres. Every attendance request checks the student's distance from the gate.",
+              "ta": "மறுபடியும் CampusOps. College gate தான் centre, allowed radius 150 metre. ஒவ்வொரு attendance request-உம் gate-ல இருந்து student-ஓட தூரத்தை check பண்ணுது."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Inside the circle: Present. Outside: You are not on campus. Delivery apps use the same check for delivery zones, and companies use it for field-staff attendance.",
+              "ta": "Circle-க்குள்ள: Present. வெளிய: நீங்க campus-ல இல்ல. Delivery apps delivery zones-க்கும், companies field-staff attendance-க்கும் இதே check தான் use பண்ணுது."
+            },
+            {
+              "id": "s9-b3",
+              "en": "That is your mission for this lesson: write isInsideCampus, first with the step method, then in one line with geolib.",
+              "ta": "அது தான் இந்த lesson-ஓட உங்க mission: isInsideCampus-ஐ எழுதுங்க, முதல்ல step method-ல, அப்புறம் geolib வெச்சு ஒரே line-ல."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Part B recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "GPS gives angles. One degree of latitude is about 111 kilometres; one degree of longitude is 111 × cos of the latitude.",
+              "ta": "GPS angles தருது. ஒரு degree latitude சுமார் 111 kilometre; ஒரு degree longitude, 111 × cos(latitude).",
+              "say": {
+                "en": "GPS gives angles. One degree of latitude is about 111 kilometres; one degree of longitude is 111 times cos of the latitude.",
+                "ta": "GPS angles தருது. ஒரு degree latitude சுமார் 111 kilometre; ஒரு degree longitude, 111 into cos of latitude."
+              }
+            },
+            {
+              "id": "s10-b2",
+              "en": "North part, east part, Pythagoras: exact for a city or a state. For long trips, the Earth's curve matters, and that is the haversine formula.",
+              "ta": "வடக்கு பகுதி, கிழக்கு பகுதி, Pythagoras: ஒரு city, state அளவுக்கு சரியா இருக்கும். நீண்ட பயணங்களுக்கு பூமியோட வளைவு முக்கியம், அது தான் haversine formula."
+            },
+            {
+              "id": "s10-b3",
+              "en": "In real apps, use a package like geolib or geopy. Now try the practice problems, the code lab and your mission: geofenced attendance.",
+              "ta": "Real apps-ல geolib, geopy மாதிரி package use பண்ணுங்க. இப்போ practice problems, code lab, அப்புறம் உங்க mission: geofenced attendance."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

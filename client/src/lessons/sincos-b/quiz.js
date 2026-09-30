@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'Why does GPS give your position as two angles instead of kilometres?', ta: 'GPS ஏன் kilometres இல்லாம ரெண்டு angles-ஆ position தருது?' },
+    o: ['Angles use less battery', 'The Earth is a ball; angles work the same everywhere on a sphere, a flat km grid cannot', 'Satellites cannot count', 'It is a tradition'], a: 1,
+    e: { en: 'Like an orange peel, a sphere cannot be covered by a flat grid without stretching. Angles from the centre work everywhere.', ta: 'ஆரஞ்சு தோல் மாதிரி, sphere-ஐ இழுக்காம flat grid-ஆல மூட முடியாது. Centre-ல இருந்து அளக்கிற angles எங்கயும் வேலை செய்யும்.' } },
+  { q: { en: 'Why is 1° of longitude shorter in London than in Chennai?', ta: 'Chennai-ஐ விட London-ல 1° longitude ஏன் குறைவு?' },
+    o: ['London is smaller', 'Longitude lines meet at the poles; at latitude φ the circle has radius R·cos φ', 'GPS is less accurate in Europe', 'It is the same everywhere'], a: 1,
+    e: { en: '1° of longitude = 111 × cos(latitude) km: about 108 km in Chennai, 69 km in London.', ta: '1° longitude = 111 × cos(latitude) km: Chennai-ல சுமார் 108 km, London-ல 69 km.' } },
+  { q: { en: 'Coimbatore to Chennai is 230 km north and 360 km east. What is the straight distance?', ta: 'Coimbatore-Chennai 230 km வடக்கு, 360 km கிழக்கு. நேர் தூரம் என்ன?' },
+    o: ['590 km', 'About 427 km', '130 km', 'About 295 km'], a: 1,
+    e: { en: 'North and east are at right angles, so Pythagoras: √(230² + 360²) ≈ 427 km. Adding them (590) would be wrong.', ta: 'வடக்கும் கிழக்கும் right angle-ல, அதனால Pythagoras: √(230² + 360²) ≈ 427 km. கூட்டினா (590) தப்பு.' } },
+  { q: { en: 'When should you switch from the step method to the haversine formula (or a package)?', ta: 'எப்போ step method-ல இருந்து haversine formula (அல்லது package)-க்கு மாறணும்?' },
+    o: ['Always, even for 100 m', 'For long distances, where the Earth\'s curve and changing latitude matter', 'Only in Python', 'Never'], a: 1,
+    e: { en: 'Within a city, state or even a country the step method is very close. Across continents it can be 5–16% off, so use haversine through a package.', ta: 'ஒரு city, state, நாட்டுக்குள்ள கூட step method ரொம்ப நெருக்கமா இருக்கும். கண்டங்களுக்கு இடையே 5–16% தப்பா போகலாம், அதனால package மூலமா haversine use பண்ணுங்க.' } },
+  { q: { en: 'A field-staff app must check "is this person within 100 m of the office?". Which geolib function fits?', ta: 'ஒரு field-staff app "இவர் office-ல இருந்து 100 m-க்குள்ள இருக்காரா?"-ன்னு check பண்ணணும். எந்த geolib function பொருந்தும்?' },
+    o: ['getCompassDirection', 'isPointWithinRadius', 'getCenter', 'findNearest'], a: 1,
+    e: { en: 'isPointWithinRadius(point, centre, metres) returns true or false: exactly a geofence. getCompassDirection gives a direction word; findNearest picks the closest point.', ta: 'isPointWithinRadius(point, centre, metres) true/false தரும்: அது தான் geofence. getCompassDirection திசை வார்த்தை தரும்; findNearest பக்கத்துல இருக்கிற point-ஐ தரும்.' } },
+];

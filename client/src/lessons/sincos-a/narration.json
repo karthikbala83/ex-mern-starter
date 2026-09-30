@@ -1,0 +1,319 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson sincos-a (in /server).",
+  "lesson": "sincos-a",
+  "title": {
+    "en": "sin & cos A: from zero, to games and code",
+    "ta": "sin & cos A: zero-ல இருந்து games, code வரை"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "The zone is closing",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "In BGMI, the safe zone keeps shrinking. Stay outside it and your health keeps dropping.",
+              "ta": "BGMI-ல safe zone சுருங்கிட்டே வரும். அதுக்கு வெளிய இருந்தா health குறைஞ்சிட்டே வரும்."
+            },
+            {
+              "id": "s1-b2",
+              "en": "To draw that circle and check where you are, the game uses two small functions: sin and cos. In this lesson we will understand them properly, from zero, and then use them in real code.",
+              "ta": "அந்த circle-ஐ வரையவும், நீங்க எங்க இருக்கீங்கன்னு check பண்ணவும், game ரெண்டு சின்ன functions use பண்ணுது: sin, cos. இந்த lesson-ல அவற்றை zero-ல இருந்து சரியா புரிஞ்சுக்கிட்டு, real code-லயும் use பண்ண போறோம்."
+            },
+            {
+              "id": "s1-b3",
+              "en": "This is Part A: what sin and cos really are, and how games and code use them. Part B takes them to the Earth and maps. Part C shows them as waves.",
+              "ta": "இது Part A: sin, cos உண்மையா என்ன, games-உம் code-உம் அதை எப்படி use பண்ணுது. Part B-ல பூமி, maps. Part C-ல waves."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "Where sin and cos come from",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Start with something from school: a right-angled triangle. Pick one of the other two angles and call it theta.",
+              "ta": "School-ல பார்த்த ஒண்ணுல ஆரம்பிப்போம்: ஒரு right-angled triangle. மத்த ரெண்டு angles-ல ஒண்ணை எடுத்து, அதுக்கு theta-ன்னு பேர் வைப்போம்."
+            },
+            {
+              "id": "s2-b2",
+              "en": "The longest side, facing the right angle, is the hypotenuse. The side facing theta is the opposite side. The side touching theta is the adjacent side.",
+              "ta": "Right angle-க்கு எதிர்ல இருக்கிற நீளமான side hypotenuse. Theta-க்கு எதிர்ல இருக்கிறது opposite side. Theta-வை தொட்டுக்கிட்டு இருக்கிறது adjacent side."
+            },
+            {
+              "id": "s2-b3",
+              "en": "sin θ = opposite ÷ hypotenuse. cos θ = adjacent ÷ hypotenuse. tan θ = opposite ÷ adjacent.",
+              "ta": "sin θ = opposite ÷ hypotenuse. cos θ = adjacent ÷ hypotenuse. tan θ = opposite ÷ adjacent.",
+              "say": {
+                "en": "sin theta is the opposite side divided by the hypotenuse. cos theta is the adjacent side divided by the hypotenuse. And tan theta is opposite divided by adjacent.",
+                "ta": "sin theta-ன்னா opposite side-ஐ hypotenuse-ஆல வகுக்கிறது. cos theta-ன்னா adjacent side-ஐ hypotenuse-ஆல வகுக்கிறது. tan theta-ன்னா opposite-ஐ adjacent-ஆல வகுக்கிறது."
+              }
+            },
+            {
+              "id": "s2-b4",
+              "en": "Here is the key idea. These ratios depend only on the angle, not on the size of the triangle. Grow or shrink it: sin 30° is always 0.5. That is why an angle alone can tell us lengths.",
+              "ta": "இது தான் முக்கியமான idea. இந்த ratios angle-ஐ மட்டும் தான் பொறுத்தது, triangle size-ஐ இல்ல. பெருசாக்குங்க, சின்னதாக்குங்க: sin 30° எப்பவும் 0.5 தான். அதனால தான் ஒரு angle மட்டும் வெச்சே நீளங்களை கண்டுபிடிக்க முடியுது.",
+              "say": {
+                "en": "Here is the key idea. These ratios depend only on the angle, not on the size of the triangle. Grow it or shrink it: sin of 30 degrees is always 0.5. That is why an angle alone can tell us lengths.",
+                "ta": "இது தான் முக்கியமான idea. இந்த ratios angle-ஐ மட்டும் தான் பொறுத்தது, triangle size-ஐ இல்ல. பெருசாக்குங்க, சின்னதாக்குங்க: sin 30 degrees எப்பவும் 0.5 தான். அதனால தான் ஒரு angle மட்டும் வெச்சே நீளங்களை கண்டுபிடிக்க முடியுது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "From triangle to circle",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Now make the hypotenuse exactly 1 and spin it around a centre. Its tip draws a circle of radius 1.",
+              "ta": "இப்போ hypotenuse-ஐ சரியா 1-ஆ வெச்சு, ஒரு centre-ஐ சுத்தி சுழல விடுங்க. அதோட நுனி radius 1 உள்ள ஒரு circle வரையுது."
+            },
+            {
+              "id": "s3-b2",
+              "en": "Because the hypotenuse is 1, the height of the tip is exactly sin θ, and its sideways distance is exactly cos θ. The triangle and the circle are the same idea.",
+              "ta": "Hypotenuse 1-ங்கிறதால, நுனியோட உயரம் சரியா sin θ, பக்கவாட்டு தூரம் சரியா cos θ. Triangle-உம் circle-உம் ஒரே idea தான்.",
+              "say": {
+                "en": "Because the hypotenuse is 1, the height of the tip is exactly sin theta, and its sideways distance is exactly cos theta. The triangle and the circle are the same idea.",
+                "ta": "Hypotenuse 1-ங்கிறதால, நுனியோட உயரம் சரியா sin theta, பக்கவாட்டு தூரம் சரியா cos theta. Triangle-உம் circle-உம் ஒரே idea தான்."
+              }
+            },
+            {
+              "id": "s3-b3",
+              "en": "Keep spinning and plot the height over time. You get the sine wave, repeating forever. That is why sin and cos describe anything that goes round or repeats: wheels, sound, electricity, heartbeats.",
+              "ta": "சுழல விட்டுக்கிட்டே உயரத்தை time-க்கு ஏத்த மாதிரி வரைஞ்சா, sine wave வருது, முடிவில்லாம திரும்ப திரும்ப. அதனால தான் சுத்துற, திரும்ப வர்ற எல்லாத்தையும் sin, cos விவரிக்குது: wheels, sound, electricity, heartbeat."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Aptitude: the campus water tank",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "An aptitude classic, on your own campus. You stand 30 metres from the college water tank. Looking up at the top, the angle is 30 degrees. How tall is the tank?",
+              "ta": "Aptitude-ல எப்பவும் வர்ற கேள்வி, உங்க campus-லயே. College water tank-ல இருந்து 30 metre தூரத்துல நிக்கிறீங்க. உச்சியை பார்க்க angle 30 degrees. Tank எவ்வளவு உயரம்?"
+            },
+            {
+              "id": "s4-b2",
+              "en": "We know the adjacent side, 30 metres, and want the opposite side. tan links those two. So height = 30 × tan 30° = 30 × 0.577, about 17.3 metres.",
+              "ta": "நமக்கு adjacent side தெரியும், 30 metre. வேண்டியது opposite side. அந்த ரெண்டையும் இணைக்கிறது tan. அதனால உயரம் = 30 × tan 30° = 30 × 0.577, சுமார் 17.3 metre.",
+              "say": {
+                "en": "We know the adjacent side, 30 metres, and we want the opposite side. tan links those two. So the height is 30 times tan 30 degrees, which is 30 times 0.577, about 17.3 metres.",
+                "ta": "நமக்கு adjacent side தெரியும், 30 metre. வேண்டியது opposite side. அந்த ரெண்டையும் இணைக்கிறது tan. அதனால உயரம், 30 into tan 30 degrees, அதாவது 30 into 0.577, சுமார் 17.3 metre."
+              }
+            },
+            {
+              "id": "s4-b3",
+              "en": "Surveyors, civil engineers and even your phone's measure app use exactly this: measure one distance and one angle, and calculate the height without climbing.",
+              "ta": "Surveyors, civil engineers, உங்க phone-ல இருக்கிற measure app கூட இதையே தான் பண்ணுது: ஒரு distance, ஒரு angle அளந்தா, ஏறாமலேயே உயரத்தை calculate பண்ணலாம்."
+            }
+          ],
+          "ask": {
+            "afterBeat": 1,
+            "q": {
+              "en": "You stand 30 m from the college water tank. The angle up to its top is 30°. How tall is it?",
+              "ta": "College water tank-ல இருந்து 30 m தூரத்துல நிக்கிறீங்க. அதோட உச்சிக்கு angle 30°. Tank எவ்வளவு உயரம்?"
+            },
+            "options": [
+              "15 m",
+              "17.3 m",
+              "26 m",
+              "60 m"
+            ],
+            "hint": {
+              "en": "Which ratio links the side you know (adjacent) to the side you want (opposite)?",
+              "ta": "தெரிஞ்ச side (adjacent)-ஐயும், வேண்டிய side (opposite)-ஐயும் எந்த ratio இணைக்குது?"
+            }
+          }
+        },
+        {
+          "id": "s5",
+          "title": "Drawing the safe zone",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Back to the game. To draw the zone, it walks around the centre. For every angle, x = cx + r·cos θ and y = cy + r·sin θ. That is the triangle idea again, with hypotenuse r.",
+              "ta": "மறுபடியும் game-க்கு. Zone வரைய, game centre-ஐ சுத்தி நடக்குது. ஒவ்வொரு angle-க்கும் x = cx + r·cos θ, y = cy + r·sin θ. இது அதே triangle idea தான், hypotenuse r.",
+              "say": {
+                "en": "Back to the game. To draw the zone, it walks around the centre. For every angle theta, x is the centre x plus r cos theta, and y is the centre y plus r sin theta. That is the triangle idea again, with hypotenuse r.",
+                "ta": "மறுபடியும் game-க்கு. Zone வரைய, game centre-ஐ சுத்தி நடக்குது. ஒவ்வொரு angle theta-க்கும், x-ன்னா centre x கூட r cos theta. y-ன்னா centre y கூட r sin theta. இது அதே triangle idea தான், hypotenuse r."
+              }
+            },
+            {
+              "id": "s5-b2",
+              "en": "With 6 points you get a hexagon. With 64 points it looks like a perfect circle. Screens can only draw straight lines, so every circle you see is really many tiny lines.",
+              "ta": "6 points-னா hexagon வரும். 64 points-னா perfect circle மாதிரி தெரியும். Screen straight lines மட்டும் தான் வரையும். நீங்க பார்க்குற ஒவ்வொரு circle-உம் உண்மையில நிறைய சின்ன lines தான்."
+            },
+            {
+              "id": "s5-b3",
+              "en": "Shrinking the zone is just making r smaller every second. To check if you are inside, Pythagoras is enough: is your distance from the centre less than r?",
+              "ta": "Zone சுருங்குறது, ஒவ்வொரு second-உம் r-ஐ குறைக்கிறது தான். நீங்க உள்ள இருக்கீங்களான்னு பார்க்க Pythagoras போதும்: centre-ல இருந்து உங்க தூரம் r-ஐ விட கம்மியா?"
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "The cricket throw",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "A fielder throws the ball from the boundary. Physics splits the throw speed into two parts: forward speed is v cos θ, and upward speed is v sin θ.",
+              "ta": "Fielder boundary-ல இருந்து ball-ஐ throw பண்றாரு. Physics அந்த speed-ஐ ரெண்டா பிரிக்குது: முன்னாடி போற speed v cos θ, மேல போற speed v sin θ.",
+              "say": {
+                "en": "A fielder throws the ball from the boundary. Physics splits the throw speed into two parts. Forward speed is v cos theta, and upward speed is v sin theta.",
+                "ta": "Fielder boundary-ல இருந்து ball-ஐ throw பண்றாரு. Physics அந்த speed-ஐ ரெண்டா பிரிக்குது. முன்னாடி போற speed v cos theta. மேல போற speed v sin theta."
+              }
+            },
+            {
+              "id": "s6-b2",
+              "en": "It is 45 degrees! Too flat and the ball lands quickly; too steep and it goes up but not forward. At 45° the two balance, and gravity bends the path into a parabola. Notice 30° and 60° land at the same spot.",
+              "ta": "45 degrees தான்! ரொம்ப flat-ஆ போட்டா ball சீக்கிரம் விழுந்துடும்; ரொம்ப steep-ஆ போட்டா மேல போகும், முன்னாடி போகாது. 45°-ல ரெண்டும் balance ஆகுது, gravity பாதையை parabola-வா வளைக்குது. 30°-உம் 60°-உம் ஒரே இடத்துல விழுறதை கவனிங்க."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Cricket games calculate every ball in flight this way. Engineers use the same split for sprinklers, fountains and rockets, and then add air resistance.",
+              "ta": "Cricket games ஒவ்வொரு ball-ஓட பாதையையும் இப்படி தான் calculate பண்ணுது. Sprinklers, fountains, rockets-க்கும் engineers இதே மாதிரி பிரிச்சு, அப்புறம் air resistance-ஐ சேர்ப்பாங்க."
+            }
+          ],
+          "ask": {
+            "afterBeat": 1,
+            "q": {
+              "en": "A fielder throws from the boundary. At which angle does the ball travel the farthest?",
+              "ta": "Boundary-ல இருந்து fielder throw பண்றாரு. எந்த angle-ல ball அதிக தூரம் போகும்?"
+            },
+            "options": [
+              "30°",
+              "45°",
+              "60°",
+              "80°"
+            ],
+            "hint": {
+              "en": "Guess first. Ignore air resistance.",
+              "ta": "முதல்ல guess பண்ணுங்க. Air resistance-ஐ விட்டுடுங்க."
+            }
+          }
+        },
+        {
+          "id": "s7",
+          "title": "Degrees or radians?",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Time to write code. Type Math.sin(90) in JavaScript. You expect 1, because sin 90° is 1. But the computer prints 0.894. Why?",
+              "ta": "இப்போ code எழுதுவோம். JavaScript-ல Math.sin(90) type பண்ணுங்க. sin 90° = 1-ங்கிறதால 1 வரும்னு நினைப்போம். ஆனா computer 0.894 காட்டுது. ஏன்?",
+              "say": {
+                "en": "Time to write code. Type Math dot sin of 90 in JavaScript. You expect 1, because sin of 90 degrees is 1. But the computer prints 0.894. Why?",
+                "ta": "இப்போ code எழுதுவோம். JavaScript-ல Math dot sin of 90 type பண்ணுங்க. sin 90 degrees 1-ங்கிறதால 1 வரும்னு நினைப்போம். ஆனா computer 0.894 காட்டுது. ஏன்?"
+              }
+            },
+            {
+              "id": "s7-b2",
+              "en": "In programming, and inside machines, we measure angles in radians, not degrees. A radian uses the circle's own radius as the measuring stick: one radian is the angle where the arc is exactly as long as the radius. A full circle is 2π radians, so 180° = π radians.",
+              "ta": "Programming-லயும், machines-க்குள்ளயும் angles-ஐ degrees-ல இல்ல, radians-ல அளக்குறோம். Radian circle-ஓட சொந்த radius-ஐயே அளவுகோலா use பண்ணுது: arc நீளம் சரியா radius நீளத்துக்கு சமமா இருக்கிற angle தான் ஒரு radian. முழு circle 2π radians, அதனால 180° = π radians.",
+              "say": {
+                "en": "In programming, and inside machines, we measure angles in radians, not degrees. A radian uses the circle's own radius as the measuring stick: one radian is the angle where the arc is exactly as long as the radius. A full circle is 2 pi radians, so 180 degrees is pi radians.",
+                "ta": "Programming-லயும், machines-க்குள்ளயும் angles-ஐ degrees-ல இல்ல, radians-ல அளக்குறோம். Radian circle-ஓட சொந்த radius-ஐயே அளவுகோலா use பண்ணுது: arc நீளம் சரியா radius நீளத்துக்கு சமமா இருக்கிற angle தான் ஒரு radian. முழு circle 2 pi radians, அதனால 180 degrees-ன்னா pi radians."
+              }
+            },
+            {
+              "id": "s7-b3",
+              "en": "Why do machines prefer radians? With radians, arc length is simply radius × angle, and the formula computers use to calculate sin only works in radians. Degrees would need an extra π ÷ 180 in every formula. So convert first: Math.sin(90 × π / 180) gives exactly 1.",
+              "ta": "Machines ஏன் radians-ஐ விரும்புது? Radians-ல arc நீளம் = radius × angle, அவ்வளவு தான். Computers sin calculate பண்ற formula-வும் radians-ல மட்டும் தான் வேலை செய்யும். Degrees-னா ஒவ்வொரு formula-லயும் extra π ÷ 180 வேணும். அதனால முதல்ல convert பண்ணுங்க: Math.sin(90 × π / 180) சரியா 1 தருது.",
+              "say": {
+                "en": "Why do machines prefer radians? With radians, arc length is simply radius times angle, and the formula computers use to calculate sin only works in radians. Degrees would need an extra pi by 180 in every formula. So convert first: Math dot sin of 90 times pi by 180 gives exactly 1.",
+                "ta": "Machines ஏன் radians-ஐ விரும்புது? Radians-ல arc நீளம் radius into angle, அவ்வளவு தான். Computers sin calculate பண்ற formula-வும் radians-ல மட்டும் தான் வேலை செய்யும். Degrees-னா ஒவ்வொரு formula-லயும் extra pi by 180 வேணும். அதனால முதல்ல convert பண்ணுங்க: Math dot sin of 90 into pi by 180 சரியா 1 தருது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "How Math.sin calculates",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "There is no giant table of sin values inside your phone. Let us watch the computer calculate sin 30° using only multiplication and addition. First, 30° becomes 0.5236 radians.",
+              "ta": "உங்க phone-க்குள்ள sin values-க்கான பெரிய table எதுவும் இல்ல. Computer பெருக்கல், கூட்டல் மட்டும் வெச்சு sin 30°-ஐ எப்படி calculate பண்ணுதுன்னு பார்ப்போம். முதல்ல, 30° = 0.5236 radians.",
+              "say": {
+                "en": "There is no giant table of sin values inside your phone. Let us watch the computer calculate sin of 30 degrees using only multiplication and addition. First, 30 degrees becomes 0.5236 radians.",
+                "ta": "உங்க phone-க்குள்ள sin values-க்கான பெரிய table எதுவும் இல்ல. Computer பெருக்கல், கூட்டல் மட்டும் வெச்சு sin 30 degrees-ஐ எப்படி calculate பண்ணுதுன்னு பார்ப்போம். முதல்ல, 30 degrees-ன்னா 0.5236 radians."
+              }
+            },
+            {
+              "id": "s8-b2",
+              "en": "Step 1: start with x itself: 0.5236. Step 2: subtract x³ ÷ 6, and we have 0.4997. Step 3: add x⁵ ÷ 120, and we have 0.5000. Correct already, after three small steps!",
+              "ta": "Step 1: x-லயே ஆரம்பிப்போம்: 0.5236. Step 2: x³ ÷ 6-ஐ கழிச்சா 0.4997. Step 3: x⁵ ÷ 120-ஐ கூட்டினா 0.5000. மூணு சின்ன steps-லயே சரியான answer!",
+              "say": {
+                "en": "Step 1: start with x itself: 0.5236. Step 2: subtract x cubed divided by 6, and we have 0.4997. Step 3: add x to the power 5 divided by 120, and we have 0.5000. Correct already, after three small steps!",
+                "ta": "Step 1: x-லயே ஆரம்பிப்போம்: 0.5236. Step 2: x cube-ஐ 6-ஆல வகுத்து கழிச்சா 0.4997. Step 3: x power 5-ஐ 120-ஆல வகுத்து கூட்டினா 0.5000. மூணு சின்ன steps-லயே சரியான answer!"
+              }
+            },
+            {
+              "id": "s8-b3",
+              "en": "A formula like this, made of powers of x added together, is called a polynomial. Computers love polynomials because they need only multiplication and addition. Polynomials also power data analysis, so they will get their own lesson.",
+              "ta": "இந்த மாதிரி, x-ஓட powers-ஐ கூட்டி வர்ற formula-க்கு பேர் polynomial. Computers-க்கு polynomials பிடிக்கும், ஏன்னா அதுக்கு பெருக்கல், கூட்டல் மட்டும் போதும். Data analysis-லயும் polynomials நிறைய use ஆகுது, அதனால அதுக்கு தனி lesson வரும்."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Madhava: who and why",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "This formula has a proud history. It was found by Madhava of Sangamagrama, founder of the Kerala school of astronomy and mathematics, in the 1300s, long before European mathematicians wrote it down.",
+              "ta": "இந்த formula-க்கு பெருமையான வரலாறு இருக்கு. இதை கண்டுபிடிச்சது Sangamagrama Madhava. Kerala-வோட astronomy, mathematics school-ஐ தொடங்கினவர். 1300-களிலேயே, European mathematicians எழுதுறதுக்கு ரொம்ப முன்னாடியே."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Why did he need it? Astronomers had to predict planet positions, eclipses and calendar dates, and that needed very accurate sine values. Tables were slow and imprecise. Madhava's series let anyone calculate sine as accurately as they wanted, using only multiplication and addition.",
+              "ta": "அவருக்கு ஏன் தேவைப்பட்டது? Astronomers கிரகங்களோட position, கிரகணம், calendar தேதிகள் predict பண்ணணும். அதுக்கு ரொம்ப accurate-ஆன sine values வேணும். Tables slow-ஆவும், accuracy குறைவாவும் இருந்தது. Madhava-வோட series வெச்சு, பெருக்கல், கூட்டல் மட்டும் use பண்ணி, எவ்வளவு accurate-ஆ வேணுமோ அவ்வளவு accurate-ஆ sine calculate பண்ணலாம்."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Today the same idea runs inside every calculator, phone, game engine and GPS chip. The maths in your pocket has South Indian roots.",
+              "ta": "இன்னைக்கு அதே idea ஒவ்வொரு calculator, phone, game engine, GPS chip-க்குள்ளயும் ஓடுது. உங்க pocket-ல இருக்கிற maths-க்கு தென்னிந்திய வேர்கள் இருக்கு."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Part A recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "sin, cos and tan are ratios of a right-angled triangle. They depend only on the angle, so an angle can tell you lengths.",
+              "ta": "sin, cos, tan எல்லாம் right-angled triangle-ஓட ratios. அவை angle-ஐ மட்டும் பொறுத்தது, அதனால ஒரு angle நீளங்களை சொல்லிடும்."
+            },
+            {
+              "id": "s10-b2",
+              "en": "On a circle of radius 1, sin θ is the height and cos θ is the sideways distance. Games use this to draw zones and split a throw into forward and upward parts.",
+              "ta": "Radius 1 circle-ல, sin θ உயரம், cos θ பக்கவாட்டு தூரம். Games இதை வெச்சு zones வரையுது, throw-ஐ முன்னாடி, மேல-ன்னு பிரிக்குது.",
+              "say": {
+                "en": "On a circle of radius 1, sin theta is the height and cos theta is the sideways distance. Games use this to draw zones and split a throw into forward and upward parts.",
+                "ta": "Radius 1 circle-ல, sin theta உயரம், cos theta பக்கவாட்டு தூரம். Games இதை வெச்சு zones வரையுது, throw-ஐ முன்னாடி, மேல-ன்னு பிரிக்குது."
+              }
+            },
+            {
+              "id": "s10-b3",
+              "en": "Machines use radians, and Math.sin is a short polynomial from Madhava's idea. Now try the practice problems, the code lab and your mission: make your character walk in any direction.",
+              "ta": "Machines radians use பண்ணுது. Math.sin-ன்னா Madhava-வோட idea-ல இருந்து வந்த ஒரு சின்ன polynomial. இப்போ practice problems, code lab, அப்புறம் உங்க mission: உங்க character-ஐ எந்த திசையிலும் நடக்க வைங்க.",
+              "say": {
+                "en": "Machines use radians, and Math dot sin is a short polynomial from Madhava's idea. Now try the practice problems, the code lab and your mission: make your character walk in any direction.",
+                "ta": "Machines radians use பண்ணுது. Math dot sin-ன்னா Madhava-வோட idea-ல இருந்து வந்த ஒரு சின்ன polynomial. இப்போ practice problems, code lab, அப்புறம் உங்க mission: உங்க character-ஐ எந்த திசையிலும் நடக்க வைங்க."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

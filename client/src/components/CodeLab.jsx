@@ -21,13 +21,83 @@ function loadPython() {
   return pyodidePromise;
 }
 
-async function runJS(code) {
+// ---------------------------------------------------------------
+// PACKAGES.
+// Some experiments are the point BECAUSE they use a package: the lesson is
+// "you can compute this by hand, and a library already did it properly".
+// So an experiment declares what it needs — libs for JavaScript, pyPackages
+// for Python — and we fetch those on demand.
+//
+// Everything is cached at module scope, not per component. A student
+// switching between experiments would otherwise re-download mathjs each
+// time, and Pyodide package installs are slow enough to notice.
+// ---------------------------------------------------------------
+const jsLibCache = {};
+async function loadJsLibs(names = []) {
+  const out = {};
+  for (const name of names) {
+    if (!jsLibCache[name]) {
+      // Dynamic import keeps these out of the main bundle: a student who
+      // never opens a package experiment never downloads them.
+      if (name === 'mathjs') {
+        jsLibCache[name] = import('mathjs').then(({ create, all }) => create(all));
+      } else if (name === 'geolib') {
+        jsLibCache[name] = import('geolib');
+      } else {
+        throw new Error(`Unknown JavaScript package: ${name}`);
+      }
+    }
+    out[name] = await jsLibCache[name];
+  }
+  return out;
+}
+
+const pyPkgCache = {};
+
+// Some PyPI packages need a stdlib module that Pyodide does NOT ship by
+// default. geopy is one: it imports `ssl` (through urllib, for its online
+// geocoders) and micropip fails with "await micropip.install('ssl')" unless
+// ssl is loaded first. Pyodide has it as a loadable package — it just is not
+// there until asked for. Verified against the pinned v0.26.4.
+const PY_EXTRA_DEPS = { geopy: ['ssl'] };
+
+async function loadPyPackages(py, names = [], say = () => {}) {
+  for (const name of names) {
+    if (!pyPkgCache[name]) {
+      say(`Loading ${name}…`);
+      pyPkgCache[name] = (async () => {
+        // numpy ships WITH Pyodide, so loadPackage finds it locally and is
+        // fast. Anything else is a wheel from PyPI, which needs micropip.
+        if (name === 'numpy') return py.loadPackage('numpy');
+        await py.loadPackage('micropip');
+        for (const dep of PY_EXTRA_DEPS[name] ?? []) await py.loadPackage(dep);
+        const micropip = py.pyimport('micropip');
+        return micropip.install(name);
+      })().catch((e) => {
+        // Let the next run try again rather than caching the failure.
+        delete pyPkgCache[name];
+        throw new Error(
+          `${name} could not load in this browser; try the JavaScript version. (${String(e.message || e).split('\n')[0]})`
+        );
+      });
+    }
+    await pyPkgCache[name];
+  }
+}
+
+async function runJS(code, libs = []) {
   const lines = []; const print = (...a) => lines.push(a.join(' '));
-  const result = new Function('print', code)(print);
+  const loaded = await loadJsLibs(libs);
+  // The package names the code uses ('math', 'geolib') become extra
+  // parameters, so the student writes math.sin(...) with no import line —
+  // the same way `print` is already handed to them.
+  const result = new Function('print', 'math', 'geolib', code)(print, loaded.mathjs, loaded.geolib);
   return { lines, result };
 }
-async function runPy(code) {
+
+async function runPy(code, pyPackages = [], say = () => {}) {
   const py = await loadPython();
+  await loadPyPackages(py, pyPackages, say);
   const lines = [];
   py.setStdout({ batched: (s) => lines.push(s) });
   py.runPython('globals().pop("result", None)');
@@ -45,6 +115,9 @@ function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
   const [res, setRes] = useState(null);
   const [busy, setBusy] = useState(false);
   const mode = pyMode ? 'py' : 'js';
+  // The badge follows the language toggle: the JS version of an experiment
+  // may use geolib while the Python version uses geopy.
+  const pkgs = (pyMode ? exp.pyPackages : exp.libs) ?? [];
 
   const draw = (r, a) => {
     const cv = cvRef.current; if (!cv) return; const ctx = cv.getContext('2d');
@@ -63,7 +136,9 @@ function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
     setBusy(true); setOut(pyMode ? 'Running Python… (first run downloads Python, about 10 MB)' : 'Running…');
     const t = performance.now();
     try {
-      const { lines, result } = await (pyMode ? runPy(code.py) : runJS(code.js));
+      const { lines, result } = await (pyMode
+        ? runPy(code.py, exp.pyPackages, (msg) => setOut(msg))
+        : runJS(code.js, exp.libs));
       const ms = (performance.now() - t).toFixed(0);
       if (!result || typeof result !== 'object') { setOut(lines.join('\n') + `\n(Keep the ${pyMode ? 'result = …' : 'return'} line at the bottom so the chart can draw.)`); return; }
       setOut(lines.join('\n') + `\n(ran in ${ms} ms)`); setRes(result); onRun(exp.id);
@@ -76,7 +151,13 @@ function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
 
   return (
     <section className="lab-exp">
-      <div className="lab-head"><span className="lab-num">{n}</span><h3 lang={lang}>{exp.title[lang]}</h3></div>
+      <div className="lab-head">
+        <span className="lab-num">{n}</span>
+        <h3 lang={lang}>{exp.title[lang]}</h3>
+        {/* Which parts are plain Math and which lean on a package — that
+            contrast is the lesson, so it is on the card, not hidden in the code. */}
+        {pkgs.length > 0 && <span className="lab-pkg">uses {pkgs.join(' · ')}</span>}
+      </div>
       <p className="lab-why" lang={lang}>{exp.why[lang]}</p>
       <div className="lab-grid">
         <div>

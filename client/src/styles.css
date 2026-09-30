@@ -408,3 +408,35 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .journey-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
 .journey-row.is-soon .journey-title { color: #8a94a6; }
 .journey-missions { font-size: 12.5px; margin-top: 2px; }
+
+/* ================= SIN & COS LESSONS ================= */
+
+/* ---- Practice problems ---- */
+.prob { border-top: 1px solid #eef1f7; padding: 14px 0; }
+.prob:first-child { border-top: none; }
+.prob-tag { display: inline-block; background: #e6ebf5; color: #1E3E7B; font-size: 12px;
+            font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+.prob-in { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+/* A number box wide enough for an answer, not for an essay. */
+.prob-in input { width: 120px; margin-bottom: 0; }
+.prob-fb { font-size: 14px; margin: 6px 0 0; }
+.prob-fb.good { color: #2c6e49; font-weight: 700; }
+.prob-fb.bad { color: #b3372f; }
+.prob-code { display: block; background: #1a2333; color: #e6ebf5; padding: 10px 12px;
+             border-radius: 6px; font-size: 13px; margin-top: 8px; overflow-x: auto; }
+
+/* ---- "uses mathjs" badge on a lab card ---- */
+.lab-pkg { background: #fdf6dc; color: #7a5c00; border: 1px solid #e8d894; font-size: 11.5px;
+           font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px;
+           white-space: nowrap; }
+
+/* ---- Missions strip under a lesson ---- */
+.lesson-missions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* ---- Prev / next ---- */
+/* space-between with an empty <span> placeholder keeps "next" hard right
+   even when there is no "previous" (Part A). */
+.lesson-nav { display: flex; justify-content: space-between; align-items: center;
+              gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+.lesson-nav a { text-decoration: none; }
+.lesson-top h2 .badge { margin-left: 8px; vertical-align: middle; font-size: 12px; }
