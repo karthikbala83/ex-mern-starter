@@ -1,5 +1,6 @@
 // Practice: numeric problems with hint → check → solution → run-the-code.
 import { useState } from 'react';
+import { Dots, useSwipe, useArrowKeys } from './Pager.jsx';
 
 function Problem({ pr, n, lang, solved, onSolve }) {
   const [val, setVal] = useState('');
@@ -33,14 +34,40 @@ function Problem({ pr, n, lang, solved, onSolve }) {
   );
 }
 
-export default function Practice({ problems, lang }) {
-  const [solved, setSolved] = useState(new Set());
+// ---------------------------------------------------------------
+// One problem per screen.
+// A list of nine problems reads like a homework sheet; one at a time
+// reads like a conversation. Dots show where you are and which ones are
+// solved; arrows, the buttons or a swipe move between them.
+//
+// Every problem stays MOUNTED and only the current one is shown, so an
+// answer typed into problem 3 is still there when the student comes back
+// from problem 5. Unmounting would quietly wipe it.
+//
+// `solved` belongs to the lesson (it is saved as progress), so it comes
+// in as a prop instead of living in local state.
+// ---------------------------------------------------------------
+export default function Practice({ problems, lang, solved = [], onSolve = () => {} }) {
+  const [i, setI] = useState(0);
+  const go = (n) => setI(Math.max(0, Math.min(problems.length - 1, n)));
+  const swipe = useSwipe(() => go(i + 1), () => go(i - 1));
+  useArrowKeys(() => go(i - 1), () => go(i + 1));
+  const done = new Set(solved);
+  const ta = lang === 'ta';
+
   return (
-    <div>
-      <p className="muted"><b>{lang === 'ta' ? 'தீர்த்தது' : 'Solved'}: {solved.size} / {problems.length}</b></p>
-      {problems.map((pr, i) => (
-        <Problem key={i} pr={pr} n={i} lang={lang} solved={solved.has(i)} onSolve={(k) => setSolved(new Set([...solved, k]))} />
+    <div className="pager" {...swipe}>
+      <Dots count={problems.length} at={i} done={done} onPick={go} label="Problem" />
+      {problems.map((pr, k) => (
+        <div key={k} hidden={k !== i}>
+          <Problem pr={pr} n={k} lang={lang} solved={done.has(k)} onSolve={onSolve} />
+        </div>
       ))}
+      <div className="pager-nav">
+        <button className="lp-ghost" onClick={() => go(i - 1)} disabled={i === 0}>← {ta ? 'முந்தையது' : 'Previous'}</button>
+        <span className="muted"><b>{ta ? 'தீர்த்தது' : 'Solved'}: {done.size} / {problems.length}</b></span>
+        <button className="lp-ghost" onClick={() => go(i + 1)} disabled={i === problems.length - 1}>{ta ? 'அடுத்தது' : 'Next'} →</button>
+      </div>
     </div>
   );
 }

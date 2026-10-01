@@ -173,28 +173,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 /* ---- lessons: player ---- */
 .lesson { font-family: Catamaran, system-ui, sans-serif; }
 .lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 12px; }
-.lesson-h { margin: 28px 0 10px; font-size: 22px; }
 .seg { display: inline-flex; border: 1px solid #cfd6e4; border-radius: 8px; overflow: hidden; }
 .seg button { background: #fff; color: #6b7688; border-radius: 0; padding: 7px 14px; font-weight: 600; }
 .seg button[aria-pressed="true"] { background: #1E3E7B; color: #fff; }
-.lp-stage { position: relative; border: 2px solid #1E3E7B; border-radius: 12px; overflow: hidden; background: #F7F9FC; }
-.lp-stage canvas { display: block; width: 100%; aspect-ratio: 16 / 9; }
-.lp-big { position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%); font-size: 18px; font-weight: 700; border-radius: 30px; padding: 12px 28px; }
-.lp-ask { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(247,249,252,.92); padding: 16px; text-align: center; }
-.lp-ask p { font-size: clamp(17px, 2.4vw, 24px); font-weight: 700; max-width: 600px; }
-.lp-ask div { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.lp-ask div button { background: #fff; color: #1E3E7B; border: 2px solid #1E3E7B; font-size: 20px; font-weight: 700; min-width: 84px; }
-.lp-done { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 14px; background: linear-gradient(transparent, rgba(247,249,252,.95) 45%); }
-.lp-done a { background: #547B5C; color: #fff; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-weight: 700; }
-.lp-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0 8px; }
 .lp-ghost { background: #fff; color: #1a2333; border: 1px solid #cfd6e4; }
-.lp-voice { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; }
-.lp-voice input { width: auto; margin: 0; }
-.lp-caption { background: #fff; border-left: 5px solid #C9A21F; border-radius: 8px; padding: 12px 16px; min-height: 80px; font-size: clamp(17px, 2.2vw, 21px); font-weight: 600; line-height: 1.5; }
-.lp-scenes { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.lp-scenes button { background: transparent; color: #6b7688; border: 1px solid #cfd6e4; border-radius: 20px; padding: 4px 11px; font-size: 13px; }
-.lp-scenes button.seen { color: #1a2333; }
-.lp-scenes button.on { border-color: #1E3E7B; background: #fff; color: #1a2333; }
 /* ---- lessons: code lab ---- */
 .lab-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
 .lab-exp { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
@@ -430,13 +412,195 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
            font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px;
            white-space: nowrap; }
 
-/* ---- Missions strip under a lesson ---- */
-.lesson-missions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
-/* ---- Prev / next ---- */
-/* space-between with an empty <span> placeholder keeps "next" hard right
-   even when there is no "previous" (Part A). */
-.lesson-nav { display: flex; justify-content: space-between; align-items: center;
-              gap: 10px; flex-wrap: wrap; margin: 16px 0; }
-.lesson-nav a { text-decoration: none; }
 .lesson-top h2 .badge { margin-left: 8px; vertical-align: middle; font-size: 12px; }
+
+/* ================= SESSION 5: the learning environment ================= */
+
+/* ---- Player: stage + controls overlay ---- */
+.lp-stage { position: relative; border: 2px solid #1E3E7B; border-radius: 12px; overflow: hidden; background: #F7F9FC; }
+.lp-stage canvas { display: block; width: 100%; aspect-ratio: 16 / 9; }
+/* Hide the mouse pointer with the controls, like any video player. */
+.lp-stage.lp-idle { cursor: none; }
+
+.lp-big { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+          width: 84px; height: 84px; border-radius: 50%; padding: 0; display: grid; place-items: center;
+          background: rgba(30, 62, 123, .78); color: #fff; font-size: 64px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.lp-big:hover { background: rgba(30, 62, 123, .92); opacity: 1; }
+
+.lp-badge { position: absolute; top: 10px; right: 10px; z-index: 4; background: rgba(0,0,0,.6); color: #fff;
+            border-radius: 50%; width: 36px; height: 36px; display: grid; place-items: center; font-size: 20px; }
+
+/* Predict question: covers the picture but leaves room for the bar. */
+.lp-ask { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 12px; background: rgba(247,249,252,.94); padding: 16px 16px 84px; text-align: center; }
+.lp-ask p { font-size: clamp(16px, 2.4vw, 26px); font-weight: 700; max-width: 640px; }
+.lp-ask div { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.lp-ask div button { background: #fff; color: #1E3E7B; border: 2px solid #1E3E7B; font-size: clamp(16px, 2vw, 22px);
+                     font-weight: 700; min-width: 84px; min-height: 44px; }
+
+/* End card */
+.lp-end { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 12px; background: rgba(16, 33, 66, .82); color: #fff; padding: 16px 16px 84px; text-align: center; }
+.lp-end-tick { display: flex; align-items: center; gap: 8px; font-size: clamp(20px, 3vw, 30px); font-weight: 800; }
+.lp-end-tick svg { color: #8fd19e; font-size: 1.3em; }
+.lp-end-next { background: #C9A21F; color: #1a2333; font-weight: 800; font-size: 17px; border-radius: 26px; padding: 12px 24px; min-height: 44px; }
+.lp-end-replay { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); border-radius: 22px;
+                 display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+
+/* Captions: a band inside the picture, max two lines. */
+.lp-cc { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 3; width: max-content; max-width: 92%;
+         background: rgba(0,0,0,.72); color: #fff; padding: 6px 14px; border-radius: 6px; text-align: center;
+         font-size: clamp(14px, 2.1vw, 22px); font-weight: 600; line-height: 1.4;
+         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+         transition: bottom .25s ease; pointer-events: none; }
+.lp-cc.lifted { bottom: 86px; }
+
+/* Bottom bar: gradient so white icons read on any frame of the animation. */
+.lp-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; padding: 18px 8px 4px;
+          background: linear-gradient(transparent, rgba(0,0,0,.72) 55%); color: #fff;
+          transition: opacity .3s ease, transform .3s ease; }
+.lp-bar.hidden { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.lp-row { display: flex; align-items: center; gap: 2px; }
+.lp-row button { background: transparent; color: #fff; width: 44px; height: 44px; min-width: 44px; padding: 0;
+                 display: grid; place-items: center; font-size: 26px; border-radius: 8px; }
+.lp-row button:hover { background: rgba(255,255,255,.14); opacity: 1; }
+.lp-row button:disabled { opacity: .35; cursor: default; }
+.lp-row button[aria-pressed="false"] { opacity: .8; }
+.lp-row .lp-lang { width: auto; padding: 0 8px; display: inline-flex; gap: 4px; font-size: 22px; }
+.lp-row .lp-lang span { font-size: 15px; font-weight: 800; }
+.lp-count { font-size: 13px; opacity: .85; margin-left: 4px; white-space: nowrap; }
+.lp-spacer { flex: 1; }
+/* A visible focus ring for keyboard users, on every control. */
+.lp-row button:focus-visible, .lp-seg:focus-visible, .lp-big:focus-visible, .lp-end button:focus-visible {
+  outline: 3px solid #C9A21F; outline-offset: 2px; }
+
+/* Scene progress: one segment per scene. Tall hit area, thin visible track. */
+.lp-segs { display: flex; gap: 4px; padding: 0 6px; }
+.lp-seg { position: relative; flex: 1; background: transparent; padding: 0; height: 24px; border-radius: 0; display: flex; align-items: center; }
+.lp-seg:hover { opacity: 1; }
+.lp-seg-track { display: block; width: 100%; height: 5px; border-radius: 3px; background: rgba(255,255,255,.3); overflow: hidden; transition: height .15s; }
+.lp-seg:hover .lp-seg-track, .lp-seg.on .lp-seg-track { height: 7px; }
+.lp-seg-fill { display: block; height: 100%; background: #C9A21F; transform-origin: left center; transform: scaleX(0); }
+.lp-tip { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); background: #fff; color: #1a2333;
+          font-size: 13px; font-weight: 700; padding: 5px 10px; border-radius: 6px; white-space: nowrap;
+          box-shadow: 0 2px 10px rgba(0,0,0,.3); pointer-events: none; }
+.lp-tip.start { left: 0; transform: none; }
+.lp-tip.end { left: auto; right: 0; transform: none; }
+
+@media (max-width: 520px) {
+  .lp-row button { font-size: 22px; }
+  .lp-count { display: none; }
+  .lp-big { width: 64px; height: 64px; font-size: 48px; }
+  .lp-cc.lifted { bottom: 78px; }
+}
+
+/* ---- Fullscreen + iPhone "immersive" mode ----
+   Both centre the stage on black, scaled to the largest 16:9 box that fits. */
+.lp.is-full { background: #000; display: flex; align-items: center; justify-content: center; }
+.lp:fullscreen { width: 100vw; height: 100vh; }
+.lp.is-immersive { position: fixed; inset: 0; z-index: 1000; width: 100vw; height: 100vh; height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.lp.is-full .lp-stage { border: none; border-radius: 0; aspect-ratio: 16 / 9;
+  width: min(100%, calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 16 / 9));
+  width: min(100%, calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 16 / 9));
+  max-width: 100vw; max-height: 100dvh; }
+
+.lp-rotate { position: fixed; inset: 0; z-index: 1001; background: rgba(0,0,0,.92); color: #fff;
+             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; }
+.lp-rotate-icon { font-size: 72px; animation: lp-tilt 1.6s ease-in-out infinite; }
+.lp-rotate p { font-size: 22px; font-weight: 800; }
+.lp-rotate div { display: flex; gap: 10px; }
+.lp-rotate button { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); min-height: 44px; min-width: 44px;
+                    display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+@keyframes lp-tilt { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+@media (prefers-reduced-motion: reduce) { .lp-rotate-icon { animation: none; } }
+
+/* ---- Lesson shell ---- */
+/* No app tab bar inside a lesson (see MobileNav), so drop its spacer. */
+body.focus-mode { padding-bottom: 0; }
+.shell { padding-bottom: 8px; }
+.shell-top { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+.shell-back { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%;
+              color: #1E3E7B; font-size: 26px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.shell-title { flex: 1; min-width: 0; }
+.shell-title h2 { font-size: clamp(18px, 3vw, 24px); line-height: 1.25; }
+.shell-lang { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 44px; border-radius: 22px;
+              background: #fff; color: #1E3E7B; border: 1px solid #cfd6e4; font-weight: 700; }
+
+.stepper ol { list-style: none; padding: 0; margin: 0 0 16px; display: flex; gap: 4px; }
+.stepper li { flex: 1; position: relative; }
+/* The thin line joining steps, so five icons read as one path. */
+.stepper li + li::before { content: ""; position: absolute; top: 22px; left: -50%; right: 50%; height: 2px; background: #dbe2ee; z-index: 0; }
+.stepper li.done + li::before { background: #547B5C; }
+.stepper a { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+             text-decoration: none; color: #6b7688; font-size: 13px; font-weight: 600; padding: 2px 0; }
+.stepper-icon { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+                background: #fff; border: 2px solid #dbe2ee; font-size: 24px; color: #6b7688; }
+.stepper li.done .stepper-icon { border-color: #547B5C; color: #547B5C; }
+.stepper li.on .stepper-icon { background: #1E3E7B; border-color: #1E3E7B; color: #fff; }
+.stepper li.on a { color: #1E3E7B; font-weight: 800; }
+.stepper-tick { position: absolute; right: -4px; top: -4px; width: 18px; height: 18px; border-radius: 50%;
+                background: #547B5C; color: #fff; font-size: 13px; display: grid; place-items: center; border: 2px solid #f4f6fa; }
+.stepper a:focus-visible { outline: 3px solid #C9A21F; outline-offset: 2px; border-radius: 8px; }
+/* Phones: icons only, plus the label of the step you are on. */
+@media (max-width: 560px) {
+  .stepper li:not(.on) .stepper-label { display: none; }
+  .stepper a { font-size: 12px; }
+}
+
+.shell-body { min-height: 50vh; }
+.version-pill { display: inline-flex; align-items: center; margin-bottom: 10px; }
+.version-pill .muted { padding: 0 12px; background: #fff; align-self: stretch; display: flex; align-items: center; }
+
+/* Back / Next: sticky at the bottom, clear of the iPhone home bar. */
+.shell-nav { position: sticky; bottom: 0; z-index: 30; display: flex; justify-content: space-between; gap: 10px;
+             margin: 20px -16px 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+             background: rgba(244, 246, 250, .96); border-top: 1px solid #e3e8f0; backdrop-filter: blur(6px); }
+.shell-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px;
+             border-radius: 22px; text-decoration: none; font-weight: 700; font-size: 15px; }
+.shell-btn.primary { background: #1E3E7B; color: #fff; margin-left: auto; }
+.shell-btn.lp-ghost { color: #1a2333; }
+
+/* ---- One item per screen: dots + prev/next ---- */
+.dots { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
+.dots-count { font-weight: 800; color: #1E3E7B; min-width: 44px; }
+.dots-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.dot { width: 28px; height: 28px; padding: 0; border-radius: 50%; background: #fff; border: 2px solid #cfd6e4; color: #fff;
+       display: grid; place-items: center; font-size: 16px; }
+.dot.on { border-color: #1E3E7B; box-shadow: 0 0 0 3px rgba(30,62,123,.15); }
+.dot.done { background: #547B5C; border-color: #547B5C; }
+.dot.wrong { background: #b3372f; border-color: #b3372f; }
+.dot:focus-visible { outline: 3px solid #C9A21F; outline-offset: 2px; }
+.pager-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }
+.pager-nav button { min-height: 44px; }
+.pager-nav button:last-child { margin-left: auto; }
+
+/* ---- Quiz ---- */
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.quiz-opt { text-align: left; background: #fff; color: #1a2333; border: 2px solid #cfd6e4; min-height: 44px; font-weight: 600; }
+.quiz-opt:not(:disabled):hover { border-color: #1E3E7B; opacity: 1; }
+.quiz-opt:disabled { cursor: default; opacity: 1; }
+.quiz-opt.right { border-color: #547B5C; background: #eaf4ec; }
+.quiz-opt.wrong { border-color: #b3372f; background: #fbeceb; }
+.quiz-end { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 16px; }
+.quiz-score { font-size: 44px; font-weight: 800; color: #1E3E7B; }
+.quiz-end button { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---- Missions step ---- */
+.mcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.mcard { display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #1a2333; margin: 0; border: 2px solid transparent; }
+a.mcard:hover { border-color: #1E3E7B; }
+.mcard.soon { opacity: .6; }
+.mcard-product { font-size: 13px; color: #6b7688; font-weight: 700; }
+.mcard-cta { margin-top: auto; color: #1E3E7B; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+.mcard-cta.built { color: #547B5C; }
+
+/* ---- Enovix card progress ring ---- */
+.lesson-card-head { display: flex; justify-content: space-between; align-items: center; }
+.ring { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; }
+.ring svg { position: absolute; inset: 0; }
+.ring b { font-size: 11px; color: #1E3E7B; }
+.ring-bg { fill: none; stroke: #e3e8f0; stroke-width: 4; }
+.ring-fg { fill: none; stroke: #C9A21F; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+.ring.full .ring-fg { stroke: #547B5C; }

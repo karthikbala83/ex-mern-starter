@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   MdHome, MdSportsEsports, MdSchool, MdRocketLaunch, MdInsights,
 } from 'react-icons/md';
@@ -32,7 +32,12 @@ const TABS = [
 
 export default function MobileNav() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   if (!user) return null;   // signed out: nothing to navigate between
+  // Inside a lesson (/enovix/:id/:step) the lesson brings its own bottom
+  // bar — Back / Next. Two bars stacked at the bottom of a phone is one
+  // too many, and the lesson's bar is the one the student needs there.
+  if (/^\/enovix\/[^/]+\/[^/]+/.test(pathname)) return null;
 
   const tabs = user.role === 'admin'
     ? [...TABS, { to: '/admin', label: 'Admin', Icon: MdInsights }]

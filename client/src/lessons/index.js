@@ -38,6 +38,12 @@ import cLab from './sincos-c/lab.js';
 import cQuiz from './sincos-c/quiz.js';
 import cPractice from './sincos-c/practice.js';
 
+import sNarration from './statistics/narration.json';
+import sScenes from './statistics/scenes.js';
+import sLab from './statistics/lab.js';
+import sQuiz from './statistics/quiz.js';
+import sPractice from './statistics/practice.js';
+
 const TRIG = 'CSE › Mathematics for Computing › Trigonometry';
 
 export const lessons = {
@@ -90,5 +96,18 @@ export const lessons = {
     practice: cPractice,
     quiz: cQuiz,
     prev: 'sincos-b',
+    next: 'statistics',
+  },
+  statistics: {
+    id: 'statistics',
+    title: sNarration.title,
+    breadcrumb: 'CSE › Mathematics for Computing › Statistics',
+    narration: sNarration,
+    scenes: { main: sScenes },
+    defaultVersion: 'main',
+    createLab: sLab,
+    practice: sPractice,
+    quiz: sQuiz,
+    prev: 'sincos-c',
   },
 };

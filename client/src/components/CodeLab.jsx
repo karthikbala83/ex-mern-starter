@@ -5,6 +5,7 @@
 // Student code NEVER runs on our server.
 // ---------------------------------------------------------------
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Dots, useArrowKeys } from './Pager.jsx';
 
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
 let pyodidePromise = null;
@@ -179,19 +180,49 @@ function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
   );
 }
 
-export default function CodeLab({ createLab, lang, onRun = () => {} }) {
+// ---------------------------------------------------------------
+// One experiment per screen, with a "2 / 5" sub-stepper.
+// The JS / Python toggle sits above the pager and applies to every
+// experiment: a student learning Python should not have to re-pick it
+// on each screen.
+//
+// Like Practice, every experiment stays mounted and only the current one
+// is visible, so edited code and the last chart survive moving back and
+// forth. (A hidden canvas has zero width; its ResizeObserver redraws it
+// the moment it is shown again.)
+//
+// No swipe here on purpose: the code editor and the chart both take
+// sideways finger movement, so a swipe would flip pages by accident.
+// ---------------------------------------------------------------
+export default function CodeLab({ createLab, lang, onRun = () => {}, ran = [] }) {
   const exps = useMemo(() => createLab(null).labs, [createLab]);
   const [pyMode, setPyMode] = useState(false);
+  const [i, setI] = useState(0);
+  const go = (n) => setI(Math.max(0, Math.min(exps.length - 1, n)));
+  useArrowKeys(() => go(i - 1), () => go(i + 1));
+  const done = new Set(exps.map((x, k) => (ran.includes(x.id) ? k : -1)).filter((k) => k >= 0));
+  const ta = lang === 'ta';
   return (
     <div className="lab">
       <div className="lab-bar">
-        <p lang={lang}>{lang === 'ta' ? 'Run அழுத்துங்க. அப்புறம் CAPITALS-ல இருக்கிற number-ஐ மாத்தி மறுபடியும் run பண்ணுங்க.' : 'Press Run. Then change the number in CAPITALS and run again.'}</p>
+        <p lang={lang}>{ta ? 'Run அழுத்துங்க. அப்புறம் CAPITALS-ல இருக்கிற number-ஐ மாத்தி மறுபடியும் run பண்ணுங்க.' : 'Press Run. Then change the number in CAPITALS and run again.'}</p>
         <div className="seg" role="group" aria-label="Programming language">
           <button aria-pressed={!pyMode} onClick={() => setPyMode(false)}>JavaScript</button>
           <button aria-pressed={pyMode} onClick={() => setPyMode(true)}>Python</button>
         </div>
       </div>
-      {exps.map((x, i) => <Experiment key={x.id} exp={x} n={i + 1} lang={lang} pyMode={pyMode} createLab={createLab} onRun={onRun} />)}
+      {exps.length > 1 && <Dots count={exps.length} at={i} done={done} onPick={go} label="Experiment" />}
+      {exps.map((x, k) => (
+        <div key={x.id} hidden={k !== i}>
+          <Experiment exp={x} n={k + 1} lang={lang} pyMode={pyMode} createLab={createLab} onRun={onRun} />
+        </div>
+      ))}
+      {exps.length > 1 && (
+        <div className="pager-nav">
+          <button className="lp-ghost" onClick={() => go(i - 1)} disabled={i === 0}>← {ta ? 'முந்தையது' : 'Previous'}</button>
+          <button className="lp-ghost" onClick={() => go(i + 1)} disabled={i === exps.length - 1}>{ta ? 'அடுத்த experiment' : 'Next experiment'} →</button>
+        </div>
+      )}
     </div>
   );
 }

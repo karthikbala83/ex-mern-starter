@@ -5,4 +5,6 @@ module.exports = {
   moveToward: require('./moveToward'),
   isInsideCampus: require('./isInsideCampus'),
   rainSway: require('./rainSway'),
+  leaderboardStats: require('./leaderboardStats'),
+  attendanceReport: require('./attendanceReport'),
 };

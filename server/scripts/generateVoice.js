@@ -46,6 +46,11 @@ function speakable(text, lang) {
     .replace(/×/g, lang === 'ta' ? ' into ' : ' times ')
     .replace(/≈/g, lang === 'ta' ? ' சுமார் ' : ' about ')
     .replace(/→/g, ', ')
+    // TTS reads "sin" as the English word (as in "sin and virtue");
+    // mathematicians say "sine". Stop-gap until human voice recording.
+    // Clips are hash-checked on this spoken text, so only lines that
+    // contain "sin" regenerate.
+    .replace(/\bsin\b/g, 'sine')
     .replace(/\s+/g, ' ')
     .trim();
 }

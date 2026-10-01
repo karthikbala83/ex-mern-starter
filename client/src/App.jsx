@@ -45,7 +45,9 @@ const MissionPlayer = lazy(() => import('./pages/MissionPlayer.jsx'));
 
 // --- Enovix ---
 const Enovix         = lazy(() => import('./pages/Enovix.jsx'));
-const Lesson         = lazy(() => import('./pages/Lesson.jsx'));
+const LessonShell    = lazy(() => import('./pages/LessonShell.jsx'));
+// The redirect lives in the same file, so it shares that chunk.
+const LessonRedirect = lazy(() => import('./pages/LessonShell.jsx').then((m) => ({ default: m.LessonRedirect })));
 const LessonFeedback = lazy(() => import('./pages/LessonFeedback.jsx'));
 
 // --- Admin (heaviest, and only a handful of people ever load it) ---
@@ -153,7 +155,10 @@ export default function App() {
             {/* ---- tab 2: Enovix ---- */}
             <Route path="/enovix" element={<Protected><Enovix /></Protected>} />
             <Route path="/enovix/check" element={<Protected><LessonFeedback /></Protected>} />
-            <Route path="/enovix/:id" element={<Protected><Lesson /></Protected>} />
+            {/* One step per screen. The bare lesson URL (and old ?v= links)
+                forward to the Watch step — see LessonShell.jsx. */}
+            <Route path="/enovix/:id" element={<Protected><LessonRedirect /></Protected>} />
+            <Route path="/enovix/:id/:step" element={<Protected><LessonShell /></Protected>} />
 
             {/* ---- admin ---- */}
             <Route path="/admin" element={<AdminOnly><Admin /></AdminOnly>} />

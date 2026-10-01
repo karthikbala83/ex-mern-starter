@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'A brochure reports the mean salary. One student earned far more than everyone else. What happens to the mean?', ta: 'ஒரு brochure mean salary-ஐ report பண்ணுது. ஒரு student மத்த எல்லாரையும் விட ரொம்ப அதிகம் சம்பாதிச்சார். Mean என்ன ஆகும்?' },
+    o: ['It stays the same', 'It is pulled up towards the outlier', 'It goes down', 'It becomes the median'], a: 1,
+    e: { en: 'The mean is a balance point: one heavy value far away drags it. The median would barely move.', ta: 'Mean ஒரு balance point: தூரத்துல இருக்கிற ஒரு கனமான value அதை இழுக்கும். Median கிட்டத்தட்ட நகராது.' } },
+  { q: { en: 'The fest team must decide which T-shirt size to print the most of. Which average should they use?', ta: 'Fest team எந்த T-shirt size-ஐ அதிகமா print பண்ணணும்னு முடிவு பண்ணணும். எந்த average use பண்ணணும்?' },
+    o: ['Mean', 'Median', 'Mode', 'Range'], a: 2,
+    e: { en: 'Sizes are categories. The mode, the most common size, is the only average that makes sense; there is no size "M.4".', ta: 'Sizes categories. அதிகமா வர்ற size, அதாவது mode மட்டும் தான் அர்த்தமுள்ள average; "M.4"-ன்னு size இல்ல.' } },
+  { q: { en: 'Two sections both have a mean of 60. Section B has a much larger standard deviation. What does that tell you?', ta: 'ரெண்டு sections-க்கும் mean 60. Section B-க்கு standard deviation ரொம்ப அதிகம். அது என்ன சொல்லுது?' },
+    o: ['Section B scored higher', 'Section B\'s marks are much more spread out', 'Section B cheated', 'Nothing'], a: 1,
+    e: { en: 'Standard deviation measures the typical distance from the mean. Same mean, very different classrooms.', ta: 'Standard deviation mean-ல இருந்து வழக்கமான தூரத்தை அளக்குது. ஒரே mean, ரொம்ப வேற வகுப்புகள்.' } },
+  { q: { en: 'Attendance data shows one student at 750%. What should you do?', ta: 'Attendance data-ல ஒரு student 750%-ன்னு காட்டுது. என்ன பண்ணணும்?' },
+    o: ['Delete every unusual value', 'Treat it as a likely typo (probably 75%), check and fix it', 'Leave it; it is data', 'Use the mean anyway'], a: 1,
+    e: { en: '750% is impossible, so it is a mistake: fix it after checking. Unusual but possible values (like 12%) should be investigated, not deleted.', ta: '750% சாத்தியமே இல்ல, அதனால அது தப்பு: check பண்ணி சரி பண்ணுங்க. Unusual ஆனா சாத்தியமான values (12% மாதிரி) விசாரிக்கணும், delete பண்ணக்கூடாது.' } },
+  { q: { en: 'Why do engineers put alerts on an app\'s p95 response time instead of the mean?', ta: 'Engineers ஏன் mean-க்கு பதிலா app-ஓட p95 response time-ல alerts வைக்கிறாங்க?' },
+    o: ['p95 is easier to calculate', 'The mean hides the slow requests that the unhappiest users experience', 'The mean is always wrong', 'Because of the bell curve'], a: 1,
+    e: { en: 'Most requests can be fast while 5% are painfully slow. The mean barely shows it; p95 does.', ta: 'பெரும்பாலான requests வேகமா இருக்கும் போது 5% ரொம்ப slow-ஆ இருக்கலாம். Mean அதை கிட்டத்தட்ட காட்டாது; p95 காட்டும்.' } },
+];

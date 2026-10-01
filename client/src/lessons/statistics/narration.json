@@ -1,0 +1,236 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson statistics (in /server).",
+  "lesson": "statistics",
+  "title": {
+    "en": "Statistics: why the average lies",
+    "ta": "Statistics: average ஏன் பொய் சொல்லுது"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "The placement brochure",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "A college brochure says: average placement package, 8 lakh per year! Sounds amazing. Let us look at the actual offers.",
+              "ta": "ஒரு college brochure சொல்லுது: average placement package, வருஷத்துக்கு 8 லட்சம்! ரொம்ப அருமையா இருக்கு. உண்மையான offers-ஐ பார்ப்போம்."
+            },
+            {
+              "id": "s1-b2",
+              "en": "Ten students got offers. Nine of them earned 5 lakh or less. One student got 45 lakh from a big tech company.",
+              "ta": "பத்து students-க்கு offers கிடைச்சது. அதுல ஒன்பது பேர் 5 லட்சம் அல்லது அதுக்கு கீழ. ஒருத்தருக்கு மட்டும் ஒரு பெரிய tech company-ல 45 லட்சம்."
+            },
+            {
+              "id": "s1-b3",
+              "en": "Is the brochure lying? Not exactly. It used the mean. But the middle student earned only 3.9 lakh. Statistics teaches you which number tells the truth, and when.",
+              "ta": "Brochure பொய் சொல்லுதா? அப்படி இல்ல. அது mean-ஐ use பண்ணுச்சு. ஆனா நடுவுல இருக்கிற student-க்கு 3.9 லட்சம் தான். எந்த number உண்மையை சொல்லுது, எப்போன்னு statistics கத்துக்கொடுக்கும்."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "The mean: the balance point",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "The mean is what most people call the average: add everything, divide by how many. 80.3 lakh in total, divided by 10 students, is 8.03.",
+              "ta": "Mean தான் பெரும்பாலானவங்க சொல்ற average: எல்லாத்தையும் கூட்டி, எத்தனைன்னு வகுக்கணும். மொத்தம் 80.3 லட்சம், 10 students-ஆல வகுத்தா 8.03.",
+              "say": {
+                "en": "The mean is what most people call the average: add everything, then divide by how many. 80.3 lakh in total, divided by 10 students, is 8.03.",
+                "ta": "Mean தான் பெரும்பாலானவங்க சொல்ற average: எல்லாத்தையும் கூட்டி, எத்தனைன்னு வகுக்கணும். மொத்தம் 80.3 லட்சம், 10 students-ஆல வகுத்தா 8.03."
+              }
+            },
+            {
+              "id": "s2-b2",
+              "en": "Think of the mean as the balance point of a see-saw. Put every value on the plank: the mean is where it balances.",
+              "ta": "Mean-ஐ ஒரு see-saw-ஓட balance point-ஆ நினைச்சுக்கோங்க. ஒவ்வொரு value-வையும் பலகையில வைங்க: எங்க balance ஆகுதோ, அது தான் mean."
+            },
+            {
+              "id": "s2-b3",
+              "en": "But one heavy value far away drags the balance point towards it. That single 45 lakh offer pulled the mean from about 4 up to 8.",
+              "ta": "ஆனா ரொம்ப தூரத்துல இருக்கிற ஒரு கனமான value, balance point-ஐ தன் பக்கம் இழுக்கும். அந்த ஒரு 45 லட்சம் offer, mean-ஐ சுமார் 4-ல இருந்து 8-க்கு இழுத்துடுச்சு."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "The median: the middle one",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "The median is the middle value. Sort the numbers from smallest to largest and pick the one in the middle.",
+              "ta": "Median-ன்னா நடுவுல இருக்கிற value. Numbers-ஐ சின்னதுல இருந்து பெருசு வரை sort பண்ணி, நடுவுல இருக்கிறதை எடுங்க."
+            },
+            {
+              "id": "s3-b2",
+              "en": "With 10 values there are two in the middle: 3.8 and 4.0. Take their average: the median is 3.9 lakh. Half the students earned less, half earned more.",
+              "ta": "10 values-ல நடுவுல ரெண்டு இருக்கு: 3.8, 4.0. அதோட average எடுங்க: median 3.9 லட்சம். பாதி students அதுக்கு கம்மி, பாதி பேர் அதிகம்."
+            },
+            {
+              "id": "s3-b3",
+              "en": "Now change the 45 lakh offer to 100 lakh. The mean jumps to 13.5. The median? Still 3.9. The median ignores how extreme the extremes are, which makes it honest for salaries, house prices and app response times.",
+              "ta": "இப்போ 45 லட்சம் offer-ஐ 100 லட்சமா மாத்துங்க. Mean 13.5-க்கு தாவுது. Median? இன்னும் 3.9 தான். Extremes எவ்வளவு extreme-ஆ இருந்தாலும் median கவலைப்படாது. அதனால salaries, வீட்டு விலை, app response times-க்கு median நேர்மையானது."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "The mode: the most common",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "Your department is ordering fest T-shirts. 86 students sent their sizes. How many of each should you print?",
+              "ta": "உங்க department fest T-shirts order பண்ணுது. 86 students size அனுப்பியிருக்காங்க. ஒவ்வொரு size-லயும் எத்தனை print பண்ணணும்?"
+            },
+            {
+              "id": "s4-b2",
+              "en": "The mode is the value that appears most often. Here it is M, with 38 students. Print the most of that.",
+              "ta": "Mode-ன்னா அதிகமா வர்ற value. இங்க அது M, 38 students. அதை தான் அதிகமா print பண்ணணும்."
+            },
+            {
+              "id": "s4-b3",
+              "en": "Could you use the mean here? No. There is no size \"M point 4\". For categories like sizes, colours or branches, the mode is the only average that makes sense.",
+              "ta": "இங்க mean use பண்ண முடியுமா? முடியாது. \"M point 4\"-ன்னு ஒரு size இல்லவே இல்ல. Sizes, colours, branches மாதிரி categories-க்கு, mode மட்டும் தான் அர்த்தமுள்ள average.",
+              "say": {
+                "en": "Could you use the mean here? No. There is no size called M point 4. For categories like sizes, colours or branches, the mode is the only average that makes sense.",
+                "ta": "இங்க mean use பண்ண முடியுமா? முடியாது. M point 4-ன்னு ஒரு size இல்லவே இல்ல. Sizes, colours, branches மாதிரி categories-க்கு, mode மட்டும் தான் அர்த்தமுள்ள average."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "Spread: same mean, different story",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Two sections wrote the same test. Both have a mean of exactly 60 marks. Are they the same?",
+              "ta": "ரெண்டு sections ஒரே test எழுதினாங்க. ரெண்டுக்கும் mean சரியா 60 marks. ரெண்டும் ஒண்ணா?"
+            },
+            {
+              "id": "s5-b2",
+              "en": "Not at all. In Section A everyone scored between 55 and 65. In Section B marks run from 20 to 100. The range, highest minus lowest, is 10 for A and 80 for B.",
+              "ta": "இல்லவே இல்ல. Section A-ல எல்லாரும் 55-க்கும் 65-க்கும் நடுவுல. Section B-ல marks 20-ல இருந்து 100 வரை. Range, அதாவது அதிகம் minus குறைவு, A-க்கு 10, B-க்கு 80."
+            },
+            {
+              "id": "s5-b3",
+              "en": "The standard deviation measures the typical distance from the mean. Section A: about 3 marks. Section B: about 23. A teacher with Section B needs a very different plan, even though the mean is the same.",
+              "ta": "Standard deviation, mean-ல இருந்து வழக்கமான தூரத்தை அளக்குது. Section A: சுமார் 3 marks. Section B: சுமார் 23. Mean ஒண்ணா இருந்தாலும், Section B teacher-க்கு ரொம்ப வேற plan வேணும்."
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "Outliers: mistake or story?",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "An outlier is a value far away from the rest. Here is attendance data for one class. Two values stand out.",
+              "ta": "Outlier-ன்னா மத்ததை விட ரொம்ப தூரத்துல இருக்கிற value. இது ஒரு class-ஓட attendance data. ரெண்டு values தனியா தெரியுது."
+            },
+            {
+              "id": "s6-b2",
+              "en": "One student shows 750% attendance. That is impossible: someone typed 750 instead of 75. Outliers like this are mistakes. Find them and fix them.",
+              "ta": "ஒரு student-க்கு 750% attendance. அது சாத்தியமே இல்ல: யாரோ 75-க்கு பதிலா 750 type பண்ணியிருக்காங்க. இந்த மாதிரி outliers தப்புகள். கண்டுபிடிச்சு சரி பண்ணுங்க."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Another shows 12%. That may be real: perhaps the student was in hospital. Never delete a value just because it is unusual. Investigate it, and report the median so one case does not distort the picture.",
+              "ta": "இன்னொருத்தருக்கு 12%. அது உண்மையா இருக்கலாம்: ஒருவேளை அந்த student hospital-ல இருந்திருக்கலாம். Unusual-ஆ இருக்குன்னு மட்டும் ஒரு value-வை delete பண்ணாதீங்க. விசாரிங்க, ஒரு case முழு படத்தையும் மாத்தாம இருக்க median-ஐ report பண்ணுங்க."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Percentiles and p95",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "You scored 72 in the model exam. Good or bad? It depends on everyone else. If you scored higher than 90% of your class, you are at the 90th percentile.",
+              "ta": "Model exam-ல நீங்க 72 எடுத்தீங்க. நல்லதா கெட்டதா? மத்தவங்களை பொறுத்தது. உங்க class-ல 90% பேரை விட அதிகம் எடுத்திருந்தா, நீங்க 90th percentile-ல இருக்கீங்க."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Companies use the same idea to watch their apps. Here are 1,000 response times. The mean looks fine. But the 95th percentile, called p95, shows that 1 in 20 users waits much longer.",
+              "ta": "Companies இதே idea-வை வெச்சு தான் தங்க apps-ஐ கண்காணிக்குது. இதோ 1,000 response times. Mean நல்லா தெரியுது. ஆனா 95th percentile, அதாவது p95, 20-ல ஒருத்தர் ரொம்ப நேரம் காத்திருக்கிறதை காட்டுது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "That is why engineers set alerts on p95 and p99, not on the mean. The slowest users are the ones who leave and write bad reviews.",
+              "ta": "அதனால தான் engineers mean-ல இல்ல, p95, p99-ல alerts வைக்கிறாங்க. ரொம்ப slow-ஆ அனுபவிக்கிறவங்க தான் app-ஐ விட்டு போயி, bad review எழுதுவாங்க."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "The bell curve",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Imagine 2,000 students each answer 50 questions, and each has a 60% chance on every question. Count how many students get each score.",
+              "ta": "2,000 students ஒவ்வொருத்தரும் 50 கேள்விகளுக்கு answer பண்றாங்கன்னு வெச்சுக்கோங்க. ஒவ்வொரு கேள்விக்கும் 60% chance. ஒவ்வொரு score-ஐயும் எத்தனை பேர் எடுக்கிறாங்கன்னு எண்ணுங்க."
+            },
+            {
+              "id": "s8-b2",
+              "en": "A shape appears: high in the middle, low at both ends. This is the bell curve, or normal distribution. It appears wherever many small random effects add up: heights, exam marks, measurement errors.",
+              "ta": "ஒரு shape தெரியுது: நடுவுல உயரம், ரெண்டு ஓரத்துலயும் தாழ்வு. இது தான் bell curve, normal distribution. நிறைய சின்ன random effects கூடுற இடத்துலயெல்லாம் இது வரும்: உயரம், exam marks, measurement errors."
+            },
+            {
+              "id": "s8-b3",
+              "en": "A useful rule: about two-thirds of everyone falls within one standard deviation of the mean. Here that is between about 26 and 33 marks.",
+              "ta": "ஒரு useful rule: கிட்டத்தட்ட மூணுல ரெண்டு பங்கு பேர், mean-ல இருந்து ஒரு standard deviation-க்குள்ள இருப்பாங்க. இங்க அது சுமார் 26-ல இருந்து 33 marks வரை."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Statistics at work",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Cricket: a batting average says how many runs a player usually scores; the strike rate says how fast. Two numbers, two different stories.",
+              "ta": "Cricket: batting average ஒரு player வழக்கமா எத்தனை runs அடிப்பார்னு சொல்லுது; strike rate எவ்வளவு வேகமா-ன்னு சொல்லுது. ரெண்டு numbers, ரெண்டு வேற கதைகள்."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Colleges and companies: median salaries, attendance below 75%, the p95 speed of an app. Machine learning also scales its data using the mean and standard deviation before learning.",
+              "ta": "Colleges, companies: median salary, 75%-க்கு கீழ attendance, ஒரு app-ஓட p95 speed. Machine learning கூட கத்துக்கிறதுக்கு முன்னாடி, mean, standard deviation வெச்சு data-வை scale பண்ணுது."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Your missions use exactly these ideas: a leaderboard that shows the typical player, and an attendance report that flags every student below 75%.",
+              "ta": "உங்க missions இதே ideas-ஐ தான் use பண்ணுது: typical player-ஐ காட்டுற leaderboard, அப்புறம் 75%-க்கு கீழ இருக்கிற ஒவ்வொரு student-ஐயும் flag பண்ற attendance report."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "Mean is the balance point and gets dragged by outliers. Median is the middle and stays honest. Mode is the most common, and the only choice for categories.",
+              "ta": "Mean balance point, outliers அதை இழுக்கும். Median நடு value, நேர்மையா இருக்கும். Mode அதிகமா வர்றது, categories-க்கு அது மட்டும் தான்."
+            },
+            {
+              "id": "s10-b2",
+              "en": "Spread matters as much as the average: range and standard deviation tell you how different people are. Outliers: fix mistakes, investigate the rest.",
+              "ta": "Average அளவுக்கு spread-உம் முக்கியம்: range, standard deviation மக்கள் எவ்வளவு வேறுபடுறாங்கன்னு சொல்லும். Outliers: தப்புகளை சரி பண்ணுங்க, மத்ததை விசாரிங்க."
+            },
+            {
+              "id": "s10-b3",
+              "en": "Percentiles tell you where you stand, and p95 tells engineers how the slowest users feel. Now try the practice problems, the code lab and your missions.",
+              "ta": "Percentiles நீங்க எங்க நிக்கிறீங்கன்னு சொல்லும், p95 slow users எப்படி உணர்றாங்கன்னு engineers-க்கு சொல்லும். இப்போ practice problems, code lab, உங்க missions try பண்ணுங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

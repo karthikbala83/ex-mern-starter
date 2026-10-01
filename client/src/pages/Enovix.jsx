@@ -4,6 +4,24 @@ import { MdMenuBook, MdPlayArrow } from 'react-icons/md';
 import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
 import { worlds } from '../missions/catalog.js';
+import { useLang, readProgress, stepsFor, doneSteps } from '../lessons/progress.js';
+
+// A small ring: how many of this lesson's steps are done. SVG, because a
+// circle with a partial stroke is two <circle>s and one dasharray — no
+// chart library needed for that.
+function ProgressRing({ done, of }) {
+  const r = 16, c = 2 * Math.PI * r;
+  const frac = of ? done / of : 0;
+  return (
+    <span className={'ring' + (done === of && of ? ' full' : '')} title={`${done} of ${of} steps done`} aria-label={`${done} of ${of} steps done`} role="img">
+      <svg viewBox="0 0 40 40" width="40" height="40" aria-hidden="true">
+        <circle cx="20" cy="20" r={r} className="ring-bg" />
+        <circle cx="20" cy="20" r={r} className="ring-fg" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} transform="rotate(-90 20 20)" />
+      </svg>
+      <b>{done}/{of}</b>
+    </span>
+  );
+}
 
 // ---------------------------------------------------------------
 // Enovix landing: every lesson we have, as cards.
@@ -15,10 +33,10 @@ import { worlds } from '../missions/catalog.js';
 // Every piece of lesson text is bilingual: { en: '...', ta: '...' }.
 // Render `l.title` directly and React throws "Objects are not valid as a
 // React child" — you must always pick a language first. We default to
-// Tamil to match Lesson.jsx.
+// Tamil, and the choice is shared with every lesson step.
 //
 // ---- BOTH VERSIONS ARE OPEN ON PURPOSE ----
-// Each lesson exists as version A (applications-first) and B (life-first),
+// The probability pilot exists as version A (applications-first) and B (life-first),
 // and during the pilot anyone can open either. That is a deliberate choice
 // for this phase: students and professors are being asked which one they
 // prefer, so they have to be able to see both and go back and forth.
@@ -32,9 +50,12 @@ import { worlds } from '../missions/catalog.js';
 // lesson works; they just cannot cleanly attribute a difference to A vs B.
 // ---------------------------------------------------------------
 export default function Enovix() {
-  const [lang, setLang] = useState('ta');
+  // Shared with every lesson step (lessons/progress.js), so the language
+  // picked here is the language the lesson opens in.
+  const [lang, setLang] = useLang();
   const [mine, setMine] = useState(null);      // concept-check progress, for the CTA label
   const [offline, setOffline] = useState(false);
+  const [missionProg, setMissionProg] = useState(null);   // only for the Missions ✓ in the rings
 
   const t = (v) => (typeof v === 'string' ? v : v?.[lang] ?? '');
 
@@ -45,6 +66,8 @@ export default function Enovix() {
     api.get('/lesson-feedback/mine')
       .then((r) => { if (!cancelled) setMine(r.data); })
       .catch((e) => { if (!cancelled && e.response?.status !== 401) setOffline(true); });
+    // Same rule: rings still draw without it, just without the Missions step.
+    api.get('/missions/progress').then((r) => { if (!cancelled) setMissionProg(r.data.missions); }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
@@ -71,27 +94,43 @@ export default function Enovix() {
       </div>
 
       {Object.values(lessons).map((l) => {
-        const versions = Object.keys(l.scenes ?? {});          // ['A', 'B']
+        const versions = Object.keys(l.scenes ?? {});          // ['A', 'B'] for the pilot, ['main'] after
+        const steps = stepsFor(l);
+        const done = doneSteps(l, readProgress(l.id), missionProg);
+        const started = done.size > 0;
         return (
           <div key={l.id} className="card lesson-card">
-            <span className="home-emoji"><MdMenuBook /></span>
+            <div className="lesson-card-head">
+              <span className="home-emoji"><MdMenuBook /></span>
+              <ProgressRing done={steps.filter((s) => done.has(s)).length} of={steps.length} />
+            </div>
             <h3 lang={lang}>{t(l.title)}</h3>
             {l.breadcrumb && <p className="muted">{t(l.breadcrumb)}</p>}
 
             <div className="version-row">
-              {versions.map((v) => (
-                <Link key={v} to={`/enovix/${l.id}?v=${v}`} className={`version-btn version-${v}`} lang={lang}>
-                  <MdPlayArrow aria-hidden="true" />
-                  {t(VERSION_LABEL[v]) || `Version ${v}`}
-                </Link>
-              ))}
+              {versions.length > 1
+                ? versions.map((v) => (
+                  <Link key={v} to={`/enovix/${l.id}/watch?v=${v}`} className={`version-btn version-${v}`} lang={lang}>
+                    <MdPlayArrow aria-hidden="true" />
+                    {t(VERSION_LABEL[v]) || `Version ${v}`}
+                  </Link>
+                ))
+                : (
+                  <Link to={`/enovix/${l.id}/watch`} className="version-btn version-B" lang={lang}>
+                    <MdPlayArrow aria-hidden="true" />
+                    {started ? (lang === 'ta' ? 'தொடர்ந்து கற்க' : 'Continue') : (lang === 'ta' ? 'கற்கத் தொடங்கு' : 'Start the lesson')}
+                  </Link>
+                )}
             </div>
 
-            <p className="muted version-hint" lang={lang}>
-              {lang === 'ta'
-                ? 'ஒரே பாடம், இரண்டு விதமாக. இரண்டையும் பாருங்கள் — உங்களுக்கு எது பிடித்தது என்பதே நாங்கள் வைத்துக்கொள்ளும் பதிப்பை தீர்மானிக்கும்.'
-                : 'Two ways of telling the same lesson. Try both and tell us which one you liked — your answer decides the version we keep.'}
-            </p>
+            {/* Only the pilot has two versions to compare. */}
+            {versions.length > 1 && (
+              <p className="muted version-hint" lang={lang}>
+                {lang === 'ta'
+                  ? 'ஒரே பாடம், இரண்டு விதமாக. இரண்டையும் பாருங்கள் — உங்களுக்கு எது பிடித்தது என்பதே நாங்கள் வைத்துக்கொள்ளும் பதிப்பை தீர்மானிக்கும்.'
+                  : 'Two ways of telling the same lesson. Try both and tell us which one you liked — your answer decides the version we keep.'}
+              </p>
+            )}
           </div>
         );
       })}
