@@ -1,0 +1,19 @@
+// Practice problems: numeric answers checked within ±tol. `code` is a one-line JS check students can run.
+export default [
+ {type:{en:'Evaluate',ta:'Evaluate'},q:{en:'What is y = 2 + 3x + x² when x = 4?',ta:'x = 4-ஆ இருந்தா y = 2 + 3x + x² என்ன?'},unit:'',ans:30,tol:0.01,
+  hint:{en:'Work each term: 2, then 3 × 4, then 4².',ta:'ஒவ்வொரு term-ஆ: 2, அப்புறம் 3 × 4, அப்புறம் 4².'},sol:{en:'2 + 12 + 16 = 30.',ta:'2 + 12 + 16 = 30.'},code:'2 + 3 * 4 + 4 ** 2'},
+ {type:{en:'Degree',ta:'Degree'},q:{en:'What is the degree of 5x³ − 2x + 7?',ta:'5x³ − 2x + 7-ஓட degree என்ன?'},unit:'',ans:3,tol:0.01,
+  hint:{en:'The degree is the highest power of x.',ta:'Degree-ன்னா x-ஓட அதிகபட்ச power.'},sol:{en:'The highest power is x³, so the degree is 3. It can bend at most twice.',ta:'அதிகபட்ச power x³, அதனால degree 3. அது அதிகபட்சம் ரெண்டு தடவை வளையும்.'},code:'3'},
+ {type:{en:'Coefficients',ta:'Coefficients'},q:{en:'A degree-3 polynomial a + bx + cx² + dx³ has how many coefficients for the computer to learn?',ta:'ஒரு degree-3 polynomial a + bx + cx² + dx³-ல computer கத்துக்க எத்தனை coefficients இருக்கு?'},unit:'',ans:4,tol:0.01,
+  hint:{en:'Count a, b, c, d.',ta:'a, b, c, d-ஐ எண்ணுங்க.'},sol:{en:'Four: a, b, c and d. In general, degree n needs n + 1 coefficients.',ta:'நாலு: a, b, c, d. பொதுவா degree n-க்கு n + 1 coefficients.'},code:'3 + 1'},
+ {type:{en:'Numbers are polynomials',ta:'Numbers-உம் polynomials தான்'},q:{en:'Evaluate 7 + 4x + 2x² at x = 10.',ta:'7 + 4x + 2x²-ஐ x = 10-ல evaluate பண்ணுங்க.'},unit:'',ans:247,tol:0.01,
+  hint:{en:'7 + 40 + 200. Notice the digits.',ta:'7 + 40 + 200. Digits-ஐ கவனிங்க.'},sol:{en:'7 + 40 + 200 = 247: the digits 2, 4, 7 are just the coefficients read backwards.',ta:'7 + 40 + 200 = 247: 2, 4, 7 digits coefficients-ஐ பின்னாடி இருந்து படிச்சது தான்.'},code:'7 + 4 * 10 + 2 * 10 ** 2'},
+ {type:{en:'Games: jump height',ta:'Games: jump உயரம்'},q:{en:'A character jumps with h = 8t − 5t² (metres, seconds). How high is it at t = 0.5 s?',ta:'ஒரு character h = 8t − 5t² (metres, seconds) படி குதிக்குது. t = 0.5 s-ல எவ்வளவு உயரம்?'},unit:'m',ans:2.75,tol:0.01,
+  hint:{en:'8 × 0.5 − 5 × 0.25.',ta:'8 × 0.5 − 5 × 0.25.'},sol:{en:'4 − 1.25 = 2.75 m.',ta:'4 − 1.25 = 2.75 m.'},code:'8 * 0.5 - 5 * 0.5 ** 2'},
+ {type:{en:'Games: landing time',ta:'Games: தரையிறங்கும் நேரம்'},q:{en:'For h = 8t − 5t², when does the character land again (h = 0, t > 0)?',ta:'h = 8t − 5t²-ல character மறுபடியும் எப்போ தரையிறங்கும் (h = 0, t > 0)?'},unit:'s',ans:1.6,tol:0.01,
+  hint:{en:'8t − 5t² = t(8 − 5t). When is 8 − 5t = 0?',ta:'8t − 5t² = t(8 − 5t). 8 − 5t = 0 எப்போ?'},sol:{en:'t(8 − 5t) = 0 gives t = 0 (take-off) or t = 8 ÷ 5 = 1.6 s (landing).',ta:'t(8 − 5t) = 0-ல t = 0 (புறப்படுறது) அல்லது t = 8 ÷ 5 = 1.6 s (தரையிறங்குறது).'},code:'8 / 5'},
+ {type:{en:'Fitting: squared error',ta:'Fitting: squared error'},q:{en:'Data points (1, 2), (2, 4), (3, 5). The model is y = 2x. What is the sum of squared misses?',ta:'Data points (1, 2), (2, 4), (3, 5). Model y = 2x. Squared misses-ஓட கூட்டுத்தொகை என்ன?'},unit:'',ans:1,tol:0.01,
+  hint:{en:'The model predicts 2, 4, 6. The misses are 0, 0 and −1.',ta:'Model 2, 4, 6-ன்னு predict பண்ணுது. Misses 0, 0, −1.'},sol:{en:'0² + 0² + (−1)² = 1.',ta:'0² + 0² + (−1)² = 1.'},code:'(2 - 2) ** 2 + (4 - 4) ** 2 + (5 - 6) ** 2'},
+ {type:{en:'Enterprise: forecast',ta:'Enterprise: forecast'},q:{en:'A canteen model says footfall = 250 + 20d + 35d². What does it predict for day d = 6?',ta:'ஒரு canteen model footfall = 250 + 20d + 35d²-ன்னு சொல்லுது. d = 6-க்கு என்ன predict பண்ணுது?'},unit:'people',ans:1630,tol:0.5,
+  hint:{en:'250 + 120 + 35 × 36.',ta:'250 + 120 + 35 × 36.'},sol:{en:'250 + 120 + 1,260 = 1,630 people. Before ordering food, check it against the ground\'s capacity!',ta:'250 + 120 + 1,260 = 1,630 பேர். சாப்பாடு order பண்றதுக்கு முன்னாடி ground capacity-ஓட check பண்ணுங்க!'},code:'250 + 20 * 6 + 35 * 6 ** 2'},
+];

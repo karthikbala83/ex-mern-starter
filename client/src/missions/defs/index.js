@@ -6,5 +6,7 @@ import isInsideCampus from './isInsideCampus.js';
 import rainSway from './rainSway.js';
 import leaderboardStats from './leaderboardStats.js';
 import attendanceReport from './attendanceReport.js';
+import jumpHeight from './jumpHeight.js';
+import predictFootfall from './predictFootfall.js';
 
-export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport };
+export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport, jumpHeight, predictFootfall };

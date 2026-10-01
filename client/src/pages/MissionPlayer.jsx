@@ -22,6 +22,27 @@ const STAGE_LABEL = {
 
 // Find which lesson a mission belongs to, so the header can link to it —
 // or say "coming soon" when the lesson itself is not built yet.
+// ---- Pre-built helpers ----
+// Some starters ship a working helper above the student's function, marked
+// "✅ PRE-BUILT" (predictFootfall's least-squares fitQuadratic, for one).
+// The mission is the function, not the solver, so the helper should not
+// compete for attention — but it must stay readable and editable: it is
+// real code a curious student can learn from.
+//
+// So we split the starter at the student's function: the helper goes in
+// a collapsed, lighter panel, the student's part in the main editor, and
+// the two are joined back into ONE program before every run. The runner
+// therefore sees exactly the starter's code, helper in scope as before.
+// Keyed on the marker, not on a mission id, so the next mission that
+// ships a helper gets this for free.
+function splitPrebuilt(src, fnName) {
+  if (!src || !src.includes('✅ PRE-BUILT')) return { helper: '', mine: src ?? '' };
+  // The student's function starts at the beginning of a line.
+  const at = src.search(new RegExp(`^function ${fnName}\\b`, 'm'));
+  if (at <= 0) return { helper: '', mine: src };
+  return { helper: src.slice(0, at), mine: src.slice(at) };
+}
+
 function findLesson(missionId) {
   for (const w of worlds) {
     for (const l of w.lessons) {
@@ -42,6 +63,7 @@ export default function MissionPlayer() {
   // One draft per stage. Sharing a single buffer would wipe a student's
   // "write" attempt the moment they peeked at the "fill" tab.
   const [code, setCode] = useState({});
+  const [helper, setHelper] = useState({});   // pre-built part of each starter, if any
   const [progress, setProgress] = useState(null);
   const [samples, setSamples] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -62,7 +84,13 @@ export default function MissionPlayer() {
 
   useEffect(() => {
     if (!def) return;
-    setCode({ fill: def.fill, write: def.write, bonus: def.bonus?.starter ?? '' });
+    const parts = {
+      fill: splitPrebuilt(def.fill, def.fnName),
+      write: splitPrebuilt(def.write, def.fnName),
+      bonus: splitPrebuilt(def.bonus?.starter ?? '', def.fnName),
+    };
+    setCode({ fill: parts.fill.mine, write: parts.write.mine, bonus: parts.bonus.mine });
+    setHelper({ fill: parts.fill.helper, write: parts.write.helper, bonus: parts.bonus.helper });
   }, [def]);
 
   const loadProgress = useCallback(async () => {
@@ -114,6 +142,9 @@ export default function MissionPlayer() {
   const stages = def.bonus ? ['fill', 'write', 'bonus'] : ['fill', 'write'];
   const libs = stage === 'bonus' && def.bonus ? [def.bonus.pkg] : [];
   const done = progress?.stages ?? {};
+  // What actually runs: helper (if any) + the student's function.
+  const program = (helper[stage] ?? '') + (code[stage] ?? '');
+  const helperName = /function\s+(\w+)/.exec(helper[stage] ?? '')?.[1];
 
   // ---- Predict ----
   const sendPredict = async (choice) => {
@@ -129,7 +160,7 @@ export default function MissionPlayer() {
   // ---- Run the visible sample tests (no server, no points) ----
   const runSamples = async () => {
     setBusy(true); setRunError(''); setResult(null);
-    const res = await run(code[stage] || '', def.fnName, [], libs, def.sampleTests);
+    const res = await run(program, def.fnName, [], libs, def.sampleTests);
     setBusy(false);
     setLogs(res.logs || []);
     if (!res.ok) { setRunError(res.error); setSamples(null); previewFn.current = null; return; }
@@ -139,7 +170,7 @@ export default function MissionPlayer() {
     if (res.sampleResults.every((r) => r.pass)) {
       try {
         // eslint-disable-next-line no-new-func
-        const factory = new Function(`${code[stage]}\n;return ${def.fnName};`);
+        const factory = new Function(`${program}\n;return ${def.fnName};`);
         previewFn.current = factory();
         toast('All sample tests passed — look at the preview!', 'success');
       } catch { previewFn.current = null; }
@@ -153,12 +184,12 @@ export default function MissionPlayer() {
     setBusy(true); setRunError(''); setResult(null);
     try {
       const { data: started } = await api.post(`/missions/${id}/start`, { stage });
-      const res = await run(code[stage] || '', def.fnName, started.inputs, libs, def.sampleTests);
+      const res = await run(program, def.fnName, started.inputs, libs, def.sampleTests);
       if (!res.ok) { setRunError(res.error); setBusy(false); return; }
       setLogs(res.logs || []);
 
       const { data } = await api.post(`/missions/${id}/submit`, {
-        attemptId: started.attemptId, outputs: res.outputs, code: code[stage] || '',
+        attemptId: started.attemptId, outputs: res.outputs, code: program,
       });
       setResult(data);
       if (data.passed) {
@@ -244,6 +275,21 @@ export default function MissionPlayer() {
           <p className="muted" lang={lang}>{t(def.bonus.note, lang)}</p>
         )}
         <p className="muted"><code>{def.signature}</code></p>
+
+        {helper[stage] && (
+          <details className="prebuilt">
+            <summary>
+              ✅ Pre-built helper <code>{helperName}()</code>{' '}
+              <span className="muted" lang={lang}>
+                {lang === 'ta' ? '— ஏற்கனவே எழுதியாச்சு; எப்படி வேலை செய்யுதுன்னு திறந்து பாருங்க' : '— already written for you; open it to see how it works'}
+              </span>
+            </summary>
+            <textarea
+              className="code-area prebuilt-area" rows="16" spellCheck="false" value={helper[stage]}
+              aria-label={`Pre-built helper ${helperName ?? ''}`}
+              onChange={(e) => setHelper({ ...helper, [stage]: e.target.value })} />
+          </details>
+        )}
 
         <textarea
           className="code-area" rows="12" spellCheck="false" value={code[stage] ?? ''}

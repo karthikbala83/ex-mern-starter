@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'What is the degree of 4 + 2x − 7x³ + x²?', ta: '4 + 2x − 7x³ + x²-ஓட degree என்ன?' },
+    o: ['1', '2', '3', '4'], a: 2,
+    e: { en: 'The highest power of x is 3 (the −7x³ term), whatever order the terms are written in.', ta: 'Terms எந்த order-ல எழுதியிருந்தாலும், x-ஓட அதிகபட்ச power 3 (−7x³ term).' } },
+  { q: { en: 'How does least squares choose the best curve?', ta: 'Least squares எப்படி best curve-ஐ தேர்ந்தெடுக்குது?' },
+    o: ['It picks the curve through the first and last points', 'It makes the total of squared misses as small as possible', 'It always uses degree 9', 'It asks the user'], a: 1,
+    e: { en: 'Square each gap between curve and data, add them up, and choose the coefficients that make the total smallest.', ta: 'Curve-க்கும் data-க்கும் நடுவுல இருக்கிற ஒவ்வொரு gap-ஐயும் square பண்ணி கூட்டி, அந்த total-ஐ ரொம்ப குறைவாக்குற coefficients-ஐ தேர்ந்தெடுக்குது.' } },
+  { q: { en: 'A degree-4 curve passes exactly through all 5 fest days (error 0) but predicts no growth on day 6. What is this called?', ta: 'ஒரு degree-4 curve 5 fest நாட்கள் வழியாவும் சரியா போகுது (error 0), ஆனா day 6-க்கு வளர்ச்சியே இல்லன்னு predict பண்ணுது. இதுக்கு பேர் என்ன?' },
+    o: ['Underfitting', 'Overfitting', 'Rounding', 'Interpolation error in Excel'], a: 1,
+    e: { en: 'It memorised the noise of the past instead of the pattern. Test models on data they have not seen.', ta: 'அது pattern-ஐ இல்லாம கடந்த காலத்தோட noise-ஐ மனப்பாடம் பண்ணிடுச்சு. Models-ஐ அவை பார்க்காத data-ல test பண்ணுங்க.' } },
+  { q: { en: 'In a game, a jump follows h = v·t − ½·g·t². What shape is the path?', ta: 'ஒரு game-ல jump h = v·t − ½·g·t²-ஐ follow பண்ணுது. பாதை என்ன shape?' },
+    o: ['A straight line', 'A parabola (degree 2)', 'A circle', 'A sine wave'], a: 1,
+    e: { en: 'The highest power of t is 2, so the path is a parabola: the same curve as a cricket throw.', ta: 't-ஓட அதிகபட்ச power 2, அதனால பாதை ஒரு parabola: cricket throw-ஓட அதே curve.' } },
+  { q: { en: 'Your trend curve predicts 8,000 visitors on day 15, but the ground holds 2,000. What should you do?', ta: 'உங்க trend curve day 15-க்கு 8,000 பேர்னு predict பண்ணுது, ஆனா ground-ல 2,000 பேர் தான் கொள்ளும். என்ன பண்ணணும்?' },
+    o: ['Trust the curve; maths is never wrong', 'Plan for the real limit; curves do not know about capacity, so predict near your data', 'Use a higher degree', 'Double the food order'], a: 1,
+    e: { en: 'Far from the data, curves can grow without limit. Engineers combine the model with real-world limits like capacity and budget.', ta: 'Data-ல இருந்து தூரத்துல, curves எல்லையில்லாம வளரலாம். Engineers model-ஐ capacity, budget மாதிரி real-world limits-ஓட சேர்த்து பார்க்கிறாங்க.' } },
+];

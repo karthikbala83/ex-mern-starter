@@ -44,6 +44,12 @@ import sLab from './statistics/lab.js';
 import sQuiz from './statistics/quiz.js';
 import sPractice from './statistics/practice.js';
 
+import pNarration from './polynomials/narration.json';
+import pScenes from './polynomials/scenes.js';
+import pLab from './polynomials/lab.js';
+import pQuiz from './polynomials/quiz.js';
+import pPractice from './polynomials/practice.js';
+
 const TRIG = 'CSE › Mathematics for Computing › Trigonometry';
 
 export const lessons = {
@@ -109,5 +115,18 @@ export const lessons = {
     practice: sPractice,
     quiz: sQuiz,
     prev: 'sincos-c',
+    next: 'polynomials',
+  },
+  polynomials: {
+    id: 'polynomials',
+    title: pNarration.title,
+    breadcrumb: 'CSE › Mathematics for Computing › Polynomials',
+    narration: pNarration,
+    scenes: { main: pScenes },
+    defaultVersion: 'main',
+    createLab: pLab,
+    practice: pPractice,
+    quiz: pQuiz,
+    prev: 'statistics',
   },
 };

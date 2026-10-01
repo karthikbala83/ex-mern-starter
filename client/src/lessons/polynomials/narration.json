@@ -1,0 +1,268 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson polynomials (in /server).",
+  "lesson": "polynomials",
+  "title": {
+    "en": "Polynomials: how data learns a curve",
+    "ta": "Polynomials: data எப்படி ஒரு curve-ஐ கத்துக்குது"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "Plan the fest canteen",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "Your college fest ran for five days. Footfall kept growing: 300, 440, 610, 905, then 1,215 people. Next year you run the canteen. How much food for day 6?",
+              "ta": "உங்க college fest அஞ்சு நாள் நடந்தது. Footfall வளர்ந்துகிட்டே போச்சு: 300, 440, 610, 905, அப்புறம் 1,215 பேர். அடுத்த வருஷம் canteen நீங்க தான் நடத்தறீங்க. 6-வது நாளுக்கு எவ்வளவு சாப்பாடு?"
+            },
+            {
+              "id": "s1-b2",
+              "en": "A straight ruler does not follow the data: the growth bends upwards, faster every day.",
+              "ta": "ஒரு straight ruler data-வை follow பண்ணல: வளர்ச்சி மேல வளையுது, ஒவ்வொரு நாளும் வேகமா."
+            },
+            {
+              "id": "s1-b3",
+              "en": "We need a curve that learns its shape from the data. That curve is a polynomial, and you have met one already: Madhava's formula for sin was a polynomial.",
+              "ta": "Data-ல இருந்து தன் shape-ஐ கத்துக்கிற ஒரு curve வேணும். அந்த curve தான் polynomial. நீங்க ஏற்கனவே ஒண்ணை பார்த்திருக்கீங்க: sin-க்கான Madhava formula ஒரு polynomial."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "What is a polynomial?",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "A polynomial adds up powers of x, each multiplied by a number: y = a + b·x + c·x² + d·x³ and so on. The numbers a, b, c, d are called coefficients.",
+              "ta": "Polynomial-ன்னா x-ஓட powers-ஐ, ஒவ்வொண்ணையும் ஒரு number-ஆல பெருக்கி, கூட்டுறது: y = a + b·x + c·x² + d·x³, இப்படியே. a, b, c, d இந்த numbers-க்கு பேர் coefficients.",
+              "say": {
+                "en": "A polynomial adds up powers of x, each multiplied by a number: y equals a, plus b x, plus c x squared, plus d x cubed, and so on. The numbers a, b, c, d are called coefficients.",
+                "ta": "Polynomial-ன்னா x-ஓட powers-ஐ, ஒவ்வொண்ணையும் ஒரு number-ஆல பெருக்கி, கூட்டுறது: y-ன்னா a, plus b x, plus c x square, plus d x cube, இப்படியே. a, b, c, d இந்த numbers-க்கு பேர் coefficients."
+              }
+            },
+            {
+              "id": "s2-b2",
+              "en": "The highest power is the degree. Try y = 2 + 3x + x² at x = 4: that is 2 + 12 + 16 = 30. Only multiplication and addition, which is why computers love polynomials.",
+              "ta": "அதிகபட்ச power தான் degree. y = 2 + 3x + x²-ல x = 4 போட்டு பாருங்க: 2 + 12 + 16 = 30. பெருக்கல், கூட்டல் மட்டும் தான், அதனால தான் computers-க்கு polynomials பிடிக்கும்.",
+              "say": {
+                "en": "The highest power is the degree. Try y equals 2 plus 3x plus x squared, at x equals 4: that is 2 plus 12 plus 16, which is 30. Only multiplication and addition, which is why computers love polynomials.",
+                "ta": "அதிகபட்ச power தான் degree. y = 2 plus 3x plus x square-ல, x = 4 போட்டு பாருங்க: 2 plus 12 plus 16, அதாவது 30. பெருக்கல், கூட்டல் மட்டும் தான், அதனால தான் computers-க்கு polynomials பிடிக்கும்."
+              }
+            },
+            {
+              "id": "s2-b3",
+              "en": "Here is a surprise: put x = 10 into y = 2 + 3x + x², and you get 132. That is just the digits 1, 3 and 2. Every number you write is a polynomial in 10!",
+              "ta": "ஒரு ஆச்சரியம்: y = 2 + 3x + x²-ல x = 10 போட்டா 132 வருது. அது வெறும் 1, 3, 2 digits தான். நீங்க எழுதுற ஒவ்வொரு number-உம் 10-ஓட ஒரு polynomial!",
+              "say": {
+                "en": "Here is a surprise: put x equals 10 into y equals 2 plus 3x plus x squared, and you get 132. That is just the digits 1, 3 and 2. Every number you write is a polynomial in 10!",
+                "ta": "ஒரு ஆச்சரியம்: y = 2 plus 3x plus x square-ல x = 10 போட்டா 132 வருது. அது வெறும் 1, 3, 2 digits தான். நீங்க எழுதுற ஒவ்வொரு number-உம் 10-ஓட ஒரு polynomial!"
+              }
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Degree = how many bends",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Degree 0 is a flat line. Degree 1 is a straight sloping line, like our ruler.",
+              "ta": "Degree 0 ஒரு flat line. Degree 1 ஒரு சாய்ஞ்ச straight line, நம்ம ruler மாதிரி."
+            },
+            {
+              "id": "s3-b2",
+              "en": "Degree 2 bends once: a U shape, called a parabola. Degree 3 can bend twice: an S shape.",
+              "ta": "Degree 2 ஒரு தடவை வளையும்: U shape, அதுக்கு பேர் parabola. Degree 3 ரெண்டு தடவை வளையலாம்: S shape."
+            },
+            {
+              "id": "s3-b3",
+              "en": "The rule: a polynomial of degree n can bend at most n − 1 times. More degree means more freedom to bend, and as we will see, more freedom to go wrong.",
+              "ta": "Rule: degree n polynomial அதிகபட்சம் n − 1 தடவை வளையலாம். Degree அதிகமானா வளைய அதிக சுதந்திரம், அப்புறம் பார்க்கப்போற மாதிரி, தப்பா போகவும் அதிக சுதந்திரம்.",
+              "say": {
+                "en": "The rule: a polynomial of degree n can bend at most n minus 1 times. More degree means more freedom to bend, and as we will see, more freedom to go wrong.",
+                "ta": "Rule: degree n polynomial அதிகபட்சம் n minus 1 தடவை வளையலாம். Degree அதிகமானா வளைய அதிக சுதந்திரம், அப்புறம் பார்க்கப்போற மாதிரி, தப்பா போகவும் அதிக சுதந்திரம்."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Polynomials you see every day",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "When your character jumps in a game, the height follows h = v·t − ½·g·t²: a degree-2 polynomial. That is the same parabola as the cricket throw.",
+              "ta": "Game-ல உங்க character குதிக்கும் போது, உயரம் h = v·t − ½·g·t²-ஐ follow பண்ணுது: ஒரு degree-2 polynomial. Cricket throw-ல பார்த்த அதே parabola.",
+              "say": {
+                "en": "When your character jumps in a game, the height follows h equals v t minus half g t squared: a degree-2 polynomial. That is the same parabola as the cricket throw.",
+                "ta": "Game-ல உங்க character குதிக்கும் போது, உயரம் h = v t minus half g t square-ஐ follow பண்ணுது: ஒரு degree-2 polynomial. Cricket throw-ல பார்த்த அதே parabola."
+              }
+            },
+            {
+              "id": "s4-b2",
+              "en": "Every curved letter on your screen is drawn with small degree-3 curves called Bézier curves. So are app icons, logos and the smooth easing of animations in websites.",
+              "ta": "உங்க screen-ல இருக்கிற ஒவ்வொரு வளைஞ்ச எழுத்தும், Bézier curves-ன்னு சொல்ற சின்ன degree-3 curves-ஆல வரையப்படுது. App icons, logos, websites-ல animations-ஓட smooth easing-உம் அப்படி தான்."
+            },
+            {
+              "id": "s4-b3",
+              "en": "Your mission in Campus Quest uses this directly: make the character jump with the parabola formula.",
+              "ta": "Campus Quest-ல உங்க mission இதை நேரடியா use பண்ணுது: parabola formula வெச்சு character-ஐ குதிக்க வைங்க."
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "How the computer learns the curve",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "How does a computer choose the coefficients? It starts with a guess, then measures how far the curve misses each data point.",
+              "ta": "Computer coefficients-ஐ எப்படி தேர்ந்தெடுக்குது? முதல்ல ஒரு guess, அப்புறம் curve ஒவ்வொரு data point-ஐயும் எவ்வளவு miss பண்ணுதுன்னு அளக்குது."
+            },
+            {
+              "id": "s5-b2",
+              "en": "It squares each miss and adds them up, just like the standard deviation in Statistics. That total is the error. Then it adjusts the coefficients to make the error smaller, again and again.",
+              "ta": "ஒவ்வொரு miss-ஐயும் square பண்ணி கூட்டுது, Statistics-ல பார்த்த standard deviation மாதிரி. அந்த மொத்தம் தான் error. அப்புறம் error குறையுற மாதிரி coefficients-ஐ மாத்திக்கிட்டே இருக்கு."
+            },
+            {
+              "id": "s5-b3",
+              "en": "The curve with the smallest total is the winner. This is called least squares, and in Python one line does it: numpy.polyfit. In our fest data, a degree-2 curve gets the error down from about 16,000 to about 600.",
+              "ta": "Total ரொம்ப குறைவா இருக்கிற curve தான் winner. இதுக்கு பேர் least squares. Python-ல ஒரே line பண்ணும்: numpy dot polyfit. நம்ம fest data-ல, degree-2 curve error-ஐ சுமார் 16,000-ல இருந்து சுமார் 600-க்கு குறைக்குது.",
+              "say": {
+                "en": "The curve with the smallest total is the winner. This is called least squares, and in Python one line does it: numpy dot polyfit. In our fest data, a degree-2 curve gets the error down from about 16,000 to about 600.",
+                "ta": "Total ரொம்ப குறைவா இருக்கிற curve தான் winner. இதுக்கு பேர் least squares. Python-ல ஒரே line பண்ணும்: numpy dot polyfit. நம்ம fest data-ல, degree-2 curve error-ஐ சுமார் 16,000-ல இருந்து சுமார் 600-க்கு குறைக்குது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "Which curve do you trust?",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Three curves for the same fest data. The straight line misses the bend. The degree-2 curve follows it closely. The degree-4 curve passes through every point exactly: zero error!",
+              "ta": "ஒரே fest data-க்கு மூணு curves. Straight line வளைவை miss பண்ணுது. Degree-2 curve அதை நெருக்கமா follow பண்ணுது. Degree-4 curve ஒவ்வொரு point வழியாவும் சரியா போகுது: error zero!"
+            },
+            {
+              "id": "s6-b2",
+              "en": "Now look at day 6. The line says about 1,380. The degree-2 curve says about 1,615. The perfect degree-4 curve says only 1,225: no growth at all, which makes no sense.",
+              "ta": "இப்போ 6-வது நாளை பாருங்க. Line சுமார் 1,380-ன்னு சொல்லுது. Degree-2 curve சுமார் 1,615. Perfect degree-4 curve 1,225 மட்டும்: வளர்ச்சியே இல்ல, அது அர்த்தமில்லாதது."
+            },
+            {
+              "id": "s6-b3",
+              "en": "The perfect curve memorised the small ups and downs of the past instead of learning the pattern. That is called overfitting: like a student who memorised last year's paper and fails a new one.",
+              "ta": "Perfect curve pattern-ஐ கத்துக்காம, கடந்த காலத்தோட சின்ன ஏற்ற இறக்கங்களை மனப்பாடம் பண்ணிடுச்சு. இதுக்கு பேர் overfitting: போன வருஷ question paper-ஐ மனப்பாடம் பண்ணி, புது paper-ல fail ஆகுற student மாதிரி."
+            }
+          ],
+          "ask": {
+            "afterBeat": 1,
+            "q": {
+              "en": "Three curves for the fest data. Which would you trust to predict day 6?",
+              "ta": "Fest data-க்கு மூணு curves. 6-வது நாளை predict பண்ண எதை நம்புவீங்க?"
+            },
+            "options": [
+              "Straight line",
+              "Gentle curve (degree 2)",
+              "Perfect fit (degree 4)"
+            ],
+            "hint": {
+              "en": "A perfect fit on the past is not always the best guess for the future.",
+              "ta": "கடந்த காலத்துக்கு perfect fit, எதிர்காலத்துக்கு best guess-ஆ இருக்கணும்னு அவசியமில்ல."
+            }
+          }
+        },
+        {
+          "id": "s7",
+          "title": "Overfitting up close",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Here are 8 days of data with ordinary day-to-day noise. The trend is gently upwards.",
+              "ta": "இதோ 8 நாள் data, சாதாரண நாளுக்கு நாள் noise-ஓட. Trend மெதுவா மேல போகுது."
+            },
+            {
+              "id": "s7-b2",
+              "en": "A degree-7 curve can pass through all 8 points exactly. But look between the points, and beyond: it swings wildly. For day 9 it predicts 163, when the trend says about 60.",
+              "ta": "Degree-7 curve எல்லா 8 points வழியாவும் சரியா போகலாம். ஆனா points-க்கு நடுவுலயும், அதுக்கு அப்புறமும் பாருங்க: ரொம்ப ஆடுது. 9-வது நாளுக்கு 163-ன்னு predict பண்ணுது, trend சுமார் 60-ன்னு சொல்லும் போது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "The rule engineers follow: choose the simplest curve that explains the pattern, and always test it on data it has not seen before.",
+              "ta": "Engineers follow பண்ற rule: pattern-ஐ விளக்குற ரொம்ப simple curve-ஐ தேர்ந்தெடுங்க, அது பார்க்காத data-ல எப்பவும் test பண்ணுங்க."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Predict near your data",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Even a good curve has limits. Our degree-2 fest curve keeps rising forever. Push it to day 15 and it predicts over 8,000 people.",
+              "ta": "நல்ல curve-க்கும் எல்லை இருக்கு. நம்ம degree-2 fest curve எப்பவும் மேல போயிட்டே இருக்கும். 15-வது நாள் வரை தள்ளினா, 8,000-க்கு மேல ஆட்கள்னு predict பண்ணும்."
+            },
+            {
+              "id": "s8-b2",
+              "en": "But the fest ground holds only 2,000 people. The curve does not know that. Maths gives the pattern; you must add common sense.",
+              "ta": "ஆனா fest ground-ல 2,000 பேர் தான் கொள்ளும். Curve-க்கு அது தெரியாது. Maths pattern-ஐ தரும்; common sense-ஐ நீங்க தான் சேர்க்கணும்."
+            },
+            {
+              "id": "s8-b3",
+              "en": "So predict close to the data you have, and check the answer against the real world: capacity, budget, physics. That is what separates an engineer from a calculator.",
+              "ta": "அதனால உங்ககிட்ட இருக்கிற data-க்கு பக்கத்துல predict பண்ணுங்க, answer-ஐ real world-ஓட check பண்ணுங்க: capacity, budget, physics. அது தான் ஒரு engineer-ஐ calculator-ல இருந்து பிரிக்குது."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Polynomials at work",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Businesses forecast demand with trend curves: canteen food, electricity, bus seats. Excel even has a \"polynomial trendline\" button.",
+              "ta": "Businesses trend curves வெச்சு demand-ஐ forecast பண்ணுது: canteen சாப்பாடு, electricity, bus seats. Excel-லயே \"polynomial trendline\" button இருக்கு."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Engineers convert sensor readings with polynomials: a temperature sensor gives a voltage, and a calibrated polynomial turns it into degrees. Games, fonts and animations use them for motion and shapes.",
+              "ta": "Engineers sensor readings-ஐ polynomials வெச்சு மாத்துறாங்க: temperature sensor ஒரு voltage தருது, calibrate பண்ண ஒரு polynomial அதை degrees-ஆ மாத்துது. Games, fonts, animations motion-க்கும் shapes-க்கும் இதை use பண்ணுது."
+            },
+            {
+              "id": "s9-b3",
+              "en": "And polynomial curve fitting is the first step towards machine learning: learning a pattern from data, then predicting. Your CampusOps mission: forecast fest footfall.",
+              "ta": "Polynomial curve fitting machine learning-ஓட முதல் படி: data-ல இருந்து pattern-ஐ கத்துக்கிட்டு, predict பண்றது. உங்க CampusOps mission: fest footfall-ஐ forecast பண்ணுங்க."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "A polynomial adds powers of x times coefficients. Its degree is the highest power, and it can bend at most degree minus one times.",
+              "ta": "Polynomial-ன்னா x-ஓட powers-ஐ coefficients-ஆல பெருக்கி கூட்டுறது. அதோட degree அதிகபட்ச power, அது அதிகபட்சம் degree minus ஒண்ணு தடவை வளையலாம்."
+            },
+            {
+              "id": "s10-b2",
+              "en": "Computers learn the coefficients by least squares: make the total of squared misses as small as possible.",
+              "ta": "Computers least squares மூலமா coefficients-ஐ கத்துக்குது: squared misses-ஓட total-ஐ ரொம்ப குறைவா ஆக்குறது."
+            },
+            {
+              "id": "s10-b3",
+              "en": "Choose the simplest curve that fits, beware of overfitting, and predict near your data. Now try the practice, the code lab and your missions.",
+              "ta": "பொருந்துற ரொம்ப simple curve-ஐ தேர்ந்தெடுங்க, overfitting-ல கவனமா இருங்க, data-க்கு பக்கத்துல predict பண்ணுங்க. இப்போ practice, code lab, உங்க missions try பண்ணுங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
