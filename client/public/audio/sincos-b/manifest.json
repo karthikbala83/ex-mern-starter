@@ -14,18 +14,18 @@
     "at": "2026-09-30T04:42:42.675Z"
   },
   "main/ta/s1-b2.mp3": {
-    "hash": "5daf5e2d0bbc1e72",
-    "chars": 116,
+    "hash": "d592afca19ab54fb",
+    "chars": 117,
     "speaker": "rupali",
-    "bytes": 153391,
-    "at": "2026-09-30T04:42:44.962Z"
+    "bytes": 170109,
+    "at": "2026-10-01T11:29:09.275Z"
   },
   "main/en/s1-b2.mp3": {
-    "hash": "9fb1bcef9497313b",
-    "chars": 140,
+    "hash": "4ddb7c15a3d15cd4",
+    "chars": 141,
     "speaker": "rupali",
-    "bytes": 189335,
-    "at": "2026-09-30T04:42:48.023Z"
+    "bytes": 208561,
+    "at": "2026-10-01T11:29:12.929Z"
   },
   "main/ta/s1-b3.mp3": {
     "hash": "a24dbcd31819274e",
@@ -70,18 +70,18 @@
     "at": "2026-09-30T04:43:07.985Z"
   },
   "main/ta/s2-b3.mp3": {
-    "hash": "b43a6de89951b29b",
-    "chars": 249,
+    "hash": "f4537472e4b9c519",
+    "chars": 250,
     "speaker": "rupali",
-    "bytes": 306364,
-    "at": "2026-09-30T04:43:12.414Z"
+    "bytes": 285466,
+    "at": "2026-10-01T11:29:17.021Z"
   },
   "main/en/s2-b3.mp3": {
-    "hash": "d27c63f0b041dfde",
-    "chars": 237,
+    "hash": "65bdc17aa848b391",
+    "chars": 238,
     "speaker": "rupali",
-    "bytes": 310961,
-    "at": "2026-09-30T04:43:17.017Z"
+    "bytes": 336039,
+    "at": "2026-10-01T11:29:21.970Z"
   },
   "main/ta/s3-b1.mp3": {
     "hash": "71ceb5aa7c902372",
