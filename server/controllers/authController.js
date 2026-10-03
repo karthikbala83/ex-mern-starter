@@ -65,6 +65,11 @@ exports.signup = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
+    // Log it too: the response only reaches the student's browser, so
+    // without this line a failed signup leaves nothing in Render's logs.
+    // The email (never the password) says WHO hit it; err.name tells a
+    // validation error apart from a database problem at a glance.
+    console.error(`Signup failed for ${req.body?.email}: [${err.name}] ${err.message}`);
     // Mongoose validation errors come out here — show them to the student
     res.status(400).json({ message: err.message });
   }
