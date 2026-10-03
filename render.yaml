@@ -52,5 +52,7 @@ services:
 
       # Your Netlify URL. Chicken-and-egg: you won't know it until the
       # client is deployed, so set it after and redeploy. CORS depends on it.
+      # Several sites? Comma-separate them, e.g. a custom domain plus the
+      # *.netlify.app address: https://enovix.askguha.com,https://x.netlify.app
       - key: CLIENT_URL
         sync: false

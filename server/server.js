@@ -19,10 +19,22 @@ const app = express();
 // while the preflight still answers 204 — so the server looks perfectly
 // healthy and only the browser complains. Strip it here so a stray slash in
 // an env var can never cost anyone an afternoon again.
-const clientOrigin = (process.env.CLIENT_URL || '').replace(/\/+$/, '');
-if (!clientOrigin) console.warn('CLIENT_URL is not set — CORS will allow any origin.');
+//
+// CLIENT_URL may list SEVERAL origins, comma-separated — e.g. a custom
+// domain AND the original *.netlify.app address, which keeps working after
+// a domain is added. Each origin is a separate exact match: a browser on a
+// site that is not in the list gets a 204 preflight that names a DIFFERENT
+// origin (or none), refuses the answer, and the student just sees
+// "Signup failed" — while the server logs nothing, because to Express the
+// request looked fine.
+const clientOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+if (clientOrigins.length === 0) console.warn('CLIENT_URL is not set — CORS will allow any origin.');
+else console.log('CORS allows:', clientOrigins.join(', '));
 
-app.use(cors({ origin: clientOrigin || undefined, credentials: true }));
+app.use(cors({ origin: clientOrigins.length ? clientOrigins : undefined, credentials: true }));
 app.use(express.json());
 
 // ---- Connect database ----

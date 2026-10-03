@@ -206,9 +206,14 @@ Go back to Render → Environment → set `CLIENT_URL` to your real Netlify URL
 (`https://<your-site>.netlify.app`, no trailing slash) → save, which redeploys.
 Until you do this, every API call is blocked by CORS.
 
+**Added a custom domain?** The frontend now has two addresses, and CORS must
+allow both. `CLIENT_URL` takes a comma-separated list:
+`https://enovix.askguha.com,https://<your-site>.netlify.app`. Forget this and
+signup/login on the new domain fail with a bare "Signup failed", while
+Render's logs show nothing, because to the server the request looked fine.
+
 > Deploy Previews get their own URLs (`deploy-preview-3--site.netlify.app`) which
-> won't match `CLIENT_URL`, so previews will fail CORS. Fine for now; making the
-> server accept a list of origins is good homework.
+> won't match `CLIENT_URL` unless you add them to the list too.
 
 ### 5. Seed the database (once)
 ```bash
