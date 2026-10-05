@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'Why does AI use gradient descent instead of trying every possible answer?', ta: 'AI ஏன் எல்லா answers-ஐயும் try பண்ணாம gradient descent use பண்ணுது?' },
+    o: ['Trying everything is more accurate', 'With billions of numbers, trying every combination would take forever', 'Gradient descent needs no data', 'It is a tradition'], a: 1,
+    e: { en: 'Two numbers can be searched by brute force; billions cannot. Walking downhill needs only the slope at the current point.', ta: 'ரெண்டு numbers-ஐ brute force-ஆ தேடலாம்; கோடிக்கணக்கானதை முடியாது. கீழ இறங்க, இப்போதைய இடத்துல slope மட்டும் போதும்.' } },
+  { q: { en: 'At the current w, the slope of the error is positive. Which way should w move?', ta: 'இப்போதைய w-ல error-ஓட slope positive. w எந்த பக்கம் நகரணும்?' },
+    o: ['Increase w', 'Decrease w', 'Stay the same', 'Jump to zero'], a: 1,
+    e: { en: 'A positive slope means the error rises to the right, so downhill is to the left: w = w − rate × slope makes w smaller.', ta: 'Positive slope-ன்னா வலது பக்கம் error ஏறுது, அதனால கீழ இறக்கம் இடது பக்கம்: w = w − rate × slope, w-ஐ சின்னதாக்கும்.' } },
+  { q: { en: 'In calculus terms, what is "the slope" that gradient descent follows?', ta: 'Calculus-ல, gradient descent follow பண்ற "slope" என்ன?' },
+    o: ['The integral', 'The derivative of the error', 'The average of the data', 'The square root'], a: 1,
+    e: { en: 'The derivative tells how fast the error changes as w changes: exactly why engineers study differential calculus.', ta: 'w மாறும் போது error எவ்வளவு வேகமா மாறுதுன்னு derivative சொல்லும்: engineers differential calculus படிக்கிறது சரியா இதுக்கு தான்.' } },
+  { q: { en: 'Training is unstable: w jumps 72, −36, 127, −119… What is the most likely fix?', ta: 'Training நிலையில்லாம இருக்கு: w 72, −36, 127, −119… -ன்னு தாவுது. சரியான fix என்ன?' },
+    o: ['Make the learning rate smaller', 'Make the learning rate bigger', 'Add more data points', 'Use degrees instead of radians'], a: 0,
+    e: { en: 'Each step overshoots the valley. A smaller rate takes shorter steps that settle at the bottom.', ta: 'ஒவ்வொரு step-உம் பள்ளத்தாக்கை தாண்டுது. சின்ன rate சின்ன அடிகள் வெச்சு அடியில settle ஆகும்.' } },
+  { q: { en: 'The ball stops in a shallow dip, not the deepest valley. What can engineers do?', ta: 'Ball ரொம்ப ஆழமான பள்ளத்தாக்குல இல்லாம, ஒரு ஆழமில்லாத பள்ளத்துல நின்னுடுது. Engineers என்ன பண்ணலாம்?' },
+    o: ['Nothing: it is always the best answer', 'Start from several places, or add momentum', 'Delete the data', 'Increase the rate to 100'], a: 1,
+    e: { en: 'A flat spot is not always the lowest. Several starts or momentum help escape shallow dips.', ta: 'Flat இடம் எப்பவும் ரொம்ப தாழ்வானது இல்ல. பல starts அல்லது momentum ஆழமில்லாத பள்ளங்கள்ல இருந்து தப்பிக்க உதவும்.' } },
+];

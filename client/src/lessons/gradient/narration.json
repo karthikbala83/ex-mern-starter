@@ -1,0 +1,261 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson gradient (in /server).",
+  "lesson": "gradient",
+  "title": {
+    "en": "Gradient descent: how AI learns",
+    "ta": "Gradient descent: AI எப்படி கத்துக்குது"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "Trying every line is too slow",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "In the Polynomials lab, the computer found the best line by trying 24,321 lines, one after another. For one or two numbers, that works.",
+              "ta": "Polynomials lab-ல, computer 24,321 lines-ஐ ஒண்ணு ஒண்ணா try பண்ணி best line-ஐ கண்டுபிடிச்சது. ஒண்ணு, ரெண்டு numbers-க்கு அது வேலை செய்யும்."
+            },
+            {
+              "id": "s1-b2",
+              "en": "But a modern AI model has billions of numbers to learn. Trying every combination would take longer than the age of the universe.",
+              "ta": "ஆனா ஒரு modern AI model கத்துக்க கோடிக்கணக்கான numbers இருக்கு. எல்லா combinations-ஐயும் try பண்ணா, பிரபஞ்சத்தோட வயசை விட அதிக நேரம் ஆகும்."
+            },
+            {
+              "id": "s1-b3",
+              "en": "So AI uses a smarter idea: start anywhere, then keep stepping downhill towards less error. It is called gradient descent, and it is how almost every AI learns today.",
+              "ta": "அதனால AI ஒரு smart idea use பண்ணுது: எங்கயாவது ஆரம்பிச்சு, error குறையுற பக்கம் கீழ இறங்கிக்கிட்டே இருக்கிறது. இதுக்கு பேர் gradient descent. இன்னைக்கு கிட்டத்தட்ட எல்லா AI-உம் இப்படி தான் கத்துக்குது."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "The error valley",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "Here is a small learning problem: five cab rides. 2 km costs 60 rupees, 4 km costs 115, 5 km 140, 8 km 230, 10 km 285. What is the price per kilometre?",
+              "ta": "ஒரு சின்ன learning problem: அஞ்சு cab rides. 2 km-க்கு 60 ரூபாய், 4 km-க்கு 115, 5 km-க்கு 140, 8 km-க்கு 230, 10 km-க்கு 285. ஒரு kilometre-க்கு விலை என்ன?"
+            },
+            {
+              "id": "s2-b2",
+              "en": "Our model is: fare = w × km. Pick any w, and measure the error, the average squared miss, exactly as in Polynomials.",
+              "ta": "நம்ம model: fare = w × km. எந்த w-ஐயாவது எடுத்து, error-ஐ அளங்க, அதாவது average squared miss, Polynomials-ல பார்த்த மாதிரியே.",
+              "say": {
+                "en": "Our model is: fare equals w times km. Pick any w, and measure the error, the average squared miss, exactly as in Polynomials.",
+                "ta": "நம்ம model: fare = w into km. எந்த w-ஐயாவது எடுத்து, error-ஐ அளங்க, அதாவது average squared miss, Polynomials-ல பார்த்த மாதிரியே."
+              }
+            },
+            {
+              "id": "s2-b3",
+              "en": "Plot the error for every possible w and you get a valley. The bottom of the valley, around 28.56 rupees per km, is the best answer. Learning means finding the bottom.",
+              "ta": "ஒவ்வொரு w-க்கும் error-ஐ plot பண்ணா ஒரு பள்ளத்தாக்கு வருது. பள்ளத்தாக்கோட அடி, சுமார் km-க்கு 28.56 ரூபாய், தான் best answer. கத்துக்கிறது-ன்னா அந்த அடியை கண்டுபிடிக்கிறது."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Walking down in the fog",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Imagine you are on a hill near Ooty in thick fog. You cannot see the valley. How do you get down?",
+              "ta": "Ooty பக்கத்துல ஒரு மலையில அடர்த்தியான பனிமூட்டத்துல நிக்கிறீங்கன்னு வெச்சுக்கோங்க. பள்ளத்தாக்கு கண்ணுக்கு தெரியல. எப்படி கீழ இறங்குவீங்க?"
+            },
+            {
+              "id": "s3-b2",
+              "en": "Feel the ground under your feet. Which way does it slope down? Take one step that way. Then feel again, and step again.",
+              "ta": "கால் கீழ இருக்கிற நிலத்தை உணருங்க. எந்த பக்கம் கீழ சரியுது? அந்த பக்கம் ஒரு அடி வைங்க. மறுபடியும் உணருங்க, மறுபடியும் அடி வைங்க."
+            },
+            {
+              "id": "s3-b3",
+              "en": "Where the ground is steep, take bigger steps. Where it is nearly flat, you are close to the bottom: take smaller ones. That is the whole of gradient descent.",
+              "ta": "நிலம் செங்குத்தா இருக்கிற இடத்துல பெரிய அடிகள். கிட்டத்தட்ட flat-ஆ இருந்தா, அடிக்கு பக்கத்துல வந்துட்டீங்க: சின்ன அடிகள். Gradient descent முழுசும் இவ்வளவு தான்."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "The slope is the derivative",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "In maths, \"how steep is the ground here?\" has a name: the derivative. This is exactly why engineers learn differential calculus.",
+              "ta": "Maths-ல \"இங்க நிலம் எவ்வளவு செங்குத்தா இருக்கு?\"-ங்கிற கேள்விக்கு ஒரு பேர் இருக்கு: derivative. Engineers differential calculus படிக்கிறது சரியா இதுக்கு தான்."
+            },
+            {
+              "id": "s4-b2",
+              "en": "Draw a tangent line touching the valley at your current w. If it tilts up to the right, the slope is positive: walk left. If it tilts down, walk right. At the bottom it is flat: slope zero.",
+              "ta": "உங்க இப்போதைய w-ல பள்ளத்தாக்கை தொடுற ஒரு tangent line வரைங்க. வலது பக்கம் மேல சாய்ஞ்சா slope positive: இடது பக்கம் நடங்க. கீழ சாய்ஞ்சா வலது பக்கம். அடியில அது flat: slope zero."
+            },
+            {
+              "id": "s4-b3",
+              "en": "For our cab fares the slope works out to 83.6 × w − 2,388. You do not have to memorise that: computers calculate slopes automatically. What you must understand is what the slope means.",
+              "ta": "நம்ம cab fares-க்கு slope = 83.6 × w − 2,388. அதை மனப்பாடம் பண்ண வேண்டாம்: computers slopes-ஐ தானாவே calculate பண்ணும். Slope-ன்னா என்ன அர்த்தம்னு புரியணும், அது தான் முக்கியம்.",
+              "say": {
+                "en": "For our cab fares the slope works out to 83.6 times w, minus 2,388. You do not have to memorise that: computers calculate slopes automatically. What you must understand is what the slope means.",
+                "ta": "நம்ம cab fares-க்கு slope, 83.6 into w, minus 2,388. அதை மனப்பாடம் பண்ண வேண்டாம்: computers slopes-ஐ தானாவே calculate பண்ணும். Slope-ன்னா என்ன அர்த்தம்னு புரியணும், அது தான் முக்கியம்."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "The update rule",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Now the rule every AI uses. New w = old w minus rate times slope. The rate is how big a step you take.",
+              "ta": "இப்போ ஒவ்வொரு AI-உம் use பண்ற rule. புது w = பழைய w minus rate × slope. Rate-ன்னா நீங்க எவ்வளவு பெரிய அடி வைக்கிறீங்க.",
+              "say": {
+                "en": "Now the rule every AI uses. New w equals old w, minus rate times slope. The rate is how big a step you take.",
+                "ta": "இப்போ ஒவ்வொரு AI-உம் use பண்ற rule. புது w-ன்னா, பழைய w minus rate into slope. Rate-ன்னா நீங்க எவ்வளவு பெரிய அடி வைக்கிறீங்க."
+              }
+            },
+            {
+              "id": "s5-b2",
+              "en": "Start at w = 0 with a rate of 0.01. Step 1: 23.9. Step 2: 27.8. Step 3: 28.4. Step 4: 28.5. In just five steps, the AI has learned the price: 28.56 rupees per kilometre.",
+              "ta": "w = 0-ல, rate 0.01-ஓட ஆரம்பிங்க. Step 1: 23.9. Step 2: 27.8. Step 3: 28.4. Step 4: 28.5. அஞ்சே steps-ல AI விலையை கத்துக்கிச்சு: km-க்கு 28.56 ரூபாய்."
+            },
+            {
+              "id": "s5-b3",
+              "en": "Notice the steps shrink by themselves as the slope flattens near the bottom. No one told the AI the answer. It found it by following the slope.",
+              "ta": "அடிக்கு பக்கத்துல slope flat ஆக ஆக, steps தானாவே சின்னதாகுறதை கவனிங்க. யாரும் AI-க்கு answer சொல்லல. Slope-ஐ follow பண்ணி அதுவே கண்டுபிடிச்சது."
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "How big should each step be?",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "The rate matters a lot. Same valley, same start, three different step sizes.",
+              "ta": "Rate ரொம்ப முக்கியம். அதே பள்ளத்தாக்கு, அதே ஆரம்பம், மூணு வேற step sizes."
+            },
+            {
+              "id": "s6-b2",
+              "en": "Too small, rate 0.001: after eight steps it has only reached 14 rupees. It will get there, but very slowly. Just right, 0.01: there in five steps.",
+              "ta": "ரொம்ப சின்னது, rate 0.001: எட்டு steps-க்கு அப்புறமும் 14 ரூபாய் வரை தான் வந்திருக்கு. போய் சேரும், ஆனா ரொம்ப மெதுவா. சரியானது, 0.01: அஞ்சு steps-ல சேர்ந்துடுச்சு."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Too big, 0.03: it jumps to 72, then minus 36, then 127, then minus 119. It overshoots the valley every time and flies away. Choosing the rate is one of the most important decisions when training AI.",
+              "ta": "ரொம்ப பெருசு, 0.03: 72-க்கு தாவுது, அப்புறம் minus 36, அப்புறம் 127, அப்புறம் minus 119. ஒவ்வொரு தடவையும் பள்ளத்தாக்கை தாண்டி, பறந்து போயிடுது. AI-க்கு training கொடுக்கும் போது rate-ஐ தேர்ந்தெடுக்கிறது ரொம்ப முக்கியமான முடிவு."
+            }
+          ],
+          "ask": {
+            "afterBeat": 1,
+            "q": {
+              "en": "What happens if the AI takes steps that are far too big?",
+              "ta": "AI ரொம்ப பெரிய அடிகள் வெச்சா என்ன ஆகும்?"
+            },
+            "options": [
+              "It learns faster",
+              "It jumps over the valley and gets worse",
+              "Nothing changes",
+              "It stops"
+            ],
+            "hint": {
+              "en": "Imagine leaping across the valley from one side to the other.",
+              "ta": "பள்ளத்தாக்கை ஒரு பக்கத்துல இருந்து மறுபக்கத்துக்கு தாண்டுறதை நினைச்சு பாருங்க."
+            }
+          }
+        },
+        {
+          "id": "s7",
+          "title": "Many numbers at once",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Real fares have a base charge too: fare = w × km + b. Now there are two numbers to learn, and the valley becomes a bowl.",
+              "ta": "Real fares-ல base charge-உம் இருக்கு: fare = w × km + b. இப்போ கத்துக்க ரெண்டு numbers, பள்ளத்தாக்கு ஒரு கிண்ணமா மாறுது.",
+              "say": {
+                "en": "Real fares have a base charge too: fare equals w times km, plus b. Now there are two numbers to learn, and the valley becomes a bowl.",
+                "ta": "Real fares-ல base charge-உம் இருக்கு: fare = w into km, plus b. இப்போ கத்துக்க ரெண்டு numbers, பள்ளத்தாக்கு ஒரு கிண்ணமா மாறுது."
+              }
+            },
+            {
+              "id": "s7-b2",
+              "en": "Gradient descent feels the slope in both directions at once and steps towards the bottom of the bowl. It lands on the same answer as the exact formula from Polynomials.",
+              "ta": "Gradient descent ரெண்டு திசைகள்லயும் ஒரே நேரத்துல slope-ஐ உணர்ந்து, கிண்ணத்தோட அடிக்கு அடி வைக்குது. Polynomials-ல பார்த்த exact formula-வோட அதே answer-க்கு வந்து சேருது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "A large AI language model learns billions of numbers in exactly this way, using a variant of the same rule, with powerful graphics chips calculating billions of slopes at once.",
+              "ta": "ஒரு பெரிய AI language model கோடிக்கணக்கான numbers-ஐ சரியா இதே மாதிரி தான் கத்துக்குது. அதே rule-ஓட ஒரு variant, சக்திவாய்ந்த graphics chips ஒரே நேரத்துல கோடிக்கணக்கான slopes-ஐ calculate பண்ணுது."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Stuck in a small dip",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Not every valley is a simple bowl. Some landscapes have small dips and a deeper valley elsewhere.",
+              "ta": "எல்லா பள்ளத்தாக்கும் simple கிண்ணம் இல்ல. சில நிலப்பரப்புகள்ல சின்ன பள்ளங்களும், வேற எங்கயோ ஆழமான பள்ளத்தாக்கும் இருக்கும்."
+            },
+            {
+              "id": "s8-b2",
+              "en": "Start on the left and the ball settles in a small dip. It thinks it has finished, because the ground is flat there. Start on the right and it reaches the true bottom.",
+              "ta": "இடது பக்கத்துல ஆரம்பிச்சா, ball ஒரு சின்ன பள்ளத்துல நின்னுடுது. அங்க நிலம் flat-ஆ இருக்கிறதால, முடிஞ்சதுன்னு நினைக்குது. வலது பக்கத்துல ஆரம்பிச்சா, உண்மையான அடிக்கு போயிடுது."
+            },
+            {
+              "id": "s8-b3",
+              "en": "Engineers handle this with tricks: start from several places, or give the ball momentum so it can roll through small dips. Good AI training is part maths, part craft.",
+              "ta": "Engineers இதை tricks வெச்சு சமாளிக்கிறாங்க: பல இடங்கள்ல இருந்து ஆரம்பிக்கிறது, இல்லன்னா ball-க்கு momentum கொடுத்து சின்ன பள்ளங்களை தாண்டி உருள வைக்கிறது. நல்ல AI training-ல பாதி maths, பாதி craft."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Gradient descent at work",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Every time you use AI, gradient descent has already done its work: AI chatbots, photo filters, voice typing in Tamil, the reels a feed shows you.",
+              "ta": "நீங்க AI use பண்ற ஒவ்வொரு தடவையும், gradient descent ஏற்கனவே தன் வேலையை செஞ்சிருக்கு: AI chatbots, photo filters, Tamil voice typing, ஒரு feed காட்டுற reels."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Businesses use it to learn prices, forecast demand and detect fraud. Robots use it to tune their movements. Even this lesson's voice was produced by a model trained this way.",
+              "ta": "Businesses விலைகளை கத்துக்க, demand-ஐ forecast பண்ண, fraud-ஐ கண்டுபிடிக்க இதை use பண்ணுது. Robots தங்க அசைவுகளை tune பண்ண use பண்ணுது. இந்த lesson-ஓட voice கூட இப்படி train ஆன ஒரு model தான் உருவாக்குச்சு."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Your missions: learn the price per kilometre with one gradient step, and tune Campus Quest's difficulty so every player wins about half the time.",
+              "ta": "உங்க missions: ஒரு gradient step வெச்சு km-க்கு விலையை கத்துக்கோங்க, அப்புறம் ஒவ்வொரு player-உம் பாதி நேரம் ஜெயிக்கிற மாதிரி Campus Quest-ஓட difficulty-ஐ tune பண்ணுங்க."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "Learning means finding the bottom of the error valley. Trying everything is too slow, so AI walks downhill.",
+              "ta": "கத்துக்கிறது-ன்னா error பள்ளத்தாக்கோட அடியை கண்டுபிடிக்கிறது. எல்லாத்தையும் try பண்றது ரொம்ப slow, அதனால AI கீழ இறங்குது."
+            },
+            {
+              "id": "s10-b2",
+              "en": "The slope, the derivative from calculus, tells which way is down. The rule is: new w = w minus rate times slope.",
+              "ta": "Slope, அதாவது calculus-ல வர்ற derivative, எந்த பக்கம் கீழன்னு சொல்லுது. Rule: புது w = w minus rate × slope."
+            },
+            {
+              "id": "s10-b3",
+              "en": "Choose the rate carefully: too small is slow, too big flies away. Now try the practice, the code lab and your missions.",
+              "ta": "Rate-ஐ கவனமா தேர்ந்தெடுங்க: ரொம்ப சின்னது slow, ரொம்ப பெருசு பறந்து போயிடும். இப்போ practice, code lab, உங்க missions try பண்ணுங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

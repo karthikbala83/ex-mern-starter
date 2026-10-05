@@ -8,5 +8,7 @@ import leaderboardStats from './leaderboardStats.js';
 import attendanceReport from './attendanceReport.js';
 import jumpHeight from './jumpHeight.js';
 import predictFootfall from './predictFootfall.js';
+import learnPrice from './learnPrice.js';
+import tuneDifficulty from './tuneDifficulty.js';
 
-export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport, jumpHeight, predictFootfall };
+export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport, jumpHeight, predictFootfall, learnPrice, tuneDifficulty };

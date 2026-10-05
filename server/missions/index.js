@@ -9,4 +9,6 @@ module.exports = {
   attendanceReport: require('./attendanceReport'),
   jumpHeight: require('./jumpHeight'),
   predictFootfall: require('./predictFootfall'),
+  learnPrice: require('./learnPrice'),
+  tuneDifficulty: require('./tuneDifficulty'),
 };

@@ -404,5 +404,19 @@
     "speaker": "rupali",
     "bytes": 218592,
     "at": "2026-10-01T11:34:13.494Z"
+  },
+  "main/ta/s4-b1.mp3": {
+    "hash": "47d27e4f0a6719cc",
+    "chars": 123,
+    "speaker": "rupali",
+    "bytes": 159660,
+    "at": "2026-10-05T04:36:01.721Z"
+  },
+  "main/ta/s8-b1.mp3": {
+    "hash": "f2bc715e117067f7",
+    "chars": 180,
+    "speaker": "rupali",
+    "bytes": 197694,
+    "at": "2026-10-05T04:36:07.378Z"
   }
 }

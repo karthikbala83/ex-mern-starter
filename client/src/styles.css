@@ -612,3 +612,5 @@ a.mcard:hover { border-color: #1E3E7B; }
 .prebuilt summary .muted { font-weight: 400; }
 .prebuilt-area { background: #f1f4f9; color: #6b7688; border-color: #e3e8f0; margin: 0; border-radius: 0 0 8px 8px; }
 .prebuilt-area:focus { color: #1a2333; }
+.mission-sig { margin: 4px 0 6px; font-size: 14px; color: #1a2333; }
+.mission-sig code { background: #e6ebf5; color: #1E3E7B; padding: 2px 8px; border-radius: 6px; font-weight: 700; }

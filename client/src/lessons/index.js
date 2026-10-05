@@ -50,6 +50,12 @@ import pLab from './polynomials/lab.js';
 import pQuiz from './polynomials/quiz.js';
 import pPractice from './polynomials/practice.js';
 
+import gNarration from './gradient/narration.json';
+import gScenes from './gradient/scenes.js';
+import gLab from './gradient/lab.js';
+import gQuiz from './gradient/quiz.js';
+import gPractice from './gradient/practice.js';
+
 const TRIG = 'CSE › Mathematics for Computing › Trigonometry';
 
 export const lessons = {
@@ -128,5 +134,18 @@ export const lessons = {
     practice: pPractice,
     quiz: pQuiz,
     prev: 'statistics',
+    next: 'gradient',
+  },
+  gradient: {
+    id: 'gradient',
+    title: gNarration.title,
+    breadcrumb: 'CSE › Mathematics for Computing › Gradient descent',
+    narration: gNarration,
+    scenes: { main: gScenes },
+    defaultVersion: 'main',
+    createLab: gLab,
+    practice: gPractice,
+    quiz: gQuiz,
+    prev: 'polynomials',
   },
 };

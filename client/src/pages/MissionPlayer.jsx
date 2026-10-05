@@ -223,6 +223,12 @@ export default function MissionPlayer() {
             {world ? ` · ${t(world.title, lang)}` : ''}
           </p>
           <h2 lang={lang}>{t(def.title, lang)}</h2>
+          {/* The mission's id (learnPrice) is for URLs and progress; the
+              function the student writes can have another name
+              (gradientStep). Say which one, up front. */}
+          <p className="mission-sig">
+            {lang === 'ta' ? 'நீங்க எழுதப்போற function' : 'You will write'}: <code>{def.signature}</code>
+          </p>
           {lesson && (lesson.status === 'live'
             ? <Link to={lesson.route || `/enovix/${lesson.id}`}>Open the lesson →</Link>
             : <span className="badge">Lesson coming soon</span>)}
