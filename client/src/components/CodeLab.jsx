@@ -134,7 +134,13 @@ function Experiment({ exp, n, lang, pyMode, createLab, onRun }) {
   }, [res, lang]);
 
   const run = async () => {
-    setBusy(true); setOut(pyMode ? 'Running Python… (first run downloads Python, about 10 MB)' : 'Running…');
+    setBusy(true); setOut(pyMode ? 'Running Python… (first run downloads Python, about 10 MB)' : 'Calculating…');
+    // JavaScript experiments run on the main thread, and some are heavy on
+    // purpose (Fourier's `spectrum` does 4,096 × 2,048 multiplications to
+    // show why the FFT exists). While that loop runs the browser cannot
+    // paint, so without this pause "Calculating…" would never appear and a
+    // phone would just look frozen. One frame + one tick lets it render first.
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
     const t = performance.now();
     try {
       const { lines, result } = await (pyMode

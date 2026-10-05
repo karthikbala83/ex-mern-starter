@@ -11,4 +11,6 @@ module.exports = {
   predictFootfall: require('./predictFootfall'),
   learnPrice: require('./learnPrice'),
   tuneDifficulty: require('./tuneDifficulty'),
+  waveStrength: require('./waveStrength'),
+  dominantFrequency: require('./dominantFrequency'),
 };

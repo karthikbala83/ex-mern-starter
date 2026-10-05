@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'What does the Fourier transform do?', ta: 'Fourier transform என்ன பண்ணுது?' },
+    o: ['Makes sounds louder', 'Finds which simple sine waves make up a messy wave, and how strong each is', 'Converts degrees to radians', 'Removes all noise automatically'], a: 1,
+    e: { en: 'It turns a wave over time into a spectrum: the list of frequencies inside it and their strengths.', ta: 'அது time-ல இருக்கிற ஒரு wave-ஐ spectrum-ஆ மாத்துது: உள்ள இருக்கிற frequencies, அதோட strengths-ஓட list.' } },
+  { q: { en: 'You multiply a chord by a 300 Hz test wave and average. The chord has no 300 Hz note. The average is…', ta: 'ஒரு chord-ஐ 300 Hz test wave-ஆல பெருக்கி average எடுக்கிறீங்க. Chord-ல 300 Hz note இல்ல. Average…' },
+    o: ['large and positive', 'about zero', 'large and negative', '300'], a: 1,
+    e: { en: 'Positive and negative parts of the product cancel out. Only frequencies actually present give a large average.', ta: 'Product-ஓட positive, negative பகுதிகள் cancel ஆகுது. உண்மையில இருக்கிற frequencies மட்டும் பெரிய average தரும்.' } },
+  { q: { en: 'Why does the real method match against both sin and cos?', ta: 'உண்மையான method ஏன் sin, cos ரெண்டோடயும் match பண்ணுது?' },
+    o: ['To double the speed', 'A hidden wave may be shifted in time and line up with cos instead of sin', 'Because cos is more accurate', 'It does not; it uses only tan'], a: 1,
+    e: { en: 'Matching both and combining with Pythagoras, √(sin² + cos²), finds the wave whatever its timing.', ta: 'ரெண்டோடயும் match பண்ணி, Pythagoras √(sin² + cos²) வெச்சு சேர்த்தா, wave-ஓட timing எப்படி இருந்தாலும் கண்டுபிடிக்கலாம்.' } },
+  { q: { en: 'What makes the FFT special?', ta: 'FFT-ஐ special-ஆக்குறது எது?' },
+    o: ['It is more accurate than the matching trick', 'It gives the same answer much faster, about N log N steps instead of N × N', 'It works only on music', 'It needs no computer'], a: 1,
+    e: { en: 'Same spectrum, shared work: for a million samples, about 50,000 times fewer steps.', ta: 'அதே spectrum, பகிர்ந்த வேலை: பத்து லட்சம் samples-க்கு சுமார் 50,000 மடங்கு குறைவான steps.' } },
+  { q: { en: 'A motor\'s vibration spectrum suddenly shows a new peak at a bearing\'s fault frequency. What should the factory do?', ta: 'ஒரு motor-ஓட vibration spectrum-ல ஒரு bearing-ஓட fault frequency-ல திடீர்னு ஒரு புது peak தெரியுது. Factory என்ன பண்ணணும்?' },
+    o: ['Ignore it until the motor stops', 'Schedule a bearing replacement in a planned stop', 'Turn the motor faster', 'Delete the data'], a: 1,
+    e: { en: 'That is predictive maintenance: the spectrum warns of the fault early, so the repair happens on your schedule, not after a breakdown.', ta: 'அது தான் predictive maintenance: spectrum fault-ஐ சீக்கிரமே எச்சரிக்குது, அதனால breakdown-க்கு அப்புறம் இல்லாம, உங்க schedule-ல repair நடக்குது.' } },
+];

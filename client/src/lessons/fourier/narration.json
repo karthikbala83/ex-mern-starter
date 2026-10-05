@@ -1,0 +1,253 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson fourier (in /server).",
+  "lesson": "fourier",
+  "title": {
+    "en": "Fourier: from heat to Shazam",
+    "ta": "Fourier: வெப்பத்துல இருந்து Shazam வரை"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "How does Shazam know the song?",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "You are in a noisy canteen. A song is playing. You hold up your phone for three seconds, and Shazam names it. How can a phone pick one song out of all that noise?",
+              "ta": "நீங்க ஒரு சத்தமான canteen-ல இருக்கீங்க. ஒரு பாட்டு ஓடுது. Phone-ஐ மூணு seconds தூக்கி பிடிக்கிறீங்க, Shazam பாட்டோட பேரை சொல்லிடுது. அவ்வளவு சத்தத்துக்கு நடுவுல ஒரு phone எப்படி ஒரு பாட்டை கண்டுபிடிக்குது?"
+            },
+            {
+              "id": "s1-b2",
+              "en": "A factory mechanic does something similar. By listening to a motor's hum, he can tell a bearing is going to fail weeks before it breaks.",
+              "ta": "ஒரு factory mechanic-உம் இதே மாதிரி பண்றாரு. ஒரு motor-ஓட சத்தத்தை கேட்டே, ஒரு bearing உடையுறதுக்கு பல வாரங்கள் முன்னாடியே அது கெடப்போகுதுன்னு சொல்லிடுவார்."
+            },
+            {
+              "id": "s1-b3",
+              "en": "Both rely on one idea: any messy sound is made of simple sine waves, and we can find out which ones. It is called the Fourier transform, and Joseph Fourier discovered it in 1822 while studying how heat flows through metal.",
+              "ta": "ரெண்டுமே ஒரே idea-வை நம்புது: எந்த குழப்பமான சத்தமும் simple sine waves-ஆல உருவானது, அதுல எந்த waves இருக்குன்னு கண்டுபிடிக்கலாம். இதுக்கு பேர் Fourier transform. 1822-ல உலோகத்துல வெப்பம் எப்படி பரவுதுன்னு ஆராயும் போது Joseph Fourier இதை கண்டுபிடிச்சார்."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "Remember the sine wave",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "From sin and cos Part C: a sine wave has an amplitude, how loud or tall it is, and a frequency, how many times it swings per second.",
+              "ta": "sin & cos Part C-ல பார்த்தது: ஒரு sine wave-க்கு amplitude இருக்கு, எவ்வளவு சத்தமா அல்லது உயரமா, அப்புறம் frequency, ஒரு second-ல எத்தனை தடவை ஆடுது."
+            },
+            {
+              "id": "s2-b2",
+              "en": "In sound, frequency is the pitch. The note C on a keyboard vibrates 262 times a second. E is 330. G is 392. Higher frequency, higher note.",
+              "ta": "Sound-ல frequency தான் pitch. Keyboard-ல C note ஒரு second-ல 262 தடவை அதிருது. E 330. G 392. Frequency அதிகமானா, note உயரும்."
+            },
+            {
+              "id": "s2-b3",
+              "en": "Play all three together and you hear a chord. Your ears receive one single, complicated wave: the three simple waves added up.",
+              "ta": "மூணையும் ஒண்ணா play பண்ணா, ஒரு chord கேக்கும். உங்க காதுக்கு ஒரே ஒரு சிக்கலான wave தான் வருது: மூணு simple waves-ஐ கூட்டினது."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "The reverse question",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Adding waves is easy. The hard, useful question goes the other way: given only the messy wave, which simple waves are inside it, and how strong is each?",
+              "ta": "Waves-ஐ கூட்டுறது சுலபம். கஷ்டமான, பயனுள்ள கேள்வி எதிர் பக்கம்: குழப்பமான wave மட்டும் கொடுத்தா, அதுக்குள்ள எந்த simple waves இருக்கு, ஒவ்வொண்ணும் எவ்வளவு strong?"
+            },
+            {
+              "id": "s3-b2",
+              "en": "The answer is drawn as a spectrum: frequency along the bottom, strength going up. For our chord, there are exactly three tall bars: 262, 330 and 392.",
+              "ta": "Answer-ஐ ஒரு spectrum-ஆ வரைவோம்: கீழ frequency, மேல strength. நம்ம chord-க்கு சரியா மூணு உயரமான bars: 262, 330, 392."
+            },
+            {
+              "id": "s3-b3",
+              "en": "That is the Fourier transform: from a wave over time, to a list of frequencies. Shazam compares exactly this kind of picture against millions of songs.",
+              "ta": "அது தான் Fourier transform: time-ல இருக்கிற ஒரு wave-ல இருந்து, frequencies-ஓட ஒரு list-க்கு. Shazam இந்த மாதிரி படத்தை தான் கோடிக்கணக்கான பாட்டுகளோட compare பண்ணுது."
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "The matching trick",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "How does a computer find the hidden frequencies? With a matching trick. Pick a test frequency, say 330 hertz. Multiply the messy wave by a pure 330 hertz wave, point by point.",
+              "ta": "மறைஞ்சிருக்கிற frequencies-ஐ computer எப்படி கண்டுபிடிக்குது? ஒரு matching trick வெச்சு. ஒரு test frequency எடுங்க, உதாரணமா 330 hertz. குழப்பமான wave-ஐ ஒரு pure 330 hertz wave-ஆல, point by point பெருக்குங்க."
+            },
+            {
+              "id": "s4-b2",
+              "en": "Because 330 is inside the chord, the two waves rise and fall together. Their product stays mostly positive, and the average comes out big: 0.50.",
+              "ta": "330 chord-க்குள்ள இருக்கிறதால, ரெண்டு waves-உம் ஒண்ணா ஏறி இறங்குது. அதோட product பெரும்பாலும் positive-ஆ இருக்கு, average பெருசா வருது: 0.50."
+            },
+            {
+              "id": "s4-b3",
+              "en": "For 300 hertz, which is not inside, the product is positive half the time and negative half the time. They cancel, and the average is about zero. Big average means \"this frequency is present\".",
+              "ta": "Chord-க்குள்ள இல்லாத 300 hertz-க்கு, product பாதி நேரம் positive, பாதி நேரம் negative. ஒண்ணை ஒண்ணு cancel பண்ணி, average கிட்டத்தட்ட zero. பெரிய average-ன்னா \"இந்த frequency இருக்கு\"."
+            }
+          ],
+          "ask": {
+            "afterBeat": 2,
+            "q": {
+              "en": "300 Hz is NOT in the chord. Multiply the chord by a 300 Hz wave and average it. What do you get?",
+              "ta": "300 Hz chord-ல இல்ல. Chord-ஐ ஒரு 300 Hz wave-ஆல பெருக்கி average எடுத்தா என்ன வரும்?"
+            },
+            "options": [
+              "A big positive number",
+              "About zero",
+              "A big negative number",
+              "Exactly 300"
+            ],
+            "hint": {
+              "en": "Think about how the positive and negative parts line up.",
+              "ta": "Positive, negative பகுதிகள் எப்படி ஒத்துப்போகுதுன்னு யோசிங்க."
+            }
+          }
+        },
+        {
+          "id": "s5",
+          "title": "Every frequency, and why we need cos too",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "Now repeat the matching trick for every frequency, one after another. Plot each average, and the spectrum appears, with peaks exactly at the notes.",
+              "ta": "இப்போ matching trick-ஐ ஒவ்வொரு frequency-க்கும், ஒண்ணுக்கு அப்புறம் ஒண்ணா பண்ணுங்க. ஒவ்வொரு average-ஐயும் plot பண்ணா, spectrum தோன்றுது, notes இருக்கிற இடத்துல சரியா peaks."
+            },
+            {
+              "id": "s5-b2",
+              "en": "One catch: a hidden wave might be shifted in time, so it lines up with cos instead of sin. So the computer matches against both, a sin part and a cos part.",
+              "ta": "ஒரு சிக்கல்: மறைஞ்சிருக்கிற ஒரு wave time-ல நகர்ந்திருக்கலாம், அதனால அது sin-க்கு பதிலா cos-ஓட ஒத்துப்போகலாம். அதனால computer ரெண்டோடயும் match பண்ணுது: ஒரு sin பகுதி, ஒரு cos பகுதி."
+            },
+            {
+              "id": "s5-b3",
+              "en": "Then it combines them with Pythagoras: strength = √(sin part² + cos part²). Sin, cos and Pythagoras, all from earlier lessons, working together.",
+              "ta": "அப்புறம் Pythagoras வெச்சு ரெண்டையும் சேர்க்குது: strength = √(sin part² + cos part²). முந்தைய lessons-ல பார்த்த sin, cos, Pythagoras எல்லாம் சேர்ந்து வேலை செய்யுது.",
+              "say": {
+                "en": "Then it combines them with Pythagoras: strength equals the square root of the sin part squared plus the cos part squared. Sin, cos and Pythagoras, all from earlier lessons, working together.",
+                "ta": "அப்புறம் Pythagoras வெச்சு ரெண்டையும் சேர்க்குது: strength-ன்னா, sin part square plus cos part square-ஓட square root. முந்தைய lessons-ல பார்த்த sin, cos, Pythagoras எல்லாம் சேர்ந்து வேலை செய்யுது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s6",
+          "title": "The fast trick: FFT",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Matching every frequency one by one is slow. For a million samples it would take about a million times a million steps.",
+              "ta": "ஒவ்வொரு frequency-ஐயும் ஒண்ணு ஒண்ணா match பண்றது slow. பத்து லட்சம் samples-க்கு, கிட்டத்தட்ட பத்து லட்சம் × பத்து லட்சம் steps ஆகும்."
+            },
+            {
+              "id": "s6-b2",
+              "en": "In 1965, Cooley and Tukey published a clever shortcut, the Fast Fourier Transform, or FFT. It reuses work between frequencies and needs only about twenty million steps instead of a trillion.",
+              "ta": "1965-ல Cooley, Tukey ஒரு smart shortcut-ஐ வெளியிட்டாங்க: Fast Fourier Transform, FFT. Frequencies-க்கு நடுவுல வேலையை மறுபடி use பண்ணி, ஒரு trillion-க்கு பதிலா சுமார் இருபது மில்லியன் steps மட்டும் போதும்."
+            },
+            {
+              "id": "s6-b3",
+              "en": "Your phone runs FFTs constantly: for music, noise cancellation on calls, and the way 4G, 5G and Wi-Fi pack data into radio waves. In code, it is one line: numpy.fft or mathjs fft.",
+              "ta": "உங்க phone எப்பவும் FFT ஓட்டிக்கிட்டே இருக்கு: music-க்கு, calls-ல noise cancellation-க்கு, 4G, 5G, Wi-Fi radio waves-ல data-வை அடைக்கிற முறைக்கு. Code-ல அது ஒரே line: numpy dot fft, இல்லன்னா mathjs fft.",
+              "say": {
+                "en": "Your phone runs FFTs constantly: for music, noise cancellation on calls, and the way 4G, 5G and Wi-Fi pack data into radio waves. In code, it is one line: numpy dot fft, or mathjs fft.",
+                "ta": "உங்க phone எப்பவும் FFT ஓட்டிக்கிட்டே இருக்கு: music-க்கு, calls-ல noise cancellation-க்கு, 4G, 5G, Wi-Fi radio waves-ல data-வை அடைக்கிற முறைக்கு. Code-ல அது ஒரே line: numpy dot fft, இல்லன்னா mathjs fft."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "Back to heat: why Fourier was right",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "Fourier's original question: when a metal rod is heated unevenly, how does the heat spread? He realised any temperature pattern along the rod can be written as a sum of sine shapes.",
+              "ta": "Fourier-ஓட முதல் கேள்வி: ஒரு metal rod சீரா இல்லாம சூடாக்கப்பட்டா, வெப்பம் எப்படி பரவும்? Rod-ல எந்த temperature pattern-ஐயும் sine shapes-ஓட கூட்டுத்தொகையா எழுதலாம்னு அவர் கண்டுபிடிச்சார்."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Each sine shape fades at its own speed, and sharp wiggles fade fastest: a wiggle twice as tight fades four times faster. So hot spots blur out and the rod evens up.",
+              "ta": "ஒவ்வொரு sine shape-உம் அதோட சொந்த வேகத்துல மங்குது, கூர்மையான wiggles ரொம்ப வேகமா மங்கும்: ரெட்டிப்பு நெருக்கமான wiggle நாலு மடங்கு வேகமா மங்கும். அதனால hot spots மங்கி, rod சமமாகுது."
+            },
+            {
+              "id": "s7-b3",
+              "en": "The speed also depends on the metal. Copper spreads heat about nine times faster than ordinary steel. That is why cookware bases use copper or aluminium, and why engineers choose metals for engines and heat sinks by this property.",
+              "ta": "வேகம் உலோகத்தையும் பொறுத்தது. சாதாரண steel-ஐ விட copper சுமார் ஒன்பது மடங்கு வேகமா வெப்பத்தை பரப்பும். அதனால தான் சமையல் பாத்திரங்களோட அடியில copper அல்லது aluminium, engines, heat sinks-க்கு engineers இந்த property வெச்சு உலோகத்தை தேர்ந்தெடுக்கிறாங்க."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "Fourier at work",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Music apps and Shazam, photos and video: JPEG compression uses a close cousin of the Fourier transform to throw away detail your eyes will not miss.",
+              "ta": "Music apps, Shazam, photos, video: JPEG compression, Fourier transform-ஓட நெருங்கிய உறவான ஒரு method-ஐ use பண்ணி, உங்க கண்ணுக்கு தெரியாத detail-ஐ நீக்குது."
+            },
+            {
+              "id": "s8-b2",
+              "en": "Hospitals: ECG analysis and MRI scanners, whose raw data is a Fourier picture of your body. Phones: 4G, 5G, Wi-Fi and noise cancellation.",
+              "ta": "Hospitals: ECG analysis, MRI scanners, அதோட raw data உங்க உடம்போட ஒரு Fourier படம். Phones: 4G, 5G, Wi-Fi, noise cancellation."
+            },
+            {
+              "id": "s8-b3",
+              "en": "Factories: predictive maintenance listens to machine vibrations and spots a failing bearing early. Your missions: a music visualiser for Campus Quest, and a machine-health check for CampusOps.",
+              "ta": "Factories: predictive maintenance machine vibrations-ஐ கேட்டு, கெடப்போற bearing-ஐ சீக்கிரமே கண்டுபிடிக்குது. உங்க missions: Campus Quest-க்கு ஒரு music visualiser, CampusOps-க்கு ஒரு machine-health check."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "A messy wave, live",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Here is a live machine. While it runs smoothly, its vibration spectrum shows one main peak: the motor turning 25 times a second.",
+              "ta": "இதோ ஒரு live machine. Smooth-ஆ ஓடும் போது, அதோட vibration spectrum-ல ஒரு main peak மட்டும்: motor ஒரு second-ல 25 தடவை சுத்துது."
+            },
+            {
+              "id": "s9-b2",
+              "en": "Now a bearing starts to wear. In the time wave you can barely see a difference. But the spectrum shows a new small peak, at 157 hertz.",
+              "ta": "இப்போ ஒரு bearing தேய ஆரம்பிக்குது. Time wave-ல வித்தியாசம் கண்ணுக்கு அரிதா தான் தெரியும். ஆனா spectrum-ல 157 hertz-ல ஒரு புது சின்ன peak தெரியுது."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Engineers set an alert on that peak, and replace the bearing during a planned stop instead of after a breakdown. That is Fourier earning money for a company.",
+              "ta": "Engineers அந்த peak-ல ஒரு alert வைக்கிறாங்க, breakdown-க்கு அப்புறம் இல்லாம, plan பண்ண stop-ல bearing-ஐ மாத்துறாங்க. இது தான் ஒரு company-க்கு Fourier சம்பாதிச்சு கொடுக்கிறது."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "Any messy wave is a sum of simple sine waves. The Fourier transform finds which frequencies are inside, and how strong each is.",
+              "ta": "எந்த குழப்பமான wave-உம் simple sine waves-ஓட கூட்டுத்தொகை. Fourier transform உள்ள எந்த frequencies இருக்கு, ஒவ்வொண்ணும் எவ்வளவு strong-ன்னு கண்டுபிடிக்குது."
+            },
+            {
+              "id": "s10-b2",
+              "en": "It works by matching: multiply by a test sine and cos, average, and combine with Pythagoras. The FFT does this for all frequencies at lightning speed.",
+              "ta": "Matching மூலமா வேலை செய்யுது: ஒரு test sine, cos-ஆல பெருக்கி, average எடுத்து, Pythagoras வெச்சு சேர்க்குது. FFT இதை எல்லா frequencies-க்கும் மின்னல் வேகத்துல பண்ணுது."
+            },
+            {
+              "id": "s10-b3",
+              "en": "Born from the study of heat, it now runs music, photos, phones, hospitals and factories. Now try the practice, the code lab and your missions.",
+              "ta": "வெப்பம் பத்தின ஆராய்ச்சியில பிறந்தது, இப்போ music, photos, phones, hospitals, factories எல்லாத்தையும் இயக்குது. இப்போ practice, code lab, உங்க missions try பண்ணுங்க."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

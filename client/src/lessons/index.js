@@ -56,6 +56,12 @@ import gLab from './gradient/lab.js';
 import gQuiz from './gradient/quiz.js';
 import gPractice from './gradient/practice.js';
 
+import fNarration from './fourier/narration.json';
+import fScenes from './fourier/scenes.js';
+import fLab from './fourier/lab.js';
+import fQuiz from './fourier/quiz.js';
+import fPractice from './fourier/practice.js';
+
 const TRIG = 'CSE › Mathematics for Computing › Trigonometry';
 
 export const lessons = {
@@ -147,5 +153,18 @@ export const lessons = {
     practice: gPractice,
     quiz: gQuiz,
     prev: 'polynomials',
+    next: 'fourier',
+  },
+  fourier: {
+    id: 'fourier',
+    title: fNarration.title,
+    breadcrumb: 'CSE › Mathematics for Computing › Fourier',
+    narration: fNarration,
+    scenes: { main: fScenes },
+    defaultVersion: 'main',
+    createLab: fLab,
+    practice: fPractice,
+    quiz: fQuiz,
+    prev: 'gradient',
   },
 };
