@@ -180,9 +180,10 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
 > **`NODE_ENV=production` is a security setting here, not decoration.**
 > `authController.forgotPassword` contains
-> `if (process.env.NODE_ENV !== 'production') payload.devResetLink = resetLink;`
-> — without it, the API hands the password-reset link straight back to whoever
-> asked for it. Handy in class, an account-takeover hole in public.
+> `if (process.env.NODE_ENV === 'development') payload.devResetLink = resetLink;`
+> — only an explicit `development` hands the password-reset link straight back
+> to whoever asked for it. Handy in class, an account-takeover hole in public,
+> which is why it is opt-in: forgetting the variable is now safe.
 
 Either way, note your API URL: `https://<your-service>.onrender.com`.
 
