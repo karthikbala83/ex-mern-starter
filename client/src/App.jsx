@@ -5,6 +5,7 @@ import { MdLogout } from 'react-icons/md';
 import { useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
+import ReferButton from './components/ReferButton.jsx';
 import MobileNav from './components/MobileNav.jsx';
 import FeedbackButton from './components/FeedbackButton.jsx';
 
@@ -118,10 +119,14 @@ export default function App() {
                 <NavLink to="/feedback">Feedback</NavLink>
                 {user.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
               </span>
+              {/* Actions, as icons: invite, notifications, logout. No name
+                  next to logout — the greeting on Home already says who you
+                  are, and on a shared lab PC a name in the header is one more
+                  thing the next student reads. title = tooltip on desktop. */}
+              <ReferButton />
               <NotificationBell />
-              <button className="link-btn logout-btn" onClick={logout} aria-label="Logout">
-                <MdLogout />
-                <span className="desktop-only">Logout ({user.name})</span>
+              <button className="link-btn logout-btn" onClick={logout} aria-label="Logout" title="Logout">
+                <MdLogout aria-hidden="true" />
               </button>
             </>
           ) : (

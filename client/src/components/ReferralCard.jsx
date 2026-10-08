@@ -5,9 +5,8 @@ import { useToast } from '../context/ToastContext.jsx';
 
 // ---------------------------------------------------------------
 // Refer a friend — your code, your share link, and who you brought in.
-// Shown on Home, Enovix and the Leaderboard: an invite card that only one
-// page shows is an invite card most students never see.
-// `compact` hides the list of names for the busier pages.
+// Lives in the header panel (ReferButton): one tap away on every page,
+// never in the way of the lessons. `compact` hides the list of names.
 // ---------------------------------------------------------------
 export default function ReferralCard({ compact = false, lang = 'en' }) {
   const [data, setData] = useState(null);

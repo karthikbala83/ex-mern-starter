@@ -676,3 +676,9 @@ a.mcard:hover { border-color: #1E3E7B; }
 .or-line { display: flex; align-items: center; gap: 10px; color: #6b7688; font-size: 13px; margin: 12px 0; }
 .or-line::before, .or-line::after { content: ""; flex: 1; height: 1px; background: #e3e8f0; }
 .google-slot { display: flex; justify-content: center; min-height: 44px; }
+
+/* ---- Refer a friend panel in the header ---- */
+.refer-panel { width: 340px; padding: 0; }
+.refer-panel .card { margin: 0; box-shadow: none; color: #1a2333; }
+.refer-panel .ref-code { word-break: break-all; }
+@media (max-width: 760px) { .refer-panel { width: auto; } }

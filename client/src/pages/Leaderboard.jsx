@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext.jsx';
-import ReferralCard from '../components/ReferralCard.jsx';
 
 const MEDALS = ['🥇', '🥈', '🥉'];   // index 0,1,2 -> ranks 1,2,3
 
@@ -197,8 +196,6 @@ export default function Leaderboard() {
 
         </>
       )}
-
-      <ReferralCard />
     </div>
   );
 }
