@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import ServerWaking from '../components/ServerWaking.jsx';
+import GoogleButton from '../components/GoogleButton.jsx';
 import { warmUpApi, takeReturnPath } from '../api/axios';
 
 // ---------------------------------------------------------------
@@ -101,6 +102,10 @@ export default function Signup() {
         {busy ? 'Creating your account…' : 'Sign up'}
       </button>
       <ServerWaking active={busy} />
+
+      {/* The invite code rides along: a friend who joins with Google still
+          credits whoever shared the link. */}
+      <GoogleButton text="signup_with" referralCode={referralCode} />
       <p>Already registered? <Link to="/login">Login</Link></p>
       </div>
     </AuthLayout>

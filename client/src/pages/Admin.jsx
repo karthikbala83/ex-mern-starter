@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ReferralTree from '../components/ReferralTree.jsx';
-import FeedbackSearch from '../components/FeedbackSearch.jsx';
+import FeedbackInbox from '../components/FeedbackInbox.jsx';
+import ReferralStats from '../components/ReferralStats.jsx';
 
 export default function Admin() {
   const [data, setData] = useState(null);
@@ -75,7 +76,8 @@ export default function Admin() {
       {/* The two new aggregations get their own components so this file
           stays readable. Each fetches once — they are not part of the poll. */}
       <ReferralTree />
-      <FeedbackSearch />
+      <ReferralStats />
+      <FeedbackInbox />
 
       {/* Enovix results live on their own page: that aggregation is about
           lessons, not the arena, and mixing them would make both harder to read. */}

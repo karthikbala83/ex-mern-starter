@@ -6,6 +6,7 @@ import { lessons } from '../lessons/index.js';
 import { worlds } from '../missions/catalog.js';
 import { useLang, readProgress, stepsFor, doneSteps } from '../lessons/progress.js';
 import WorldCompleteCard from '../components/WorldCompleteCard.jsx';
+import ReferralCard from '../components/ReferralCard.jsx';
 
 // A small ring: how many of this lesson's steps are done. SVG, because a
 // circle with a partial stroke is two <circle>s and one dasharray — no
@@ -175,6 +176,8 @@ export default function Enovix() {
           </div>
         ))}
       </div>
+
+      <ReferralCard compact lang={lang} />
 
       <div className="card">
         <h3>Help us improve</h3>

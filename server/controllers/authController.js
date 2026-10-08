@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Session = require('../models/Session');
 const Notification = require('../models/Notification');
 const { primaryClientUrl } = require('../config/clientUrl');
+const { verifyGoogleIdToken } = require('../utils/googleToken');
 
 // helper: sign a JWT that carries BOTH user id and session id
 const signToken = (userId, sessionId) =>
@@ -18,6 +19,37 @@ const signToken = (userId, sessionId) =>
 // the value goes anywhere near Mongo closes it.
 const isStr = (...vals) => vals.every((v) => typeof v === 'string' && v.length > 0 && v.length <= 200);
 
+// ---------------------------------------------------------------
+// Shared by every way of joining (email signup, Google). One copy of each
+// rule, so the two doors into the app can never drift apart.
+// ---------------------------------------------------------------
+
+// A bad or expired code must NEVER block a signup. Someone shared a link in
+// WhatsApp, it got truncated, the code no longer exists — that is not the new
+// student's fault, and losing a real user over a broken link is the worse bug.
+// So: look it up, and if it doesn't resolve, silently carry on with null.
+const findReferrer = (code) =>
+  typeof code === 'string' && code.trim() ? User.findOne({ referralCode: code.trim() }) : null;
+
+// Welcome the new user, and tell the referrer they earned an invite.
+// insertMany writes both rows in one trip. This runs AFTER the user exists,
+// so a notification can never point at an account that failed to save.
+const welcome = (user, referrer) => {
+  const rows = [{ user: user._id, type: 'WELCOME',
+    message: `Welcome to Campus Arena, ${user.name}! Play a game to get on the leaderboard.` }];
+  if (referrer) rows.push({ user: referrer._id, type: 'NEW_REFERRAL', message: `${user.name} joined using your referral link!` });
+  return Notification.insertMany(rows);
+};
+
+// Log in = a Session row (powers the live admin dashboard) + a JWT naming it.
+const startSession = async (req, user) => {
+  const session = await Session.create({ user: user._id, userAgent: req.headers['user-agent'], ip: req.ip });
+  return {
+    token: signToken(user._id, session._id),
+    user: { id: user._id, name: user.name, email: user.email, role: user.role },
+  };
+};
+
 // POST /api/auth/signup
 exports.signup = async (req, res) => {
   try {
@@ -28,15 +60,7 @@ exports.signup = async (req, res) => {
     const exists = await User.findOne({ email: email.toLowerCase().trim() });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
 
-    // ---- Resolve the invite code, if one came along ----
-    // A bad or expired code must NEVER block a signup. Someone shared a link in
-    // WhatsApp, it got truncated, the code no longer exists — that is not the new
-    // student's fault, and losing a real user over a broken link is the worse bug.
-    // So: look it up, and if it doesn't resolve, silently carry on with null.
-    let referrer = null;
-    if (referralCode) {
-      referrer = typeof referralCode === 'string' ? await User.findOne({ referralCode: referralCode.trim() }) : null;
-    }
+    const referrer = await findReferrer(referralCode);   // never blocks a signup
 
     const user = await User.create({
       name,
@@ -46,35 +70,9 @@ exports.signup = async (req, res) => {
       referredBy: referrer ? referrer._id : null,
     });
 
-    // ---- Welcome the new user, and tell the referrer they earned an invite ----
-    // insertMany writes both rows in one trip. This runs AFTER the user exists,
-    // so a notification can never point at an account that failed to save.
-    const welcome = [
-      {
-        user: user._id,
-        type: 'WELCOME',
-        message: `Welcome to Campus Arena, ${user.name}! Play a game to get on the leaderboard.`,
-      },
-    ];
-    if (referrer) {
-      welcome.push({
-        user: referrer._id,
-        type: 'NEW_REFERRAL',
-        message: `${user.name} joined using your referral link!`,
-      });
-    }
-    await Notification.insertMany(welcome);
-    // auto-login after signup: create session + token
-    const session = await Session.create({
-      user: user._id,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-    });
-    const token = signToken(user._id, session._id);
-    res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
-    });
+    await welcome(user, referrer);
+    // auto-login after signup
+    res.status(201).json(await startSession(req, user));
   } catch (err) {
     // Log it too: the response only reaches the student's browser, so
     // without this line a failed signup leaves nothing in Render's logs.
@@ -92,22 +90,64 @@ exports.login = async (req, res) => {
   if (!isStr(email, password)) return res.status(400).json({ message: 'Enter your email and password' });
   // password has select:false, so ask for it explicitly
   const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+  // An account created with Google has no password. Saying so is kinder
+  // than "invalid password" for a password the student never set — and it
+  // reveals nothing an attacker could not learn from the Google button.
+  if (user && !user.password && user.googleId)
+    return res.status(400).json({ message: 'This account uses Google sign-in. Tap "Sign in with Google".' });
   if (!user || !(await user.comparePassword(password)))
     return res.status(401).json({ message: 'Invalid email or password' });
 
   user.lastLoginAt = new Date();
   await user.save();
 
-  const session = await Session.create({
-    user: user._id,
-    userAgent: req.headers['user-agent'],
-    ip: req.ip,
-  });
-  const token = signToken(user._id, session._id);
-  res.json({
-    token,
-    user: { id: user._id, name: user.name, email: user.email, role: user.role },
-  });
+  res.json(await startSession(req, user));
+};
+
+// ---------------------------------------------------------------
+// POST /api/auth/google   { credential, referralCode? }
+// "Sign in with Google". The browser sends the ID token Google gave it; we
+// verify it ourselves (utils/googleToken.js), then it is an ordinary login:
+// same Session, same JWT, same everything after this point.
+//
+// Three cases, matched in this order:
+//   1. googleId already known      -> that user (even if their email changed)
+//   2. email known, no googleId    -> LINK Google to the existing account.
+//      Safe only because Google says the email is verified: otherwise
+//      anyone could claim someone else's address and take the account.
+//   3. neither                     -> new account, no password, invite credited.
+// ---------------------------------------------------------------
+exports.google = async (req, res) => {
+  let g;
+  try {
+    g = await verifyGoogleIdToken(req.body.credential, process.env.GOOGLE_CLIENT_ID);
+  } catch (err) {
+    console.error('Google sign-in rejected:', err.message);
+    return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
+  }
+  const email = g.email.toLowerCase();
+
+  let user = await User.findOne({ googleId: g.sub });
+  let status = 200;
+  if (!user) {
+    user = await User.findOne({ email });
+    if (user) {
+      user.googleId = g.sub;                       // case 2: link
+    } else {
+      const referrer = await findReferrer(req.body.referralCode);
+      user = await User.create({                   // case 3: join
+        name: (g.name || email.split('@')[0]).slice(0, 80),
+        email,
+        googleId: g.sub,
+        referredBy: referrer ? referrer._id : null,
+      });
+      await welcome(user, referrer);
+      status = 201;
+    }
+  }
+  user.lastLoginAt = new Date();
+  await user.save();
+  res.status(status).json(await startSession(req, user));
 };
 
 // POST /api/auth/logout  (protected)

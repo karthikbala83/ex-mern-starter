@@ -1,85 +1,40 @@
+// ---------------------------------------------------------------
+// /feedback — the same form as the floating button, as a full page,
+// for students who come looking for it from the menu.
+// ---------------------------------------------------------------
 import { useState } from 'react';
-import api from '../api/axios';
-import { useToast } from '../context/ToastContext.jsx';
-
-// ---------------------------------------------------------------
-// Feedback form.
-// These limits are DELIBERATE copies of the ones in models/Feedback.js.
-// Duplication in validation is the one place it's correct: the client
-// copy is for fast feedback while typing, the server copy is the rule.
-// If they ever disagree, the server wins — that's the whole point.
-// ---------------------------------------------------------------
-const MIN = 10;
-const MAX = 500;
+import { Link } from 'react-router-dom';
+import { useLang } from '../lessons/progress.js';
+import FeedbackForm from '../components/FeedbackForm.jsx';
 
 export default function Feedback() {
-  const [message, setMessage] = useState('');
-  const [rating, setRating] = useState(0);
-  const [error, setError] = useState('');
+  const [lang, setLang] = useLang();
   const [sent, setSent] = useState(false);
-  const { toast } = useToast();
-
-  // Derived from state on every render — not stored in a second useState.
-  // Two states that must agree is two states that eventually won't.
-  const tooShort = message.trim().length < MIN;
-  const valid = !tooShort && message.length <= MAX && rating >= 1;
-
-  const submit = async () => {
-    setError('');
-    if (!valid) return setError(`Write at least ${MIN} characters and pick a rating.`);
-    try {
-      await api.post('/feedback', { message: message.trim(), rating });
-      setSent(true);
-      toast('Thanks for the feedback!', 'success');
-    } catch (err) {
-      // 429 from the hand-rolled rate limit lands here, with the minutes left.
-      setError(err.response?.data?.message || 'Could not send feedback');
-    }
-  };
-
-  if (sent)
-    return (
-      <div className="card">
-        <h2>Thanks!</h2>
-        <p className="muted">Your feedback reached the admin dashboard.</p>
-      </div>
-    );
+  const ta = lang === 'ta';
 
   return (
     <div className="card">
-      <h2>Send feedback</h2>
-
-      <div className="stars">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            className={`star ${n <= rating ? 'on' : ''}`}
-            onClick={() => setRating(n)}
-            aria-label={`${n} star${n > 1 ? 's' : ''}`}
-          >
-            ★
-          </button>
-        ))}
+      <div className="lesson-top">
+        <h2 lang={lang}>{ta ? 'Feedback அனுப்புங்க' : 'Send feedback'}</h2>
+        <div className="lang-switch">
+          <button aria-pressed={ta} onClick={() => setLang('ta')} lang="ta">தமிழ்</button>
+          <button aria-pressed={!ta} onClick={() => setLang('en')}>English</button>
+        </div>
       </div>
-
-      <textarea
-        rows="5"
-        maxLength={MAX}
-        placeholder={`What should we improve? (at least ${MIN} characters)`}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
-
-      {/* A live counter turns an invisible rule into something you can see. */}
-      <p className={tooShort ? 'error' : 'muted'}>
-        {message.trim().length} / {MAX} characters
-        {tooShort && ` — ${MIN - message.trim().length} more to go`}
-      </p>
-
-      {error && <p className="error">{error}</p>}
-      <button onClick={submit} disabled={!valid}>Send</button>
-      <p className="muted">You can send one piece of feedback per hour.</p>
+      {sent ? (
+        <>
+          <p lang={lang}>{ta ? 'நன்றி! உங்க feedback admin-க்கு போயிடுச்சு.' : 'Thanks! Your feedback reached the team.'}</p>
+          <p><button className="lp-ghost" onClick={() => setSent(false)}>{ta ? 'இன்னொன்னு அனுப்ப' : 'Send another'}</button> <Link to="/home">Home</Link></p>
+        </>
+      ) : (
+        <>
+          <p className="muted" lang={lang}>
+            {ta ? 'Tip: எந்த page-லயும் கீழ வலது பக்கம் இருக்கிற Feedback button-ஐ தொடலாம். அந்த page-உம் சேர்ந்தே வரும்.'
+                : 'Tip: the Feedback button at the bottom right of every page sends a report with that page attached.'}
+          </p>
+          <FeedbackForm lang={lang} onSent={() => setSent(true)} />
+        </>
+      )}
     </div>
   );
 }

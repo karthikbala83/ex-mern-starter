@@ -21,11 +21,19 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // Required for email/password accounts only. A student who signs in
+      // with Google never gets a password from us: Google proved who they
+      // are, and a password nobody chose is just a second thing to leak.
+      required: [function () { return !this.googleId; }, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,         // never returned in queries unless explicitly asked
     },
     role: { type: String, enum: ['student', 'admin'], default: 'student' },
+
+    // Google's stable id for this person (the "sub" claim of their ID token).
+    // Emails can change; sub never does, so it is what we match on next time.
+    // sparse: most users have none, and those must not collide as "null".
+    googleId: { type: String, unique: true, sparse: true },
 
     // ---- NESTED JSON inside a column ----
     // In SQL this would be 3 extra tables. Here it's one sub-document.
@@ -103,6 +111,8 @@ userSchema.pre('save', async function () {
 
 // ---- Instance methods keep logic on the model, not the controller ----
 userSchema.methods.comparePassword = function (plain) {
+  // A Google-only account has no password: nothing can match it.
+  if (!this.password || typeof plain !== 'string') return Promise.resolve(false);
   return bcrypt.compare(plain, this.password);
 };
 

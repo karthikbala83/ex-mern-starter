@@ -2,6 +2,8 @@ import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useLang } from '../lessons/progress.js';
+import ReferralCard from '../components/ReferralCard.jsx';
 
 // ---------------------------------------------------------------
 // The fork in the road. After login a student lands here and picks
@@ -10,6 +12,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 // ---------------------------------------------------------------
 export default function Home() {
   const { user } = useAuth();
+  const [lang] = useLang();
   const gridRef = useRef(null);
 
   useEffect(() => {
@@ -53,6 +56,10 @@ export default function Home() {
           <span className="home-go">Start building →</span>
         </Link>
       </div>
+
+      {/* Below the fork, not above it: inviting friends is the second thing
+          a student does here, never the first. */}
+      <ReferralCard compact lang={lang} />
     </div>
   );
 }

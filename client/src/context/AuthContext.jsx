@@ -30,6 +30,13 @@ export function AuthProvider({ children }) {
     saveAuth(data);
   };
 
+  // "Sign in with Google": the server verifies Google's token and answers
+  // exactly like /auth/login, so saveAuth works unchanged.
+  const googleLogin = async (credential, referralCode) => {
+    const { data } = await api.post('/auth/google', { credential, referralCode });
+    saveAuth(data);
+  };
+
   const signup = async (payload) => {
     const { data } = await api.post('/auth/signup', payload);
     saveAuth(data);
@@ -43,7 +50,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );

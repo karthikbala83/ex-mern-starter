@@ -56,3 +56,9 @@ services:
       # *.netlify.app address: https://enovix.askguha.com,https://x.netlify.app
       - key: CLIENT_URL
         sync: false
+
+      # Sign in with Google. The OAuth Client ID (public, not a secret), the
+      # same value as VITE_GOOGLE_CLIENT_ID on Netlify. Tokens issued for any
+      # other id are rejected, so a mismatch means every Google login fails.
+      - key: GOOGLE_CLIENT_ID
+        sync: false

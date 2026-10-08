@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import ServerWaking from '../components/ServerWaking.jsx';
+import GoogleButton from '../components/GoogleButton.jsx';
 import { warmUpApi, takeReturnPath } from '../api/axios';
 
 // ---------------------------------------------------------------
@@ -88,6 +89,8 @@ export default function Login() {
              onKeyDown={(e) => e.key === 'Enter' && submit()} />
       <button onClick={submit} disabled={busy}>{busy ? 'Signing in…' : 'Login'}</button>
       <ServerWaking active={busy} />
+
+      <GoogleButton text="signin_with" />
       <p><Link to="/forgot-password">Forgot password?</Link></p>
       <p>New here? <Link to="/signup">Create an account</Link></p>
       </div>

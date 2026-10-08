@@ -6,6 +6,7 @@ const { protect } = require('../middleware/auth');
 
 router.post('/signup', c.signup);
 router.post('/login', c.login);
+router.post('/google', c.google);           // Sign in with Google (ID token)
 router.post('/logout', protect, c.logout);
 router.post('/forgot-password', c.forgotPassword);
 router.post('/reset-password/:token', c.resetPassword);

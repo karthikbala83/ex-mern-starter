@@ -184,33 +184,87 @@ exports.referralTree = async (req, res) => {
 };
 
 // ---------------------------------------------------------------
-// GET /api/admin/feedback?q=searchText
-// $text search — using the index we declared on the Feedback model.
+// GET /api/admin/feedback?q=&type=&status=&limit=
+// The feedback INBOX: newest first, filterable, with optional $text search
+// (the index declared on the Feedback model).
 // ---------------------------------------------------------------
 exports.searchFeedback = async (req, res) => {
-  const q = (req.query.q || '').trim();
+  // Query-string values can arrive as arrays (?q=a&q=b); String() makes them
+  // plain text before anything else touches them.
+  const q = String(req.query.q ?? '').trim();
+  const type = String(req.query.type ?? '');
+  const status = String(req.query.status ?? '');
+  // Clamp the page size: ?limit=abc would be NaN in the query, ?limit=1e9
+  // would ask Atlas for everything at once.
+  const limit = Math.min(500, Math.max(1, parseInt(req.query.limit, 10) || 50));
 
-  // No search term: just show the latest 20.
-  if (!q) {
-    const items = await Feedback.find()
-      .populate('user', 'name email')
-      .sort({ createdAt: -1 })
-      .limit(20);
-    return res.json({ items, searched: false });
-  }
+  const filter = {};
+  // Old rows (before types existed) have no type field: they count as 'other'.
+  if (Feedback.TYPES.includes(type)) filter.type = type === 'other' ? { $in: ['other', null] } : type;
+  if (Feedback.STATUSES.includes(status)) filter.status = status === 'new' ? { $in: ['new', null] } : status;
 
   // With a term, three things change together — and they must ALL be present:
   //   $text   in the filter      -> use the text index
   //   $meta   in the projection  -> ask Mongo for the relevance score
   //   $meta   in the sort        -> order by that score, best match first
   // Sorting by textScore without projecting it is the classic mistake.
-  const items = await Feedback.find(
-    { $text: { $search: q } },
-    { score: { $meta: 'textScore' } }
-  )
+  const searched = Boolean(q);
+  if (searched) filter.$text = { $search: q };
+  const items = await Feedback.find(filter, searched ? { score: { $meta: 'textScore' } } : {})
     .populate('user', 'name email')
-    .sort({ score: { $meta: 'textScore' } })
-    .limit(20);
+    .sort(searched ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+    .limit(limit)
+    .lean();
 
-  res.json({ items, searched: true, q });
+  // Counts for the filter chips, in ONE round trip: $facet runs two
+  // $group pipelines over the same documents side by side.
+  const [counts] = await Feedback.aggregate([
+    { $facet: {
+      byType: [{ $group: { _id: { $ifNull: ['$type', 'other'] }, n: { $sum: 1 } } }],
+      byStatus: [{ $group: { _id: { $ifNull: ['$status', 'new'] }, n: { $sum: 1 } } }],
+    } },
+  ]);
+  const toMap = (rows) => Object.fromEntries(rows.map((r) => [r._id, r.n]));
+
+  res.json({
+    items: items.map((f) => ({ ...f, type: f.type || 'other', status: f.status || 'new' })),
+    searched, q, limit,
+    counts: { type: toMap(counts.byType), status: toMap(counts.byStatus) },
+  });
+};
+
+// ---------------------------------------------------------------
+// PATCH /api/admin/feedback/:id   { status: 'new' | 'seen' | 'fixed' }
+// ---------------------------------------------------------------
+exports.updateFeedbackStatus = async (req, res) => {
+  const { status } = req.body;
+  if (!Feedback.STATUSES.includes(status)) return res.status(400).json({ message: 'Status must be new, seen or fixed' });
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: 'Feedback not found' });
+  const item = await Feedback.findByIdAndUpdate(req.params.id, { $set: { status } }, { new: true }).lean();
+  if (!item) return res.status(404).json({ message: 'Feedback not found' });
+  res.json({ id: item._id, status: item.status });
+};
+
+// ---------------------------------------------------------------
+// GET /api/admin/referral-stats
+// Who brought in the most testers. $group by referredBy counts invites
+// per inviter; $lookup then fetches each inviter's name — a join, done
+// after grouping so it runs once per inviter, not once per invitee.
+// ---------------------------------------------------------------
+exports.referralStats = async (req, res) => {
+  const [top, totals] = await Promise.all([
+    User.aggregate([
+      { $match: { referredBy: { $ne: null } } },
+      { $group: { _id: '$referredBy', invited: { $sum: 1 }, lastJoin: { $max: '$createdAt' } } },
+      { $sort: { invited: -1, lastJoin: -1 } },
+      { $limit: 20 },
+      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'inviter' } },
+      { $unwind: '$inviter' },
+      { $project: { _id: 0, name: '$inviter.name', email: '$inviter.email', invited: 1, lastJoin: 1 } },
+    ]),
+    User.aggregate([
+      { $group: { _id: null, users: { $sum: 1 }, referred: { $sum: { $cond: [{ $ne: [{ $ifNull: ['$referredBy', null] }, null] }, 1, 0] } } } },
+    ]),
+  ]);
+  res.json({ top, users: totals[0]?.users ?? 0, referred: totals[0]?.referred ?? 0 });
 };

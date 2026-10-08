@@ -623,3 +623,56 @@ a.mcard:hover { border-color: #1E3E7B; }
 .world-done-cup { font-size: 64px; }
 @media (max-width: 520px) { .world-done { flex-direction: column; text-align: center; } }
 .shell-finale { text-align: center; padding: 10px 12px; margin-top: 16px; border-radius: 10px; background: #fffbea; border: 1px solid #e8d894; font-weight: 800; color: #7a5c00; }
+
+/* ================= Feedback, Refer a friend, Google sign-in ================= */
+
+/* ---- Floating Feedback button ---- */
+.fb-fab { position: fixed; right: 16px; bottom: 20px; z-index: 45; display: inline-flex; align-items: center; gap: 6px;
+          border-radius: 24px; padding: 10px 16px; min-height: 44px; font-weight: 700; font-size: 14px;
+          background: #C9A21F; color: #1a2333; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+.fb-fab svg { font-size: 20px; }
+.fb-fab:focus-visible { outline: 3px solid #1E3E7B; outline-offset: 2px; }
+/* Phones: clear the bottom tab bar, and inside a lesson the Back/Next bar. */
+@media (max-width: 760px) {
+  .fb-fab { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); padding: 10px; }
+  .fb-fab-label { display: none; }
+}
+.fb-fab.in-lesson { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+.fb-sheet-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(16, 33, 66, .45);
+                     display: flex; align-items: flex-end; justify-content: center; }
+.fb-sheet { width: min(560px, 100%); max-height: 88vh; overflow-y: auto; margin: 0; border-radius: 16px 16px 0 0;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 761px) { .fb-sheet-backdrop { align-items: center; } .fb-sheet { border-radius: 16px; } }
+.fb-sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.fb-sheet-close { background: transparent; color: #6b7688; font-size: 24px; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
+
+/* ---- Feedback form ---- */
+.fb-label { font-weight: 700; margin: 10px 0 6px; }
+.fb-types { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.fb-type { background: #fff; color: #1a2333; border: 2px solid #cfd6e4; border-radius: 22px; min-height: 40px; font-weight: 600; }
+.fb-type.on { border-color: #1E3E7B; background: #e6ebf5; }
+.fb-form textarea { margin-top: 8px; }
+
+/* ---- Admin inbox ---- */
+.inbox-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.inbox-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.inbox-item { border: 1px solid #e3e8f0; border-left: 5px solid #C9A21F; border-radius: 8px; padding: 10px 12px; }
+.inbox-item.status-seen { border-left-color: #1E3E7B; }
+.inbox-item.status-fixed { border-left-color: #547B5C; opacity: .75; }
+.inbox-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.inbox-meta .badge { margin-left: 0; }
+.inbox-stars { color: #C9A21F; }
+.inbox-msg { margin: 6px 0; white-space: pre-wrap; }
+.inbox-status { width: auto; margin: 0 0 0 auto; padding: 4px 8px; font-size: 13px; }
+
+/* ---- Refer a friend ---- */
+.referral-card h3 { display: flex; align-items: center; gap: 6px; }
+.referral-card .ref-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.referral-card .ref-row button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+
+/* ---- Google sign-in ---- */
+.google-signin { margin-top: 8px; }
+.or-line { display: flex; align-items: center; gap: 10px; color: #6b7688; font-size: 13px; margin: 12px 0; }
+.or-line::before, .or-line::after { content: ""; flex: 1; height: 1px; background: #e3e8f0; }
+.google-slot { display: flex; justify-content: center; min-height: 44px; }

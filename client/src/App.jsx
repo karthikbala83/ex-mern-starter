@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
 import MobileNav from './components/MobileNav.jsx';
+import FeedbackButton from './components/FeedbackButton.jsx';
 
 // ---- Eager: everything needed to sign in, plus the landing page ----
 // These are tiny and every visitor needs them, so splitting them would
@@ -179,6 +180,9 @@ export default function App() {
       {/* Phones only. Rendered outside <main> so it can be fixed to the
           viewport bottom without the page content scrolling over it. */}
       <MobileNav />
+
+      {/* Beta: report a problem from any screen, with that screen attached. */}
+      <FeedbackButton />
 
       {/* ---------------------------------------------------------------
           Site footer. It lives HERE — outside <Routes> — so it renders
