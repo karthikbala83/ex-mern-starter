@@ -27,10 +27,9 @@ const app = express();
 // origin (or none), refuses the answer, and the student just sees
 // "Signup failed" — while the server logs nothing, because to Express the
 // request looked fine.
-const clientOrigins = (process.env.CLIENT_URL || '')
-  .split(',')
-  .map((o) => o.trim().replace(/\/+$/, ''))
-  .filter(Boolean);
+// The parsing lives in config/clientUrl.js, shared with the code that builds
+// reset and invite links (those need exactly ONE address, not the list).
+const { clientOrigins } = require('./config/clientUrl');
 if (clientOrigins.length === 0) console.warn('CLIENT_URL is not set — CORS will allow any origin.');
 else console.log('CORS allows:', clientOrigins.join(', '));
 

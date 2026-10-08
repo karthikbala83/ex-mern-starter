@@ -3,6 +3,7 @@
 // Privacy lesson lives in saveLocation — read that comment carefully.
 // ---------------------------------------------------------------
 const User = require('../models/User');
+const { primaryClientUrl } = require('../config/clientUrl');
 
 // ---------------------------------------------------------------
 // PUT /api/users/location   { lat, lng }
@@ -55,7 +56,8 @@ exports.myReferral = async (req, res) => {
     code: req.user.referralCode,
     // CLIENT_URL, not the API's own host: the link must open the React app.
     // This is why nothing in this codebase may assume client and server share an origin.
-    link: `${process.env.CLIENT_URL}/signup?ref=${req.user.referralCode}`,
+    // The first CLIENT_URL entry — the list form would make a broken link.
+    link: `${primaryClientUrl}/signup?ref=${req.user.referralCode}`,
     invited: invited.map((u) => ({ name: u.name, joinedAt: u.createdAt })),
     count: invited.length,
   });

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Session = require('../models/Session');
 const Notification = require('../models/Notification');
+const { primaryClientUrl } = require('../config/clientUrl');
 
 // helper: sign a JWT that carries BOTH user id and session id
 const signToken = (userId, sessionId) =>
@@ -113,7 +114,8 @@ exports.forgotPassword = async (req, res) => {
   const rawToken = user.createResetToken();
   await user.save({ validateBeforeSave: false });
 
-  const resetLink = `${process.env.CLIENT_URL}/reset-password/${rawToken}`;
+  // primaryClientUrl, not CLIENT_URL: that may list several origins.
+  const resetLink = `${primaryClientUrl}/reset-password/${rawToken}`;
   // PRODUCTION: email this link (nodemailer / SES / Resend).
   // CLASSROOM: we log it + return it so the flow is fully demonstrable.
   console.log('Password reset link:', resetLink);
