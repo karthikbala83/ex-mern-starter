@@ -62,6 +62,12 @@ import fLab from './fourier/lab.js';
 import fQuiz from './fourier/quiz.js';
 import fPractice from './fourier/practice.js';
 
+import vNarration from './vectors/narration.json';
+import vScenes from './vectors/scenes.js';
+import vLab from './vectors/lab.js';
+import vQuiz from './vectors/quiz.js';
+import vPractice from './vectors/practice.js';
+
 const TRIG = 'CSE › Mathematics for Computing › Trigonometry';
 
 export const lessons = {
@@ -166,5 +172,20 @@ export const lessons = {
     practice: fPractice,
     quiz: fQuiz,
     prev: 'gradient',
+    next: 'vectors',
+  },
+  // The last World 1 lesson. No `next` until World 2 exists: the shell
+  // then ends the lesson with "World 1 complete" and "Back to Enovix".
+  vectors: {
+    id: 'vectors',
+    title: vNarration.title,
+    breadcrumb: 'CSE › Mathematics for Computing › Vectors & matrices',
+    narration: vNarration,
+    scenes: { main: vScenes },
+    defaultVersion: 'main',
+    createLab: vLab,
+    practice: vPractice,
+    quiz: vQuiz,
+    prev: 'fourier',
   },
 };

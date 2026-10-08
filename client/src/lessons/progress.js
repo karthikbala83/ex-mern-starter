@@ -12,7 +12,7 @@
 // never break a lesson.
 // ---------------------------------------------------------------
 import { useCallback, useEffect, useState } from 'react';
-import { allLessons } from '../missions/catalog.js';
+import { allLessons, worlds } from '../missions/catalog.js';
 
 const LANG_KEY = 'enovix.lang';
 const progressKey = (lessonId) => `enovix.progress.${lessonId}`;
@@ -105,3 +105,30 @@ export function doneSteps(lesson, progress, missionProgress) {
   if (missionsOf(lesson.id).some((m) => missionProgress?.[m.id]?.stages?.write)) done.add('missions');
   return done;
 }
+
+// ---- World completion ----
+// A world is complete when, for EVERY lesson in it:
+//   - the Quiz step is done (local progress), and
+//   - at least one of the lesson's missions has its "write" stage passed
+//     (server-graded, from GET /api/missions/progress).
+// Quiz alone would let a student click through; a mission alone would
+// skip the concept. Together they mean "understood it AND used it".
+//
+// A world with a lesson that is not live yet can never be complete: you
+// cannot finish what has not been built. One rule, one place, so World 2
+// reuses it by passing 2.
+export function worldComplete(worldId, missionProgress) {
+  const world = worlds.find((w) => w.id === worldId);
+  if (!world || !missionProgress) return false;   // server asleep: say nothing rather than guess
+  return world.lessons.every((l) => {
+    if (l.status !== 'live') return false;
+    const quizDone = Boolean(readProgress(l.id).quiz);
+    const built = l.missions.length === 0 || l.missions.some((m) => missionProgress[m.id]?.stages?.write);
+    return quizDone && built;
+  });
+}
+
+// "One-time" celebration: once dismissed on either page, it stays dismissed.
+const seenKey = (worldId) => `enovix.world${worldId}.celebrated`;
+export const worldCelebrated = (worldId) => readJSON(seenKey(worldId), false);
+export const markWorldCelebrated = (worldId) => writeJSON(seenKey(worldId), true);

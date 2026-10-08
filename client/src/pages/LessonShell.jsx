@@ -23,8 +23,8 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-r
 import { MdArrowBack, MdTranslate, MdPlayCircle, MdEditNote, MdCode, MdQuiz, MdRocketLaunch, MdCheck, MdReplay } from 'react-icons/md';
 import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
-import { allLessons, products } from '../missions/catalog.js';
-import { useLang, useLessonProgress, stepsFor, doneSteps, missionsOf } from '../lessons/progress.js';
+import { allLessons, products, worlds } from '../missions/catalog.js';
+import { useLang, useLessonProgress, stepsFor, doneSteps, missionsOf, worldComplete } from '../lessons/progress.js';
 import LessonPlayer from '../components/LessonPlayer.jsx';
 import CodeLab from '../components/CodeLab.jsx';
 import Practice from '../components/Practice.jsx';
@@ -58,6 +58,9 @@ export function LessonRedirect() {
   if (id === 'probability' && v === 'C') return <Navigate replace to={`/enovix/${id}/lab`} />;
   return <Navigate replace to={`/enovix/${id}/watch${v ? `?v=${encodeURIComponent(v)}` : ''}`} />;
 }
+
+// Which catalogue world a lesson belongs to.
+const worldOf = (lessonId) => worlds.find((w) => w.lessons.some((l) => l.id === lessonId));
 
 // Short name for a neighbouring lesson on the Back / Next buttons.
 // Inside one course ("Part B") the part name is enough; across courses
@@ -314,6 +317,20 @@ export default function LessonShell() {
 
         {step === 'missions' && <MissionCards lessonId={lesson.id} lang={lang} prog={missionProg} />}
       </section>
+
+      {/* ---- End of a world ----
+          The last lesson of a world has no `next` (the next world is not
+          built yet), so instead of a dead end we say where the student
+          stands: complete, or what is left to complete it. */}
+      {!nextStep && !lesson.next && worldOf(lesson.id) && (
+        <p className="shell-finale" lang={lang}>
+          {worldComplete(worldOf(lesson.id).id, missionProg)
+            ? `🏆 World ${worldOf(lesson.id).id} complete`
+            : ta
+              ? `🏁 World ${worldOf(lesson.id).id}-ஓட கடைசி lesson இது. எல்லா quiz-உம், ஒவ்வொரு lesson-லயும் ஒரு mission-உம் முடிச்சா World complete!`
+              : `🏁 This is the last lesson of World ${worldOf(lesson.id).id}. Finish every quiz and one mission per lesson to complete it.`}
+        </p>
+      )}
 
       {/* ---- bottom nav: always within thumb reach ---- */}
       <div className="shell-nav">

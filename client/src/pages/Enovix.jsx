@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
 import { worlds } from '../missions/catalog.js';
 import { useLang, readProgress, stepsFor, doneSteps } from '../lessons/progress.js';
+import WorldCompleteCard from '../components/WorldCompleteCard.jsx';
 
 // A small ring: how many of this lesson's steps are done. SVG, because a
 // circle with a partial stroke is two <circle>s and one dasharray — no
@@ -92,6 +93,9 @@ export default function Enovix() {
           <button aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
         </div>
       </div>
+
+      {/* Same card as on /missions; closing it on either page closes both. */}
+      <WorldCompleteCard worldId={1} missionProgress={missionProg} lang={lang} />
 
       {Object.values(lessons).map((l) => {
         const versions = Object.keys(l.scenes ?? {});          // ['A', 'B'] for the pilot, ['main'] after

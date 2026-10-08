@@ -1,0 +1,261 @@
+{
+  "_readme": "Source of truth for lesson narration. en/ta = captions shown on screen. say.en/say.ta = what the voice speaks when it must differ (symbols, formulas). Faculty review this file; then run: npm run voice -- --lesson vectors (in /server).",
+  "lesson": "vectors",
+  "title": {
+    "en": "Vectors & matrices: rotating the world",
+    "ta": "Vectors & matrices: உலகத்தை சுழற்றுறது"
+  },
+  "versions": {
+    "main": {
+      "label": {
+        "en": "Story",
+        "ta": "Story"
+      },
+      "scenes": [
+        {
+          "id": "s1",
+          "title": "One tool behind it all",
+          "beats": [
+            {
+              "id": "s1-b1",
+              "en": "When a character in a game turns around, every corner of its 3D body, thousands of points, moves to a new place in a fraction of a second.",
+              "ta": "ஒரு game-ல character திரும்பும் போது, அதோட 3D உடம்போட ஒவ்வொரு மூலையும், ஆயிரக்கணக்கான points, ஒரு நொடிக்குள்ள புது இடத்துக்கு நகருது."
+            },
+            {
+              "id": "s1-b2",
+              "en": "When you brighten a photo, millions of pixel numbers change at once. When an app says \"students like you joined this club\", it compared lists of numbers.",
+              "ta": "ஒரு photo-வை bright பண்ணும் போது, லட்சக்கணக்கான pixel numbers ஒரே நேரத்துல மாறுது. \"உங்கள மாதிரி students இந்த club-ல சேர்ந்தாங்க\"-ன்னு ஒரு app சொல்லும் போது, அது numbers lists-ஐ compare பண்ணுச்சு."
+            },
+            {
+              "id": "s1-b3",
+              "en": "All three use the same tool: vectors and matrices. And you already know their secret ingredients: sin, cos and Pythagoras.",
+              "ta": "மூணுமே ஒரே tool-ஐ use பண்ணுது: vectors, matrices. அதோட ரகசிய பொருட்கள் உங்களுக்கு ஏற்கனவே தெரியும்: sin, cos, Pythagoras."
+            }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "What is a vector?",
+          "beats": [
+            {
+              "id": "s2-b1",
+              "en": "A vector is an arrow: it has a direction and a length. Walking 3 steps east and 4 steps north on campus is the vector 3, 4.",
+              "ta": "Vector-ன்னா ஒரு arrow: அதுக்கு ஒரு திசையும் நீளமும் இருக்கு. Campus-ல 3 அடி கிழக்கு, 4 அடி வடக்கு நடக்கிறது தான் vector 3, 4."
+            },
+            {
+              "id": "s2-b2",
+              "en": "Its length is Pythagoras again: √(3² + 4²) = 5. Five steps as the crow flies.",
+              "ta": "அதோட நீளம் மறுபடியும் Pythagoras: √(3² + 4²) = 5. நேர்கோட்டுல அஞ்சு அடி.",
+              "say": {
+                "en": "Its length is Pythagoras again: the square root of 3 squared plus 4 squared, which is 5. Five steps as the crow flies.",
+                "ta": "அதோட நீளம் மறுபடியும் Pythagoras: 3 square plus 4 square-ஓட square root, அதாவது 5. நேர்கோட்டுல அஞ்சு அடி."
+              }
+            },
+            {
+              "id": "s2-b3",
+              "en": "In code, a vector is just a list of numbers. It can be a position, a speed, a colour with red, green and blue, or even a student's interests. Lists of numbers are vectors.",
+              "ta": "Code-ல vector-ன்னா வெறும் numbers-ஓட ஒரு list. அது ஒரு position, ஒரு speed, red, green, blue உள்ள ஒரு colour, ஒரு student-ஓட interests கூட இருக்கலாம். Numbers lists தான் vectors."
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Adding and stretching vectors",
+          "beats": [
+            {
+              "id": "s3-b1",
+              "en": "Add two vectors by placing them head to tail. Walk 3, 1, then walk 1, 3: you end up at 4, 4. In code, just add the matching numbers.",
+              "ta": "ரெண்டு vectors-ஐ ஒண்ணோட முடிவுல இன்னொண்ணை வெச்சு கூட்டுங்க. 3, 1 நடந்து, அப்புறம் 1, 3 நடந்தா, 4, 4-ல இருப்பீங்க. Code-ல ஒத்த numbers-ஐ கூட்டினா போதும்."
+            },
+            {
+              "id": "s3-b2",
+              "en": "Stretch a vector by multiplying every number. Twice the speed vector means twice as far each second, in the same direction.",
+              "ta": "ஒவ்வொரு number-ஐயும் பெருக்கி ஒரு vector-ஐ நீட்டலாம். Speed vector-ஐ ரெட்டிப்பாக்கினா, அதே திசையில ஒவ்வொரு second-உம் ரெட்டிப்பு தூரம்."
+            },
+            {
+              "id": "s3-b3",
+              "en": "Games do this every frame: new position = old position + speed × time. That one vector line moves every car, ball and player you have ever seen on a screen.",
+              "ta": "Games ஒவ்வொரு frame-லயும் இதை பண்ணுது: புது position = பழைய position + speed × time. அந்த ஒரு vector line தான், screen-ல நீங்க பார்த்த ஒவ்வொரு car, ball, player-ஐயும் நகர்த்துது.",
+              "say": {
+                "en": "Games do this every frame: new position equals old position plus speed times time. That one vector line moves every car, ball and player you have ever seen on a screen.",
+                "ta": "Games ஒவ்வொரு frame-லயும் இதை பண்ணுது: புது position-ன்னா, பழைய position plus speed into time. அந்த ஒரு vector line தான், screen-ல நீங்க பார்த்த ஒவ்வொரு car, ball, player-ஐயும் நகர்த்துது."
+              }
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "A matrix moves every point",
+          "beats": [
+            {
+              "id": "s4-b1",
+              "en": "A matrix is a small grid of numbers that transforms vectors. Multiply it by a point, and you get the point's new position.",
+              "ta": "Matrix-ன்னா vectors-ஐ மாத்துற numbers-ஓட ஒரு சின்ன grid. அதை ஒரு point-ஆல பெருக்கினா, அந்த point-ஓட புது position கிடைக்கும்."
+            },
+            {
+              "id": "s4-b2",
+              "en": "The rule: the new x is a times x plus b times y. The new y is c times x plus d times y. Each row of the matrix makes one new number.",
+              "ta": "Rule: புது x = a × x + b × y. புது y = c × x + d × y. Matrix-ஓட ஒவ்வொரு row-உம் ஒரு புது number-ஐ உருவாக்குது."
+            },
+            {
+              "id": "s4-b3",
+              "en": "The matrix 2, 0, 0, 2 doubles everything: apply it to every corner of this building and the whole building grows twice as big. One matrix, every point.",
+              "ta": "2, 0, 0, 2 matrix எல்லாத்தையும் ரெட்டிப்பாக்குது: இந்த building-ஓட ஒவ்வொரு மூலைக்கும் apply பண்ணா, முழு building-உம் ரெட்டிப்பு பெருசாகுது. ஒரே matrix, ஒவ்வொரு point-உம்."
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "title": "The rotation matrix is sin and cos",
+          "beats": [
+            {
+              "id": "s5-b1",
+              "en": "To rotate by an angle θ, use this matrix: cos θ, minus sin θ, on the top row; sin θ, cos θ, on the bottom row.",
+              "ta": "θ angle சுழற்ற, இந்த matrix-ஐ use பண்ணுங்க: மேல் row-ல cos θ, minus sin θ; கீழ் row-ல sin θ, cos θ.",
+              "say": {
+                "en": "To rotate by an angle theta, use this matrix: cos theta and minus sin theta on the top row; sin theta and cos theta on the bottom row.",
+                "ta": "Theta angle சுழற்ற, இந்த matrix-ஐ use பண்ணுங்க: மேல் row-ல cos theta, minus sin theta; கீழ் row-ல sin theta, cos theta."
+              }
+            },
+            {
+              "id": "s5-b2",
+              "en": "It is the circle idea from sin and cos Part A: a point at distance 1 along x moves to cos θ sideways and sin θ up.",
+              "ta": "இது sin & cos Part A-ல பார்த்த circle idea: x திசையில 1 தூரத்துல இருக்கிற point, cos θ பக்கவாட்டுக்கும் sin θ மேலயும் நகருது.",
+              "say": {
+                "en": "It is the circle idea from sin and cos Part A: a point at distance 1 along x moves to cos theta sideways and sin theta up.",
+                "ta": "இது sin & cos Part A-ல பார்த்த circle idea: x திசையில 1 தூரத்துல இருக்கிற point, cos theta பக்கவாட்டுக்கும் sin theta மேலயும் நகருது."
+              }
+            },
+            {
+              "id": "s5-b3",
+              "en": "At 90 degrees, cos is 0 and sin is 1, so the point 1, 0 lands at 0, 1: straight up. Every game, map and phone screen rotation uses exactly this matrix.",
+              "ta": "90 degrees-ல cos 0, sin 1, அதனால 1, 0 point 0, 1-ல விழுது: நேரா மேல. ஒவ்வொரு game, map, phone screen rotation-உம் சரியா இந்த matrix-ஐ தான் use பண்ணுது."
+            }
+          ],
+          "ask": {
+            "afterBeat": 2,
+            "q": {
+              "en": "Rotate the point (1, 0) by 90° anticlockwise. Where does it land?",
+              "ta": "(1, 0) point-ஐ 90° anticlockwise-ஆ சுழற்றுங்க. எங்க போய் நிக்கும்?"
+            },
+            "options": [
+              "(0, 1)",
+              "(1, 1)",
+              "(−1, 0)",
+              "(0, −1)"
+            ],
+            "hint": {
+              "en": "cos 90° = 0 and sin 90° = 1.",
+              "ta": "cos 90° = 0, sin 90° = 1."
+            }
+          }
+        },
+        {
+          "id": "s6",
+          "title": "Combine moves, then do millions at once",
+          "beats": [
+            {
+              "id": "s6-b1",
+              "en": "Want to rotate and then stretch? Multiply the two matrices together first. You get one single matrix that does both moves.",
+              "ta": "சுழற்றி அப்புறம் நீட்டணுமா? முதல்ல ரெண்டு matrices-ஐயும் பெருக்குங்க. ரெண்டு வேலையையும் செய்யுற ஒரே matrix கிடைக்கும்."
+            },
+            {
+              "id": "s6-b2",
+              "en": "Careful: order matters. Rotating then stretching sideways is not the same as stretching then rotating. Matrix multiplication is not like ordinary multiplication.",
+              "ta": "கவனம்: order முக்கியம். சுழற்றி அப்புறம் பக்கவாட்டுல நீட்டுறது, நீட்டி அப்புறம் சுழற்றுறதுக்கு சமம் இல்ல. Matrix multiplication சாதாரண பெருக்கல் மாதிரி இல்ல."
+            },
+            {
+              "id": "s6-b3",
+              "en": "A graphics chip applies one combined matrix to millions of points at the same time. That is why GPUs exist, and why the same chips now train AI.",
+              "ta": "ஒரு graphics chip, ஒரே combined matrix-ஐ லட்சக்கணக்கான points-க்கு ஒரே நேரத்துல apply பண்ணுது. அதனால தான் GPUs இருக்கு, அதே chips இப்போ AI-க்கு train பண்ணுது."
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "title": "A photo is a matrix",
+          "beats": [
+            {
+              "id": "s7-b1",
+              "en": "A black-and-white photo is a matrix: a grid of brightness numbers from 0 for black to 255 for white. A colour photo has three: red, green and blue.",
+              "ta": "ஒரு black-and-white photo-வே ஒரு matrix: black-க்கு 0-ல இருந்து white-க்கு 255 வரை brightness numbers-ஓட grid. Colour photo-ல மூணு: red, green, blue."
+            },
+            {
+              "id": "s7-b2",
+              "en": "Filters are just maths on that matrix. Brighten: add to every number. More contrast: multiply. Grayscale: mix red, green and blue as 0.299, 0.587 and 0.114, because our eyes are most sensitive to green.",
+              "ta": "Filters-ன்னா அந்த matrix மேல maths தான். Bright: ஒவ்வொரு number-லயும் கூட்டுங்க. அதிக contrast: பெருக்குங்க. Grayscale: red, green, blue-வை 0.299, 0.587, 0.114-ஆ கலக்குங்க, ஏன்னா நம்ம கண்கள் green-க்கு ரொம்ப sensitive."
+            },
+            {
+              "id": "s7-b3",
+              "en": "Blur replaces each pixel with the average of its neighbours. The same neighbour-mixing idea, learned automatically, is how AI recognises faces in photos.",
+              "ta": "Blur ஒவ்வொரு pixel-ஐயும் அதோட பக்கத்து pixels-ஓட average-ஆ மாத்துது. இதே பக்கத்து-கலவை idea, தானாவே கத்துக்கப்பட்டு, photos-ல AI முகங்களை கண்டுபிடிக்கிற முறை."
+            }
+          ]
+        },
+        {
+          "id": "s8",
+          "title": "How apps find \"students like you\"",
+          "beats": [
+            {
+              "id": "s8-b1",
+              "en": "Make each student a vector of interests: coding, music, sports and art, each scored 0 to 5. Priya is 5, 1, 0, 4. Arun is 4, 0, 1, 5. Kavin is 0, 5, 5, 0.",
+              "ta": "ஒவ்வொரு student-ஐயும் interests-ஓட ஒரு vector-ஆ ஆக்குங்க: coding, music, sports, art, ஒவ்வொண்ணுக்கும் 0-ல இருந்து 5 வரை score. Priya 5, 1, 0, 4. Arun 4, 0, 1, 5. Kavin 0, 5, 5, 0."
+            },
+            {
+              "id": "s8-b2",
+              "en": "Similar people point in similar directions. Priya and Arun's arrows are only 18 degrees apart. Priya and Kavin are 84 degrees apart.",
+              "ta": "ஒத்த ஆட்கள் ஒத்த திசைகள்ல point பண்றாங்க. Priya, Arun arrows-க்கு நடுவுல 18 degrees தான். Priya, Kavin-க்கு நடுவுல 84 degrees."
+            },
+            {
+              "id": "s8-b3",
+              "en": "The cos of that angle is the similarity score: 0.95 for Priya and Arun, 0.11 for Priya and Kavin. It is called cosine similarity, and it powers recommendations, search engines and AI chat assistants.",
+              "ta": "அந்த angle-ஓட cos தான் similarity score: Priya, Arun-க்கு 0.95, Priya, Kavin-க்கு 0.11. இதுக்கு பேர் cosine similarity. Recommendations, search engines, AI chat assistants எல்லாம் இதால ஓடுது."
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "title": "Vectors and matrices at work",
+          "beats": [
+            {
+              "id": "s9-b1",
+              "en": "Games and 3D: every rotation, camera move and animation. Phones: screen rotation, AR face filters, maps that turn as you walk.",
+              "ta": "Games, 3D: ஒவ்வொரு rotation, camera move, animation. Phones: screen rotation, AR face filters, நீங்க நடக்கும் போது திரும்புற maps."
+            },
+            {
+              "id": "s9-b2",
+              "en": "AI: every layer of a neural network is a matrix multiplication. AI search and chat assistants turn words into vectors and compare them with cosine similarity.",
+              "ta": "AI: neural network-ஓட ஒவ்வொரு layer-உம் ஒரு matrix multiplication. AI search, chat assistants வார்த்தைகளை vectors-ஆ மாத்தி, cosine similarity வெச்சு compare பண்ணுது."
+            },
+            {
+              "id": "s9-b3",
+              "en": "Engineering: bridges and buildings are analysed with huge matrices. Your missions: rotate the fest windmill in Campus Quest, and recommend clubs to students in CampusOps.",
+              "ta": "Engineering: bridges, buildings பெரிய matrices வெச்சு analyse பண்ணப்படுது. உங்க missions: Campus Quest-ல fest windmill-ஐ சுழற்றுங்க, CampusOps-ல students-க்கு clubs recommend பண்ணுங்க."
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "title": "Recap",
+          "beats": [
+            {
+              "id": "s10-b1",
+              "en": "A vector is an arrow, or a list of numbers. Its length is Pythagoras. Add vectors head to tail; stretch them by multiplying.",
+              "ta": "Vector-ன்னா ஒரு arrow, அல்லது numbers-ஓட ஒரு list. அதோட நீளம் Pythagoras. Vectors-ஐ ஒண்ணு முடிவுல இன்னொண்ணு வெச்சு கூட்டுங்க; பெருக்கி நீட்டுங்க."
+            },
+            {
+              "id": "s10-b2",
+              "en": "A matrix transforms every point at once. The rotation matrix is made of sin and cos, and combining matrices combines moves, but order matters.",
+              "ta": "Matrix ஒவ்வொரு point-ஐயும் ஒரே நேரத்துல மாத்துது. Rotation matrix sin, cos-ஆல ஆனது. Matrices-ஐ சேர்த்தா moves சேரும், ஆனா order முக்கியம்."
+            },
+            {
+              "id": "s10-b3",
+              "en": "Photos are matrices, and similarity is the cos of an angle. Now try the practice, the code lab and your missions. That completes World 1!",
+              "ta": "Photos matrices தான், similarity ஒரு angle-ஓட cos. இப்போ practice, code lab, உங்க missions try பண்ணுங்க. World 1 முடிஞ்சது!"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

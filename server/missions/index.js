@@ -13,4 +13,6 @@ module.exports = {
   tuneDifficulty: require('./tuneDifficulty'),
   waveStrength: require('./waveStrength'),
   dominantFrequency: require('./dominantFrequency'),
+  rotateSprite: require('./rotateSprite'),
+  clubMatch: require('./clubMatch'),
 };

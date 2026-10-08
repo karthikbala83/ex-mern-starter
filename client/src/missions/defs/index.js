@@ -12,5 +12,7 @@ import learnPrice from './learnPrice.js';
 import tuneDifficulty from './tuneDifficulty.js';
 import waveStrength from './waveStrength.js';
 import dominantFrequency from './dominantFrequency.js';
+import rotateSprite from './rotateSprite.js';
+import clubMatch from './clubMatch.js';
 
-export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport, jumpHeight, predictFootfall, learnPrice, tuneDifficulty, waveStrength, dominantFrequency };
+export const missions = { pickItem, otpBreakChance, moveToward, isInsideCampus, rainSway, leaderboardStats, attendanceReport, jumpHeight, predictFootfall, learnPrice, tuneDifficulty, waveStrength, dominantFrequency, rotateSprite, clubMatch };

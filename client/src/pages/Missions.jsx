@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { worlds, products } from '../missions/catalog.js';
+import { useLang } from '../lessons/progress.js';
+import WorldCompleteCard from '../components/WorldCompleteCard.jsx';
 
 const t = (v, lang) => (typeof v === 'string' ? v : v?.[lang] ?? v?.en ?? '');
 
@@ -15,14 +17,15 @@ const t = (v, lang) => (typeof v === 'string' ? v : v?.[lang] ?? v?.en ?? '');
 // no component changes.
 // ---------------------------------------------------------------
 export default function Missions() {
-  const [lang, setLang] = useState('ta');
+  // Same language choice as Enovix and every lesson step.
+  const [lang, setLang] = useLang();
   const [filter, setFilter] = useState('all');        // all · game · app
   const [data, setData] = useState({ points: 0, rank: null, missions: {} });
 
   useEffect(() => {
     let cancelled = false;
     api.get('/missions/progress')
-      .then((r) => { if (!cancelled) setData(r.data); })
+      .then((r) => { if (!cancelled) setData({ ...r.data, loaded: true }); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, []);
@@ -58,6 +61,9 @@ export default function Missions() {
           <button aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
         </div>
       </div>
+
+      {/* One-time celebration; the rule is worldComplete() in lessons/progress.js. */}
+      <WorldCompleteCard worldId={1} missionProgress={data.loaded ? data.missions : null} lang={lang} />
 
       <div className="card my-rank">
         <span className="rank-num">{data.points}</span>

@@ -1,0 +1,17 @@
+export default [
+  { q: { en: 'What is the length of the vector [3, 4]?', ta: '[3, 4] vector-ஓட நீளம் என்ன?' },
+    o: ['7', '5', '12', '1'], a: 1,
+    e: { en: 'Pythagoras: √(3² + 4²) = 5.', ta: 'Pythagoras: √(3² + 4²) = 5.' } },
+  { q: { en: 'Which matrix rotates points by an angle θ?', ta: 'எந்த matrix points-ஐ θ angle சுழற்றும்?' },
+    o: ['[[θ, 0], [0, θ]]', '[[cos θ, −sin θ], [sin θ, cos θ]]', '[[1, 1], [1, 1]]', '[[sin θ, sin θ], [cos θ, cos θ]]'], a: 1,
+    e: { en: 'The rotation matrix is built from cos and sin: the circle idea from sin & cos Part A.', ta: 'Rotation matrix cos, sin-ஆல ஆனது: sin & cos Part A-ல பார்த்த circle idea.' } },
+  { q: { en: 'You combine "rotate 45°" and "stretch x by 2" into one matrix. Does the order matter?', ta: '"45° சுழற்று", "x-ஐ 2 மடங்கு நீட்டு" ரெண்டையும் ஒரே matrix-ஆ சேர்க்கிறீங்க. Order முக்கியமா?' },
+    o: ['No, never', 'Yes: rotate-then-stretch and stretch-then-rotate give different shapes', 'Only on Tuesdays', 'Only in Python'], a: 1,
+    e: { en: 'Matrix multiplication is not commutative when the stretch is uneven. Game engines apply scale, rotate and move in a fixed order.', ta: 'Stretch சமமில்லாதப்போ matrix multiplication commutative இல்ல. Game engines scale, rotate, move-ஐ ஒரு fixed order-ல apply பண்ணுது.' } },
+  { q: { en: 'How does a blur filter change a pixel?', ta: 'Blur filter ஒரு pixel-ஐ எப்படி மாத்துது?' },
+    o: ['Adds 60 to it', 'Replaces it with the average of its neighbours', 'Makes it 255 minus itself', 'Deletes it'], a: 1,
+    e: { en: 'Averaging the 3 × 3 neighbourhood smooths noise but also softens edges. AI learns its own neighbour-mixing kernels to find features.', ta: '3 × 3 பக்கத்து pixels-ஓட average noise-ஐ smooth பண்ணும், ஆனா edges-ஐயும் மென்மையாக்கும். Features-ஐ கண்டுபிடிக்க AI தன் சொந்த kernels-ஐ கத்துக்குது.' } },
+  { q: { en: 'Two students\' interest vectors have a cosine similarity of 0.95. What does that mean?', ta: 'ரெண்டு students-ஓட interest vectors-க்கு cosine similarity 0.95. அதுக்கு என்ன அர்த்தம்?' },
+    o: ['They have nothing in common', 'Their interests point in almost the same direction: very similar', 'One is 95% older', 'They gave the same scores'], a: 1,
+    e: { en: 'Cosine similarity is the cos of the angle between the vectors: 1 means the same direction, 0 means unrelated.', ta: 'Cosine similarity-ன்னா vectors-க்கு நடுவுல இருக்கிற angle-ஓட cos: 1-ன்னா அதே திசை, 0-ன்னா சம்பந்தமில்ல.' } },
+];
