@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import ServerWaking from '../components/ServerWaking.jsx';
-import { warmUpApi } from '../api/axios';
+import { warmUpApi, takeReturnPath } from '../api/axios';
 
 // ---------------------------------------------------------------
 // Password rules — one small regex per rule, not one monster.
@@ -59,7 +59,8 @@ export default function Signup() {
         profile: { skills: form.skills.split(',').map((s) => s.trim()).filter(Boolean) },
         referralCode,
       });
-      nav('/home');                  // the fork: Fun Game or Enovix
+      // A shared lesson link should land on that lesson, even for a brand-new account.
+      nav(takeReturnPath() || '/home', { replace: true });
       // Stays disabled on success — see the note in Login.jsx. Double
       // submitting a signup is worse than a double login: the second one
       // fails on the unique email index and shows the new student an

@@ -15,7 +15,8 @@ import { useCallback, useEffect, useRef } from 'react';
 // leave globals behind between runs — a clean thread each time means run
 // N+1 cannot be affected by whatever run N did.
 // ---------------------------------------------------------------
-const TIMEOUT_MS = 2000;
+const TIMEOUT_MS = 2000;        // the student's code, once everything is loaded
+const LOAD_TIMEOUT_MS = 20000;  // booting the worker + downloading mathjs/geolib
 
 export const TIMEOUT_MESSAGE = 'Your code took too long. Is there a loop that never ends?';
 
@@ -43,9 +44,23 @@ export default function useRunner() {
         resolve(result);
       };
 
-      const timer = setTimeout(() => finish({ ok: false, logs: [], error: TIMEOUT_MESSAGE }), TIMEOUT_MS);
+      // Two clocks. Until the worker says "ready" it is still booting and
+      // loading packages — that is OUR time, and on a slow phone with mobile
+      // data it can take several seconds, so it gets a generous limit and an
+      // honest message. Only after "ready" does the student's 2 s start.
+      let timer = setTimeout(
+        () => finish({ ok: false, logs: [], error: 'Could not load what your code needs. Check your internet connection and try again.' }),
+        LOAD_TIMEOUT_MS
+      );
 
-      worker.onmessage = (e) => finish(e.data);
+      worker.onmessage = (e) => {
+        if (e.data?.ready) {
+          clearTimeout(timer);
+          timer = setTimeout(() => finish({ ok: false, logs: [], error: TIMEOUT_MESSAGE }), TIMEOUT_MS);
+          return;
+        }
+        finish(e.data);
+      };
       // Fires for an error the worker could not catch itself — a module that
       // fails to load, for instance. Without it the promise would hang forever.
       worker.onerror = (err) => finish({ ok: false, logs: [], error: String(err.message || 'Could not run your code') });

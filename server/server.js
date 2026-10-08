@@ -67,9 +67,18 @@ app.use('/api/missions', trackActivity, require('./routes/missionRoutes'));
 // ---- 404 + error handler ----
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Server error', error: err.message });
+  // A malformed id in the URL (/api/notes/abc) is the caller's mistake, not ours.
+  if (err.name === 'CastError') return res.status(400).json({ message: 'Invalid id' });
+  // Full detail goes to Render's logs; the student gets a plain message.
+  // Raw err.message can expose collection names, index names and query shapes.
+  console.error(`${req.method} ${req.originalUrl} failed:`, err.stack);
+  res.status(500).json({ message: 'Something went wrong on our side. Please try again.' });
 });
+
+// Last line of defence. Routes are wrapped (middleware/asyncHandler.js), but
+// a stray promise anywhere else would still be "unhandled", and since Node 15
+// that exits the process. Log it and keep serving everyone else.
+process.on('unhandledRejection', (reason) => console.error('Unhandled rejection:', reason));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`API listening on port ${PORT}`));

@@ -91,6 +91,12 @@ self.onmessage = async (e) => {
       math = create(all);
     }
 
+    // Tell the main thread we are ready: ITS 2-second clock starts now.
+    // Booting the worker and downloading mathjs on a slow phone can take
+    // longer than that by itself, and it would be wrong to blame the
+    // student's loop for our download.
+    self.postMessage({ ready: true });
+
     // Build the student's function. The parameter list is the interesting
     // part: `print`/`console` are things we WANT them to have, and the five
     // undefined ones shadow globals we would rather they did not reach for.

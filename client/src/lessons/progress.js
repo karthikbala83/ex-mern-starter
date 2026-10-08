@@ -15,10 +15,32 @@ import { useCallback, useEffect, useState } from 'react';
 import { allLessons, worlds } from '../missions/catalog.js';
 
 const LANG_KEY = 'enovix.lang';
-const progressKey = (lessonId) => `enovix.progress.${lessonId}`;
+
+// ---- Progress belongs to a STUDENT, not to a browser ----
+// College lab PCs and shared phones are normal here. A key without the
+// user id would show the next student the last one's ✓ marks, quiz scores
+// and even "World 1 complete". The id comes from the login AuthContext
+// saved; 'anon' only happens on a page nobody logged in to.
+const currentUserId = () => {
+  try { return JSON.parse(localStorage.getItem('user'))?.id || 'anon'; } catch { return 'anon'; }
+};
+const progressKey = (lessonId) => `enovix.progress.${currentUserId()}.${lessonId}`;
 
 function readJSON(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
+// Progress saved before it was per-student used `enovix.progress.<lesson>`.
+// The first student to open that lesson on this browser adopts it (most
+// likely its owner — beta testers on their own phones), then it is deleted
+// so nobody else can pick it up.
+function adoptLegacy(lessonId) {
+  try {
+    const old = `enovix.progress.${lessonId}`;
+    const raw = localStorage.getItem(old);
+    if (raw && !localStorage.getItem(progressKey(lessonId))) localStorage.setItem(progressKey(lessonId), raw);
+    if (raw) localStorage.removeItem(old);
+  } catch { /* storage blocked */ }
 }
 function writeJSON(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage blocked: progress just won't persist */ }
@@ -48,6 +70,7 @@ export function useLang() {
 const EMPTY = { watched: false, practiceSolved: [], labRuns: [], quiz: null, at: null };
 
 export function readProgress(lessonId) {
+  adoptLegacy(lessonId);
   return { ...EMPTY, ...readJSON(progressKey(lessonId), {}) };
 }
 
@@ -129,6 +152,7 @@ export function worldComplete(worldId, missionProgress) {
 }
 
 // "One-time" celebration: once dismissed on either page, it stays dismissed.
-const seenKey = (worldId) => `enovix.world${worldId}.celebrated`;
+// Per student, like progress: one student closing the card must not hide it from the next.
+const seenKey = (worldId) => `enovix.world${worldId}.celebrated.${currentUserId()}`;
 export const worldCelebrated = (worldId) => readJSON(seenKey(worldId), false);
 export const markWorldCelebrated = (worldId) => writeJSON(seenKey(worldId), true);

@@ -11,11 +11,21 @@ const signToken = (userId, sessionId) =>
     expiresIn: process.env.JWT_EXPIRES_IN || '1d',
   });
 
+// ---- Only strings may reach a query ----
+// req.body is parsed JSON, so "email" can arrive as an OBJECT, e.g.
+// {"$gt": ""} — and User.findOne({ email: {"$gt": ""} }) matches the first
+// user in the collection. That is NoSQL injection. Checking the type before
+// the value goes anywhere near Mongo closes it.
+const isStr = (...vals) => vals.every((v) => typeof v === 'string' && v.length > 0 && v.length <= 200);
+
 // POST /api/auth/signup
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, profile, referralCode } = req.body;
-    const exists = await User.findOne({ email });
+    if (!isStr(name, email, password)) return res.status(400).json({ message: 'Name, email and password are required' });
+    // The schema lowercases emails on save, so look up the same way —
+    // otherwise "Arun@x.com" slips past this check and hits the unique index.
+    const exists = await User.findOne({ email: email.toLowerCase().trim() });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
 
     // ---- Resolve the invite code, if one came along ----
@@ -25,7 +35,7 @@ exports.signup = async (req, res) => {
     // So: look it up, and if it doesn't resolve, silently carry on with null.
     let referrer = null;
     if (referralCode) {
-      referrer = await User.findOne({ referralCode: referralCode.trim() });
+      referrer = typeof referralCode === 'string' ? await User.findOne({ referralCode: referralCode.trim() }) : null;
     }
 
     const user = await User.create({
@@ -79,8 +89,9 @@ exports.signup = async (req, res) => {
 // POST /api/auth/login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+  if (!isStr(email, password)) return res.status(400).json({ message: 'Enter your email and password' });
   // password has select:false, so ask for it explicitly
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
   if (!user || !(await user.comparePassword(password)))
     return res.status(401).json({ message: 'Invalid email or password' });
 
@@ -107,7 +118,8 @@ exports.logout = async (req, res) => {
 
 // POST /api/auth/forgot-password
 exports.forgotPassword = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  if (!isStr(req.body.email)) return res.status(400).json({ message: 'Enter your email' });
+  const user = await User.findOne({ email: req.body.email.toLowerCase().trim() });
   // Always answer the same — don't reveal whether an email exists
   if (!user) return res.json({ message: 'If that email exists, a reset link was sent' });
 
@@ -120,7 +132,10 @@ exports.forgotPassword = async (req, res) => {
   // CLASSROOM: we log it + return it so the flow is fully demonstrable.
   console.log('Password reset link:', resetLink);
   const payload = { message: 'If that email exists, a reset link was sent' };
-  if (process.env.NODE_ENV !== 'production') payload.devResetLink = resetLink;
+  // OPT-IN, not opt-out: only an explicit NODE_ENV=development hands the
+  // link back. The old check (!== 'production') leaked it whenever NODE_ENV
+  // was simply forgotten on the host — an account-takeover hole by omission.
+  if (process.env.NODE_ENV === 'development') payload.devResetLink = resetLink;
   res.json(payload);
 };
 
@@ -132,6 +147,7 @@ exports.resetPassword = async (req, res) => {
     resetPasswordExpires: { $gt: Date.now() },   // token must not be expired
   });
   if (!user) return res.status(400).json({ message: 'Token invalid or expired' });
+  if (!isStr(req.body.password)) return res.status(400).json({ message: 'Choose a new password' });
 
   user.password = req.body.password;   // pre-save hook re-hashes it
   user.resetPasswordToken = undefined;
@@ -142,5 +158,7 @@ exports.resetPassword = async (req, res) => {
 
 // GET /api/auth/me  (protected)
 exports.me = async (req, res) => {
-  res.json({ user: req.user });
+  // Pick fields: req.user is the whole document, reset-token hash included.
+  const { _id, name, email, role, profile, referralCode, missionPoints, bestScoreMs } = req.user;
+  res.json({ user: { id: _id, name, email, role, profile, referralCode, missionPoints, bestScoreMs } });
 };

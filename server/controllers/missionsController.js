@@ -102,6 +102,31 @@ exports.progress = ah(async (req, res) => {
 });
 
 // ---------------------------------------------------------------
+// Bank points: pay any hint debt first, then add the rest to the mission
+// row AND the user's total. Returns what actually reached the total.
+// Every award goes through here, so "points = earned - hints" holds no
+// matter which order a student does things in.
+// ---------------------------------------------------------------
+//
+// The arithmetic happens INSIDE MongoDB, as an update pipeline, in one
+// atomic step. Reading the debt first and writing afterwards would let two
+// awards arriving together both pay the same debt. ($ifNull: rows saved
+// before hintDebt existed simply have no such field.)
+const bank = async (progId, userId, amount) => {
+  if (amount <= 0) return 0;
+  const debt = { $ifNull: ['$hintDebt', 0] };
+  const before = await MissionProgress.findOneAndUpdate({ _id: progId }, [
+    { $set: { _pay: { $min: [amount, debt] } } },
+    { $set: { points: { $add: [{ $ifNull: ['$points', 0] }, { $subtract: [amount, '$_pay'] }] },
+              hintDebt: { $subtract: [debt, '$_pay'] } } },
+    { $unset: '_pay' },
+  ]).lean();                      // returns the row as it was BEFORE this update
+  const net = amount - Math.min(amount, before?.hintDebt || 0);
+  if (net) await User.updateOne({ _id: userId }, { $inc: { missionPoints: net } });
+  return net;
+};
+
+// ---------------------------------------------------------------
 // POST /api/missions/:id/predict   { choice }
 // A guess before writing code. Cheap, and it makes the student commit to
 // an expectation — which is what makes the answer stick.
@@ -112,16 +137,18 @@ exports.predict = ah(async (req, res) => {
   const correct = Number(req.body.choice) === def.predictAnswer;
   const prog = await getProgress(req.user._id, def.id);
 
-  // Points only the first time, and only for a correct answer. Re-answering
-  // is free — students should be able to come back and re-read.
-  let pointsEarned = 0;
-  if (correct && !prog.stages.predict) {
-    prog.stages.predict = true;
-    pointsEarned = def.points.predict;
-    prog.points += pointsEarned;
-    await prog.save();
-    await User.updateOne({ _id: req.user._id }, { $inc: { missionPoints: pointsEarned } });
-  }
+  // Only the FIRST answer can pay, right or wrong. Re-answering is still
+  // allowed (and still says right/wrong) so students can come back and
+  // re-read — it just cannot be used to try every option for points.
+  //
+  // "Claim" in ONE atomic update: the filter only matches while no answer
+  // has been recorded, so of 20 parallel requests exactly one matches.
+  // Read-then-save would let all 20 see "not answered yet" and all pay.
+  const claimed = await MissionProgress.findOneAndUpdate(
+    { _id: prog._id, predictAnswered: { $ne: true }, 'stages.predict': { $ne: true } },
+    { $set: { predictAnswered: true, ...(correct ? { 'stages.predict': true } : {}) } }
+  );
+  const pointsEarned = claimed && correct ? await bank(prog._id, req.user._id, def.points.predict) : 0;
 
   res.json({ correct, points: pointsEarned });
 });
@@ -135,29 +162,39 @@ exports.predict = ah(async (req, res) => {
 exports.hint = ah(async (req, res) => {
   const def = getMission(req, res); if (!def) return;
 
-  const prog = await getProgress(req.user._id, def.id);
-  if (prog.hintsUsed >= def.hints.length)
-    return res.status(400).json({ message: 'No hints left for this mission' });
+  await getProgress(req.user._id, def.id);   // make sure the row exists
 
-  const level = prog.hintsUsed;          // 0-based: the next unseen hint
-  const cost = def.points.hint;          // negative, e.g. -5
+  // Take the next hint atomically: the filter only matches while hints are
+  // left, so parallel clicks cannot unlock hint 4, 5, 6 or pay once for two.
+  const prog = await MissionProgress.findOneAndUpdate(
+    { user: req.user._id, missionId: def.id, hintsUsed: { $lt: def.hints.length } },
+    { $inc: { hintsUsed: 1 } },
+    { new: true }
+  );
+  if (!prog) return res.status(400).json({ message: 'No hints left for this mission' });
 
-  prog.hintsUsed = level + 1;
+  const level = prog.hintsUsed - 1;      // 0-based index of the hint just unlocked
+  const cost = -def.points.hint;         // positive, e.g. 5
 
-  // A mission can never go negative: hints reduce what you earned here, they
-  // do not put you in debt. Math.max, not a bare subtraction.
-  const before = prog.points;
-  prog.points = Math.max(0, before + cost);
-  await prog.save();
+  // A mission's points never go negative. Whatever this hint cannot take
+  // from points you already have becomes debt, paid from your next points
+  // (see bank()). The user total moves by what was ACTUALLY taken, so it
+  // always equals the sum of the mission rows the leaderboard is built on.
+  //
+  // Computed inside MongoDB in one atomic step (an update pipeline), NOT
+  // read-then-write: three parallel hint clicks on a 10-point mission would
+  // each read "10", each take 5, and leave the mission at -5.
+  const pts = { $ifNull: ['$points', 0] };
+  const before = await MissionProgress.findOneAndUpdate({ _id: prog._id }, [
+    { $set: { _take: { $min: [pts, cost] } } },
+    { $set: { points: { $subtract: [pts, '$_take'] },
+              hintDebt: { $add: [{ $ifNull: ['$hintDebt', 0] }, { $subtract: [cost, '$_take'] }] } } },
+    { $unset: '_take' },
+  ]).lean();
+  const take = Math.min(before.points || 0, cost);
+  if (take) await User.updateOne({ _id: req.user._id }, { $inc: { missionPoints: -take } });
 
-  // Move the user total by what the mission ACTUALLY lost, not by the sticker
-  // price. With 3 points on this mission a -5 hint costs 3, not 5 — taking the
-  // full 5 off the total would leave User.missionPoints disagreeing with the
-  // sum of the progress rows, and the leaderboard sorts on that total.
-  const applied = prog.points - before;
-  if (applied) await User.updateOne({ _id: req.user._id }, { $inc: { missionPoints: applied } });
-
-  res.json({ level: level + 1, hint: def.hints[level], points: prog.points });
+  res.json({ level: level + 1, hint: def.hints[level], points: (before.points || 0) - take });
 });
 
 // ---------------------------------------------------------------
@@ -219,14 +256,21 @@ exports.submit = ah(async (req, res) => {
   if (!Array.isArray(outputs) || outputs.length !== inputs.length)
     return res.status(400).json({ message: `Expected ${inputs.length} results, got ${Array.isArray(outputs) ? outputs.length : 0}` });
 
-  attempt.code = typeof code === 'string' ? code.slice(0, 5000) : '';
+  const savedCode = typeof code === 'string' ? code.slice(0, 5000) : '';
+
+  // Close the attempt ATOMICALLY: only a request that finds it still
+  // 'active' may mark it. Replaying one passing request 20 times in
+  // parallel used to pass the status check above 20 times; now exactly one
+  // claim succeeds and the rest are told it was already submitted.
+  const claim = (status) => MissionAttempt.findOneAndUpdate(
+    { _id: attempt._id, status: 'active' },
+    { $set: { status, code: savedCode } }
+  );
 
   const fail = async (payload) => {
-    attempt.status = 'failed';
-    await attempt.save();
-    const prog = await getProgress(req.user._id, def.id);
-    prog.attempts += 1;
-    await prog.save();
+    if (!(await claim('failed'))) return res.status(400).json({ message: 'This attempt was already submitted' });
+    await getProgress(req.user._id, def.id);
+    await MissionProgress.updateOne({ user: req.user._id, missionId: def.id }, { $inc: { attempts: 1 } });
     return res.status(200).json({ passed: false, ...payload });
   };
 
@@ -257,32 +301,34 @@ exports.submit = ah(async (req, res) => {
   });
 
   // ---- Passed ----
-  attempt.status = 'passed';
-  await attempt.save();
+  if (!(await claim('passed'))) return res.status(400).json({ message: 'This attempt was already submitted' });
 
   const prog = await getProgress(req.user._id, def.id);
   const firstAttempt = prog.attempts === 0 && prog.hintsUsed === 0;
-  prog.attempts += 1;
 
-  let pointsEarned = 0;
-  // Only award if this stage was not already done — this is what makes
-  // "pass write twice" pay once. The flag is the gate, not the attempt count.
-  if (!prog.stages[attempt.stage]) {
-    prog.stages[attempt.stage] = true;
-    pointsEarned += def.points[attempt.stage];
+  // Award the stage only if THIS update is the one that flips it from
+  // false to true: "pass write twice" pays once, even if both passes
+  // arrive in the same millisecond. The flag in the filter is the gate.
+  const stageKey = 'stages.' + attempt.stage;
+  const won = await MissionProgress.findOneAndUpdate(
+    { _id: prog._id, [stageKey]: { $ne: true } },
+    { $set: { [stageKey]: true }, $inc: { attempts: 1 } }
+  );
+  if (!won) await MissionProgress.updateOne({ _id: prog._id }, { $inc: { attempts: 1 } });
 
+  let earned = 0;
+  if (won) {
+    earned += def.points[attempt.stage];
     // First try: no hints read, no earlier submission on this mission at all.
-    if (firstAttempt && !prog.firstTryBonus) {
-      prog.firstTryBonus = true;
-      pointsEarned += def.points.firstTry;
+    // Same claim pattern, so the bonus too can only be paid once.
+    if (firstAttempt) {
+      const first = await MissionProgress.findOneAndUpdate(
+        { _id: prog._id, firstTryBonus: { $ne: true } }, { $set: { firstTryBonus: true } });
+      if (first) earned += def.points.firstTry;
     }
   }
-
-  prog.points = Math.max(0, prog.points + pointsEarned);
-  await prog.save();
-
-  // The denormalised total moves in the same write as the progress row.
-  if (pointsEarned) await User.updateOne({ _id: req.user._id }, { $inc: { missionPoints: pointsEarned } });
+  // bank() pays any hint debt first and moves the user total in step.
+  const pointsEarned = await bank(prog._id, req.user._id, earned);
 
   const board = await getLeaderboard(req.user._id);
   const fresh = await User.findById(req.user._id).select('missionPoints').lean();

@@ -35,14 +35,45 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// If the token expires, kick the user back to login
+// ---------------------------------------------------------------
+// Expired logins.
+// A JWT carries its own expiry ("exp", seconds since 1970) in its middle
+// part, readable without the secret. Checking it when the app starts means
+// a student coming back the next day goes to Login BEFORE opening a
+// lesson, not halfway through one when some background request gets a 401.
+// (Reading exp is not verifying the token: the server still does that.)
+// ---------------------------------------------------------------
+export function tokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload.exp === 'number' && payload.exp * 1000 < Date.now() + 60_000;   // a minute's margin
+  } catch {
+    return true;   // unreadable token: treat as logged out
+  }
+}
+
+// Where to come back to after logging in again. sessionStorage, so it is
+// per tab and forgotten when the tab closes.
+const RETURN_KEY = 'returnTo';
+export const rememberReturnPath = (path) => {
+  if (path && !/^\/(login|signup|forgot-password|reset-password)/.test(path)) {
+    try { sessionStorage.setItem(RETURN_KEY, path); } catch { /* storage blocked */ }
+  }
+};
+export const takeReturnPath = () => {
+  try { const p = sessionStorage.getItem(RETURN_KEY); sessionStorage.removeItem(RETURN_KEY); return p; } catch { return null; }
+};
+
+// If the token expires mid-session, send the student to Login with a
+// reason, and bring them back to the same page afterwards.
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && !err.config.url.includes('/auth/')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      rememberReturnPath(window.location.pathname + window.location.search);
+      window.location.href = '/login?expired=1';
     }
     return Promise.reject(err);
   }

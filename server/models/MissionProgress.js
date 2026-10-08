@@ -37,6 +37,15 @@ const missionProgressSchema = new mongoose.Schema(
     attempts: { type: Number, default: 0 },
 
     firstTryBonus: { type: Boolean, default: false },
+
+    // The predict question pays for the FIRST answer only. Without this a
+    // student could click A, B, C, D until one paid out.
+    predictAnswered: { type: Boolean, default: false },
+
+    // Hints taken before you have points to pay for them. Points can never go
+    // negative, so the cost is recorded here and taken from the next points
+    // you earn on this mission. Otherwise hints read before scoring are free.
+    hintDebt: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

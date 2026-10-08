@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, Link, NavLink } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, NavLink, useLocation } from 'react-router-dom';
+import { rememberReturnPath } from './api/axios';
 import { MdLogout } from 'react-icons/md';
 import { useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
@@ -79,7 +80,12 @@ const SARAVONIX_URL =
 // (The API enforces it too. Never trust only the frontend.)
 function Protected({ children }) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  const location = useLocation();
+  if (user) return children;
+  // Remember the page so Login can bring them straight back (a shared
+  // lesson link should open the lesson, not Home, after signing in).
+  rememberReturnPath(location.pathname + location.search);
+  return <Navigate to="/login" replace />;
 }
 function AdminOnly({ children }) {
   const { user } = useAuth();

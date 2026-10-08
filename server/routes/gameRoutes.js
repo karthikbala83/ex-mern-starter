@@ -1,7 +1,9 @@
 // trackActivity (protect + heartbeat) is applied in server.js,
 // so every handler below already has req.user.
 const router = require('express').Router();
-const c = require('../controllers/gameController');
+// wrapAll: a rejected promise in any handler becomes a 500, not a crash.
+const { wrapAll } = require('../middleware/asyncHandler');
+const c = wrapAll(require('../controllers/gameController'));
 
 router.post('/start', c.startGame);
 router.post('/finish', c.finishGame);

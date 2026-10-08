@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import AuthLayout from '../components/AuthLayout.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import ServerWaking from '../components/ServerWaking.jsx';
-import { warmUpApi } from '../api/axios';
+import { warmUpApi, takeReturnPath } from '../api/axios';
 
 // ---------------------------------------------------------------
 // ANIMATION TEASER (full GSAP + Lottie session coming next time)
@@ -54,7 +54,9 @@ export default function Login() {
     setBusy(true);
     try {
       await login(email, password);
-      nav('/home');                  // the fork: Fun Game or Enovix
+      // Back to where they were (an expired session, a shared lesson link),
+      // otherwise the fork: Fun Game or Enovix.
+      nav(takeReturnPath() || '/home', { replace: true });
       // NOTE: busy stays true on purpose. A `finally` here would re-enable
       // the button on success too, and there is a real gap between asking
       // to navigate and this component unmounting — long enough to flash
@@ -73,6 +75,11 @@ export default function Login() {
           the failure shake keep animating the FORM, not the whole layout. */}
       <div className="auth-form" ref={cardRef}>
       <h2>Welcome back</h2>
+      {/* Set by the 401 handler in api/axios.js. Without a reason, being
+          dropped on Login mid-lesson looks like the app broke. */}
+      {new URLSearchParams(window.location.search).get('expired') && (
+        <p className="info">Your session expired. Log in again to continue where you left off.</p>
+      )}
       <p className="auth-hint">Sign in to enter the arena.</p>
       {error && <p className="error">{error}</p>}
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />

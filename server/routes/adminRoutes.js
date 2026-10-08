@@ -1,5 +1,7 @@
 const router = require('express').Router();
-const c = require('../controllers/adminController');
+// wrapAll: a rejected promise in any handler becomes a 500, not a crash.
+const { wrapAll } = require('../middleware/asyncHandler');
+const c = wrapAll(require('../controllers/adminController'));
 const { adminOnly } = require('../middleware/auth');
 
 router.use(adminOnly);              // everything below is admin-only

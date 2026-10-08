@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import api from '../api/axios';
+import api, { tokenExpired } from '../api/axios';
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -7,7 +7,16 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
+    const token = localStorage.getItem('token');
+    // A saved user with an expired token is not logged in, whatever
+    // localStorage says. Clear it now so the route guard sends them to
+    // Login up front instead of a 401 throwing them out mid-lesson.
+    if (!saved || !token || tokenExpired(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return null;
+    }
+    try { return JSON.parse(saved); } catch { return null; }
   });
 
   const saveAuth = ({ token, user }) => {
