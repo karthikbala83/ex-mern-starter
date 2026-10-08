@@ -566,12 +566,12 @@ body.focus-mode { padding-bottom: 0; }
 .dots { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
 .dots-count { font-weight: 800; color: #1E3E7B; min-width: 44px; }
 .dots-row { display: flex; gap: 6px; flex-wrap: wrap; }
-.dot { width: 28px; height: 28px; padding: 0; border-radius: 50%; background: #fff; border: 2px solid #cfd6e4; color: #fff;
+.pg-dot { width: 28px; height: 28px; padding: 0; border-radius: 50%; background: #fff; border: 2px solid #cfd6e4; color: #fff;
        display: grid; place-items: center; font-size: 16px; }
-.dot.on { border-color: #1E3E7B; box-shadow: 0 0 0 3px rgba(30,62,123,.15); }
-.dot.done { background: #547B5C; border-color: #547B5C; }
-.dot.wrong { background: #b3372f; border-color: #b3372f; }
-.dot:focus-visible { outline: 3px solid #C9A21F; outline-offset: 2px; }
+.pg-dot.on { border-color: #1E3E7B; box-shadow: 0 0 0 3px rgba(30,62,123,.15); }
+.pg-dot.done { background: #547B5C; border-color: #547B5C; }
+.pg-dot.wrong { background: #b3372f; border-color: #b3372f; }
+.pg-dot:focus-visible { outline: 3px solid #C9A21F; outline-offset: 2px; }
 .pager-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }
 .pager-nav button { min-height: 44px; }
 .pager-nav button:last-child { margin-left: auto; }

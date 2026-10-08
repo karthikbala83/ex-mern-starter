@@ -18,7 +18,9 @@ function Problem({ pr, n, lang, solved, onSolve }) {
       <span className="prob-tag">{pr.type[lang]}</span>
       <p lang={lang}><b>{n + 1}. {pr.q[lang]}</b></p>
       <div className="prob-in">
-        <input inputMode="decimal" value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && check()} aria-label="Answer" />
+        {/* inputMode="text", not "decimal": the iPhone decimal keypad has no
+            minus key, and some answers are negative (−2, −120). */}
+        <input inputMode="text" autoComplete="off" value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && check()} aria-label="Answer" />
         <span>{pr.unit}</span>
         <button onClick={check}>Check</button>
         <button className="lp-ghost" onClick={() => setFb({ ok: null, msg: '💡 ' + pr.hint[lang] })}>Hint</button>

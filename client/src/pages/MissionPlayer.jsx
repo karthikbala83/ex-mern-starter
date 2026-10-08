@@ -7,6 +7,7 @@ import api from '../api/axios';
 import { useToast } from '../context/ToastContext.jsx';
 import { missions as defs } from '../missions/defs/index.js';
 import { worlds } from '../missions/catalog.js';
+import { useLang } from '../lessons/progress.js';
 import useRunner, { TIMEOUT_MESSAGE } from '../missions/useRunner.js';
 import trophy from '../assets/trophy.json';
 
@@ -58,7 +59,8 @@ export default function MissionPlayer() {
   const { toast } = useToast();
   const run = useRunner();
 
-  const [lang, setLang] = useState('ta');
+  // Shared with Enovix, every lesson step and the mission map.
+  const [lang, setLang] = useLang();
   const [stage, setStage] = useState('fill');
   // One draft per stage. Sharing a single buffer would wipe a student's
   // "write" attempt the moment they peeked at the "fill" tab.

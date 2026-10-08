@@ -9,13 +9,15 @@ import { MdCheck, MdClose } from 'react-icons/md';
 // "3 / 8" plus one dot per item. A ✓ marks the ones already done, so a
 // student can see at a glance which problem they skipped. `wrong` is for
 // the quiz, where an answered question can also be a missed one.
+// Class is pg-dot, NOT dot: .dot is the reaction game's target (Game.jsx),
+// and global CSS class names collide across the whole app.
 export function Dots({ count, at, done = new Set(), wrong = new Set(), onPick, label = 'Item' }) {
   return (
     <div className="dots">
       <span className="dots-count">{at + 1} / {count}</span>
       <div className="dots-row" role="group" aria-label={`${label}s`}>
         {Array.from({ length: count }, (_, i) => (
-          <button key={i} className={'dot' + (i === at ? ' on' : '') + (done.has(i) ? ' done' : '') + (wrong.has(i) ? ' wrong' : '')}
+          <button key={i} className={'pg-dot' + (i === at ? ' on' : '') + (done.has(i) ? ' done' : '') + (wrong.has(i) ? ' wrong' : '')}
             onClick={() => onPick(i)} aria-current={i === at ? 'step' : undefined}
             aria-label={`${label} ${i + 1}${done.has(i) ? ' (done)' : wrong.has(i) ? ' (missed)' : ''}`} title={`${label} ${i + 1}`}>
             {done.has(i) ? <MdCheck aria-hidden="true" /> : wrong.has(i) ? <MdClose aria-hidden="true" /> : null}
