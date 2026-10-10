@@ -72,6 +72,9 @@ export default function MissionPlayer() {
   const [runError, setRunError] = useState('');
   const [result, setResult] = useState(null);
   const [hints, setHints] = useState([]);
+  // WHICH operation is running ('samples' | 'submit' | false), not just
+  // "something is". Running the sample tests used to say "Running…" on the
+  // Submit button — the button the student did not press.
   const [busy, setBusy] = useState(false);
   const [predictPick, setPredictPick] = useState(null);
   const [predictResult, setPredictResult] = useState(null);
@@ -83,6 +86,8 @@ export default function MissionPlayer() {
   const canvasRef = useRef(null);
 
   const { world, lesson } = useMemo(() => findLesson(id), [id]);
+
+  useEffect(() => { document.title = def ? `${t(def.title, 'en')} · Missions · Enovix` : 'Missions · Enovix'; }, [def]);
 
   useEffect(() => {
     if (!def) return;
@@ -161,7 +166,7 @@ export default function MissionPlayer() {
 
   // ---- Run the visible sample tests (no server, no points) ----
   const runSamples = async () => {
-    setBusy(true); setRunError(''); setResult(null);
+    setBusy('samples'); setRunError(''); setResult(null);
     const res = await run(program, def.fnName, [], libs, def.sampleTests);
     setBusy(false);
     setLogs(res.logs || []);
@@ -183,7 +188,7 @@ export default function MissionPlayer() {
 
   // ---- Submit for points: start → worker on hidden inputs → submit ----
   const submit = async () => {
-    setBusy(true); setRunError(''); setResult(null);
+    setBusy('submit'); setRunError(''); setResult(null);
     try {
       const { data: started } = await api.post(`/missions/${id}/start`, { stage });
       const res = await run(program, def.fnName, started.inputs, libs, def.sampleTests);
@@ -313,18 +318,21 @@ export default function MissionPlayer() {
           }} />
 
         <div className="ref-row">
-          <button onClick={runSamples} disabled={busy}>Run sample tests</button>
-          <button onClick={submit} disabled={busy} className="submit-btn">
-            {busy ? 'Running…' : 'Submit for points'}
+          <button onClick={runSamples} disabled={Boolean(busy)}>{busy === 'samples' ? 'Running…' : 'Run sample tests'}</button>
+          <button onClick={submit} disabled={Boolean(busy)} className="submit-btn">
+            {busy === 'submit' ? 'Checking…' : 'Submit for points'}
           </button>
-          <button onClick={getHint} disabled={busy} className="hint-btn">
-            Get hint (−5){progress ? ` · ${progress.hintsUsed}/3 used` : ''}
+          <button onClick={getHint} disabled={Boolean(busy)} className="hint-btn">
+            💡 Hint −5{progress ? ` · ${progress.hintsUsed}/3` : ''}
           </button>
         </div>
 
         {runError && <p className="error">{runError === TIMEOUT_MESSAGE ? `⏱ ${runError}` : runError}</p>}
 
         {samples && (
+          // A wide table scrolls inside its own box instead of pushing the
+          // whole page sideways on a phone (that made every mission overflow).
+          <div className="table-scroll" role="region" aria-label="Sample test results" tabIndex={0}>
           <table>
             <thead><tr><th></th><th>Input</th><th>Expected</th><th>Got</th></tr></thead>
             <tbody>
@@ -338,6 +346,7 @@ export default function MissionPlayer() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         {logs.length > 0 && <pre className="lab-out">{logs.join('\n')}</pre>}

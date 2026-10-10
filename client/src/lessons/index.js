@@ -1,10 +1,9 @@
 // Lesson registry. Add a folder per lesson and register it here.
 //
-// `defaultVersion` is what the player uses when the URL has no ?v=.
-// Probability is the odd one out: it was built for the A/B pilot and has
-// three story versions, so it keeps 'B'. Every lesson since has a single
-// story under the key 'main' — there is nothing to compare, so there is
-// nothing to choose.
+// `defaultVersion` is the story the player uses. Probability was built for
+// an A/B pilot; the pilot is over and Version B is the standard, so only B
+// is registered (scenesA.js and its narration stay in the folder as a
+// record, unused). Every lesson since has a single story under 'main'.
 //
 // `prev` / `next` chain the three sin & cos parts into one course. Keeping
 // the order here rather than inside each lesson means re-ordering the
@@ -15,7 +14,6 @@
 // which makes an unreadable button — a reader going next wants "Part B →",
 // not the whole title again.
 import probNarration from './probability/narration.json';
-import probScenesA from './probability/scenesA.js';
 import probScenesB from './probability/scenesB.js';
 import probLab from './probability/lab.js';
 import probQuiz from './probability/quiz.js';
@@ -76,13 +74,17 @@ export const lessons = {
     title: probNarration.title,
     breadcrumb: 'CSE › Mathematics for Computing › Probability',
     narration: probNarration,
-    scenes: { A: probScenesA, B: probScenesB },
+    scenes: { B: probScenesB },
     defaultVersion: 'B',
     createLab: probLab,
     quiz: probQuiz,
+    // First lesson of the course. Without `next` it looked like a dead end
+    // and showed the "last lesson of World 1" note.
+    next: 'sincos-a',
   },
   'sincos-a': {
     id: 'sincos-a',
+    prev: 'probability',
     part: 'Part A',
     title: aNarration.title,
     breadcrumb: TRIG,

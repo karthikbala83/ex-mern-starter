@@ -19,12 +19,12 @@
 // practice set, so its stepper simply has four steps.
 // ---------------------------------------------------------------
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { MdArrowBack, MdTranslate, MdPlayCircle, MdEditNote, MdCode, MdQuiz, MdRocketLaunch, MdCheck, MdReplay } from 'react-icons/md';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { MdArrowBack, MdTranslate, MdPlayCircle, MdEditNote, MdCode, MdQuiz, MdRocketLaunch, MdCheck, MdReplay, MdLock, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import api from '../api/axios';
 import { lessons } from '../lessons/index.js';
 import { allLessons, products, worlds } from '../missions/catalog.js';
-import { useLang, useLessonProgress, stepsFor, doneSteps, missionsOf, worldComplete } from '../lessons/progress.js';
+import { useLang, useLessonProgress, stepsFor, doneSteps, missionsOf, worldComplete, stepCounts, stepLocked } from '../lessons/progress.js';
 import LessonPlayer from '../components/LessonPlayer.jsx';
 import CodeLab from '../components/CodeLab.jsx';
 import Practice from '../components/Practice.jsx';
@@ -48,15 +48,13 @@ const STEPS = {
 
 // ---- Old links keep working ----
 // Links like /enovix/probability?v=B are already printed on handouts and
-// stored by the concept-check flow on the server. Rather than chase every
-// copy, the old URL forwards to the new one. Probability's ?v=C meant
-// "code lab only" in the pilot, so it lands on the lab step.
+// saved by the concept check. Rather than chase every copy, the old URL
+// forwards to the new one.
 export function LessonRedirect() {
   const { id } = useParams();
-  const [params] = useSearchParams();
-  const v = params.get('v');
-  if (id === 'probability' && v === 'C') return <Navigate replace to={`/enovix/${id}/lab`} />;
-  return <Navigate replace to={`/enovix/${id}/watch${v ? `?v=${encodeURIComponent(v)}` : ''}`} />;
+  // One story per lesson now (the A/B pilot ended with B as the standard),
+  // so any old ?v=A / ?v=B / ?v=C link simply opens the lesson.
+  return <Navigate replace to={`/enovix/${id}/watch`} />;
 }
 
 // Which catalogue world a lesson belongs to.
@@ -139,10 +137,10 @@ function Quiz({ quiz, lang, saved, onSubmit }) {
         {mine !== undefined && <p className="quiz-fb" lang={lang}>{mine === q.a ? '✓ ' : '✗ '}{q.e[lang]}</p>}
       </div>
       <div className="pager-nav">
-        <button className="lp-ghost" onClick={() => setI(i - 1)} disabled={i === 0}>← {ta ? 'முந்தையது' : 'Previous'}</button>
+        <button className="lp-ghost pager-arrow" onClick={() => setI(i - 1)} disabled={i === 0} aria-label="Previous question" title="Previous"><MdChevronLeft aria-hidden="true" /></button>
         {isLast || (mine !== undefined && answered.length === quiz.length)
           ? <button onClick={finish} disabled={mine === undefined}>{ta ? 'Score பார்க்க' : 'See my score'}</button>
-          : <button onClick={() => setI(i + 1)} disabled={mine === undefined}>{ta ? 'அடுத்த கேள்வி' : 'Next question'} →</button>}
+          : <button className="pager-arrow" onClick={() => setI(i + 1)} disabled={mine === undefined} aria-label="Next question" title="Next"><MdChevronRight aria-hidden="true" /></button>}
       </div>
     </div>
   );
@@ -186,7 +184,6 @@ function MissionCards({ lessonId, lang, prog }) {
 
 export default function LessonShell() {
   const { id, step } = useParams();
-  const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const [lang, setLang] = useLang();
   const [progress, update] = useLessonProgress(id);
@@ -210,26 +207,28 @@ export default function LessonShell() {
 
   useEffect(() => { window.scrollTo(0, 0); }, [id, step]);
 
+  // Tab title: "Statistics · Quiz · Enovix" — short catalogue name, then the step.
+  useEffect(() => {
+    if (!lesson) return;
+    const name = t(allLessons.find((l) => l.id === id)?.title, 'en').split(':')[0] || id;
+    document.title = `${name} · ${STEPS[step]?.label ?? 'Lesson'} · Enovix`;
+  }, [id, step, lesson]);
+
   if (!lesson) return <p>Lesson not found. <Link to="/enovix">Back to Enovix</Link></p>;
 
   const steps = stepsFor(lesson);
-  const asked = params.get('v');
-  // Pilot links that already carry a step (…/watch?v=C) still mean "lab only".
-  if (id === 'probability' && asked === 'C' && step !== 'lab') return <Navigate replace to={`/enovix/${id}/lab`} />;
   if (!steps.includes(step)) return <Navigate replace to={`/enovix/${id}/${steps[0]}`} />;
+  // First visit: the other steps open after the story has been watched once.
+  // A typed or shared URL to /lab must not get round that.
+  if (stepLocked(step, progress)) return <Navigate replace to={`/enovix/${id}/watch`} />;
 
-  // ---- Which story to play ----
-  // Ask the lesson's own narration what versions exist; only versions
-  // with scenes can play (probability's 'C' has none).
-  const versions = Object.keys(lesson.scenes ?? {});
-  const v = asked && versions.includes(asked) ? asked : lesson.defaultVersion;
+  // One story per lesson: 'main', or 'B' for probability (see lessons/index.js).
+  const v = lesson.defaultVersion;
   const story = lesson.narration.versions[v];
-  // The ?v= rides along between steps so a student who chose Version A
-  // is still on A if they step back to Watch.
-  const qs = asked && versions.includes(asked) ? `?v=${asked}` : '';
-  const href = (s) => `/enovix/${id}/${s}${qs}`;
+  const href = (st) => `/enovix/${id}/${st}`;
 
   const done = doneSteps(lesson, progress, missionProg);
+  const counts = stepCounts(lesson, progress);
   const idx = steps.indexOf(step);
   const prevStep = steps[idx - 1];
   const nextStep = steps[idx + 1];
@@ -257,16 +256,27 @@ export default function LessonShell() {
         <ol>
           {steps.map((s, k) => {
             const { label, Icon } = STEPS[s];
+            const locked = stepLocked(s, progress);
+            // Numbers, not words: "3/9" says how far along a step is at a
+            // glance. A ✓ replaces it only when the step is really done.
+            const n = counts[s];
+            const badge = done.has(s)
+              ? <span className="stepper-tick"><MdCheck aria-hidden="true" /></span>
+              : locked
+                ? <span className="stepper-tick locked"><MdLock aria-hidden="true" /></span>
+                : n && n[0] > 0 ? <span className="stepper-count">{n[0]}/{n[1]}</span> : null;
+            const name = `Step ${k + 1}: ${label}${done.has(s) ? ' (done)' : locked ? ' (watch the lesson first)' : n ? ` (${n[0]} of ${n[1]})` : ''}`;
+            const inner = (
+              <>
+                <span className="stepper-icon"><Icon aria-hidden="true" />{badge}</span>
+                <span className="stepper-label">{label}</span>
+              </>
+            );
             return (
-              <li key={s} className={(s === step ? 'on ' : '') + (done.has(s) ? 'done' : '')}>
-                <Link to={href(s)} aria-current={s === step ? 'step' : undefined}
-                  aria-label={`Step ${k + 1}: ${label}${done.has(s) ? ' (done)' : ''}`} title={label}>
-                  <span className="stepper-icon">
-                    <Icon aria-hidden="true" />
-                    {done.has(s) && <span className="stepper-tick"><MdCheck aria-hidden="true" /></span>}
-                  </span>
-                  <span className="stepper-label">{label}</span>
-                </Link>
+              <li key={s} className={(s === step ? 'on ' : '') + (done.has(s) ? 'done ' : '') + (locked ? 'locked' : '')}>
+                {locked
+                  ? <span className="stepper-locked" aria-disabled="true" aria-label={name} title={name}>{inner}</span>
+                  : <Link to={href(s)} aria-current={s === step ? 'step' : undefined} aria-label={name} title={label}>{inner}</Link>}
               </li>
             );
           })}
@@ -277,18 +287,13 @@ export default function LessonShell() {
       <section className="shell-body">
         {step === 'watch' && (
           <>
-            {versions.length > 1 && (
-              <div className="seg version-pill" role="group" aria-label="Story version">
-                {versions.map((k) => (
-                  <button key={k} aria-pressed={k === v} onClick={() => setParams({ v: k }, { replace: true })}
-                    title={t(lesson.narration.versions[k].label, lang)}>{k}</button>
-                ))}
-                <span className="muted" lang={lang}>{t(story.label, lang)}</span>
-              </div>
-            )}
             <LessonPlayer key={`${id}-${v}`} lessonId={lesson.id} version={v} story={story} createScenes={lesson.scenes[v]}
               lang={lang} onLangChange={setLang}
-              onComplete={() => update({ watched: true })}
+              // Resume: start from the scene they left, and remember each new
+              // one. Finishing clears it, so a replay starts at the beginning.
+              resumeScene={progress.resume || 0}
+              onScene={(sc) => update({ resume: sc })}
+              onComplete={() => update({ watched: true, resume: 0 })}
               onNext={nextStep ? () => navigate(href(nextStep)) : undefined}
               nextLabel={nextStep ? STEPS[nextStep].next : ''} />
           </>
@@ -339,7 +344,11 @@ export default function LessonShell() {
           : lesson.prev
             ? <Link className="lp-ghost shell-btn" to={`/enovix/${lesson.prev}`}>← {shortName(lesson, lesson.prev, lang)}</Link>
             : <Link className="lp-ghost shell-btn" to="/enovix">← Enovix</Link>}
-        {nextStep
+        {nextStep && stepLocked(nextStep, progress)
+          ? <span className="shell-btn primary disabled" aria-disabled="true" lang={lang}>
+              <MdLock aria-hidden="true" /> {ta ? 'முதல்ல lesson-ஐ பாருங்க' : 'Watch to unlock'}
+            </span>
+          : nextStep
           ? <Link className="shell-btn primary" to={href(nextStep)}>Next: {STEPS[nextStep].next} →</Link>
           : lesson.next
             ? <Link className="shell-btn primary" to={`/enovix/${lesson.next}`} title={shortName(lesson, lesson.next, lang)}>Next lesson →</Link>

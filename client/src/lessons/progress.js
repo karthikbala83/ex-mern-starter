@@ -67,7 +67,9 @@ export function useLang() {
 
 // ---- Per-lesson progress ----
 // Shape: { watched, practiceSolved: [], labRuns: [], quiz: { score, of }, at }
-const EMPTY = { watched: false, practiceSolved: [], labRuns: [], quiz: null, at: null };
+// resume: the scene the student was on when they left the Watch step, so
+// the player can offer "continue from scene 4" instead of starting over.
+const EMPTY = { watched: false, practiceSolved: [], labRuns: [], quiz: null, resume: 0, at: null };
 
 export function readProgress(lessonId) {
   adoptLegacy(lessonId);
@@ -115,13 +117,39 @@ export function stepsFor(lesson) {
 // Which steps count as done. `missionProgress` is the `missions` map from
 // GET /api/missions/progress (may be null when the server is asleep — then
 // the Missions step simply shows as not done yet).
+// How many lab experiments a lesson has. createLab(null) builds the list
+// without drawing anything; cached because the stepper asks on every render.
+const labCount = new WeakMap();
+const experimentsIn = (lesson) => {
+  if (!lesson.createLab) return 0;
+  if (!labCount.has(lesson.createLab)) labCount.set(lesson.createLab, lesson.createLab(null).labs.length);
+  return labCount.get(lesson.createLab);
+};
+
+// "3 / 9" style counts for the steps that have several items. The stepper
+// shows these numbers instead of words, and a ✓ only once the step is done.
+export function stepCounts(lesson, progress) {
+  return {
+    practice: lesson.practice?.length ? [progress.practiceSolved.length, lesson.practice.length] : null,
+    lab: lesson.createLab ? [new Set(progress.labRuns).size, experimentsIn(lesson)] : null,
+  };
+}
+
+// First visit: watch the lesson before anything else opens — the code lab
+// and quiz assume you have seen the story. Once watched, every step stays
+// open on every later visit, so a returning student can jump straight in.
+export const stepLocked = (step, progress) => step !== 'watch' && !progress.watched;
+
 export function doneSteps(lesson, progress, missionProgress) {
   const done = new Set();
   if (progress.watched) done.add('watch');
   // 60%, not 100%: practice is for confidence, and a student stuck on one
   // hard problem should still see the step as achieved.
   if (lesson.practice?.length && progress.practiceSolved.length >= Math.ceil(lesson.practice.length * 0.6)) done.add('practice');
-  if (progress.labRuns.length > 0) done.add('lab');
+  // The code lab is done when EVERY experiment has been run once: each one
+  // shows a different idea, so "1 of 5" is a start, not a finish.
+  const labs = experimentsIn(lesson);
+  if (labs && new Set(progress.labRuns).size >= labs) done.add('lab');
   if (progress.quiz) done.add('quiz');
   // A mission counts once its "write it" stage passed — that is the
   // server-graded proof the student can use the idea, not just watch it.

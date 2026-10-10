@@ -1,5 +1,6 @@
 // Practice: numeric problems with hint → check → solution → run-the-code.
 import { useState } from 'react';
+import { MdChevronLeft, MdChevronRight, MdCheckCircle } from 'react-icons/md';
 import { Dots, useSwipe, useArrowKeys } from './Pager.jsx';
 
 function Problem({ pr, n, lang, solved, onSolve }) {
@@ -66,9 +67,11 @@ export default function Practice({ problems, lang, solved = [], onSolve = () => 
         </div>
       ))}
       <div className="pager-nav">
-        <button className="lp-ghost" onClick={() => go(i - 1)} disabled={i === 0}>← {ta ? 'முந்தையது' : 'Previous'}</button>
-        <span className="muted"><b>{ta ? 'தீர்த்தது' : 'Solved'}: {done.size} / {problems.length}</b></span>
-        <button className="lp-ghost" onClick={() => go(i + 1)} disabled={i === problems.length - 1}>{ta ? 'அடுத்தது' : 'Next'} →</button>
+        {/* Arrows and a count, not words: they read the same in Tamil and English
+            and fit a 320px phone. The names are still there for screen readers. */}
+        <button className="lp-ghost pager-arrow" onClick={() => go(i - 1)} disabled={i === 0} aria-label="Previous problem" title="Previous"><MdChevronLeft aria-hidden="true" /></button>
+        <span className="pager-count" aria-label={`${done.size} of ${problems.length} solved`}><MdCheckCircle aria-hidden="true" /> {done.size}/{problems.length}</span>
+        <button className="lp-ghost pager-arrow" onClick={() => go(i + 1)} disabled={i === problems.length - 1} aria-label="Next problem" title="Next"><MdChevronRight aria-hidden="true" /></button>
       </div>
     </div>
   );

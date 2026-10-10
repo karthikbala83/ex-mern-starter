@@ -5,6 +5,9 @@ import { useToast } from '../context/ToastContext.jsx';
 
 const MEDALS = ['🥇', '🥈', '🥉'];   // index 0,1,2 -> ranks 1,2,3
 
+// Times in seconds, like the game's result screen. 6055 -> "6.06"
+const secs = (ms) => (Number(ms || 0) / 1000).toFixed(2);
+
 export default function Leaderboard() {
   // Two boards, two metrics, deliberately NOT merged: the reaction game
   // ranks by lowest time, missions by highest points. One table with a
@@ -140,7 +143,7 @@ export default function Leaderboard() {
             <span className="rank-num">#{board.me.rank}</span>
             <div>
               <strong>Your rank</strong>
-              <p className="muted">Best time {board.me.scoreMs}ms</p>
+              <p className="muted">Best time {secs(board.me.scoreMs)} s</p>
             </div>
           </>
         ) : (
@@ -157,7 +160,7 @@ export default function Leaderboard() {
               <tr key={p._id} className={p.rank <= 3 ? `medal medal-${p.rank}` : ''}>
                 <td>{MEDALS[p.rank - 1] || p.rank}</td>
                 <td>{p.name}</td>
-                <td>{p.bestScoreMs}ms</td>
+                <td>{secs(p.bestScoreMs)} s</td>
               </tr>
             ))}
           </tbody>
@@ -185,7 +188,7 @@ export default function Leaderboard() {
               {nearby.map((p) => (
                 <tr key={p.name}>
                   <td>{p.name}</td>
-                  <td>{p.bestScoreMs ? `${p.bestScoreMs}ms` : '—'}</td>
+                  <td>{p.bestScoreMs ? `${secs(p.bestScoreMs)} s` : '—'}</td>
                   <td>{p.distanceKm} km</td>
                 </tr>
               ))}

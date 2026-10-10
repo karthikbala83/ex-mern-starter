@@ -97,7 +97,7 @@ export default function Signup() {
         </ul>
       )}
 
-      <input placeholder="Skills (comma separated: react, node)" value={form.skills} onChange={set('skills')} />
+      <input placeholder="Skills — optional (react, node)" aria-label="Skills, optional" value={form.skills} onChange={set('skills')} />
       <button onClick={submit} disabled={busy || !allValid || !form.name || !form.email}>
         {busy ? 'Creating your account…' : 'Sign up'}
       </button>

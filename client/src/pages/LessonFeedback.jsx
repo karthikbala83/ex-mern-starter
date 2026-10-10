@@ -1,7 +1,8 @@
-// Student flow: choose version → pre-check → open lesson → post-check + rating → done.
-// Section teachers share a link like /enovix/check?v=B so each section gets one version.
+// Student flow: pre-check → open lesson → post-check + rating → done.
+// One lesson version now (B), so there is no version to choose; old links
+// with ?v= still open this page and simply ignore it.
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 
 function Questions({ questions, answers, setAnswers }) {
@@ -34,10 +35,9 @@ function Scale({ label, value, onChange }) {
 }
 
 export default function Feedback() {
-  const [params] = useSearchParams();
   const [meta, setMeta] = useState(null);
   const [mine, setMine] = useState(undefined);
-  const [version, setVersion] = useState(['A', 'B', 'C'].includes(params.get('v')) ? params.get('v') : '');
+  const version = 'B';   // the standard version; the server records B regardless
   const [answers, setAnswers] = useState({});
   const [rating, setRating] = useState({ interest: 0, clarity: 0, likedMost: '', language: '', comment: '' });
   const [error, setError] = useState('');
@@ -95,18 +95,9 @@ export default function Feedback() {
     <div>
       <h2>Before the lesson</h2>
       <p className="muted">Three quick questions. Choose "I don't know" if you are not sure. There are no marks for this.</p>
-      {!params.get('v') && (
-        <div className="card">
-          <p><b>Which version did your teacher give you?</b></p>
-          <select value={version} onChange={(e) => setVersion(e.target.value)}>
-            <option value="">Select</option>
-            {Object.entries(meta.versions).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-          </select>
-        </div>
-      )}
       <Questions questions={qs} answers={answers} setAnswers={setAnswers} />
       {error && <p className="error">{error}</p>}
-      <button disabled={!version || !allAnswered || busy} onClick={() => send('/lesson-feedback/pre', { version, answers })}>
+      <button disabled={!allAnswered || busy} onClick={() => send('/lesson-feedback/pre', { version, answers })}>
         Save and start the lesson
       </button>
     </div>

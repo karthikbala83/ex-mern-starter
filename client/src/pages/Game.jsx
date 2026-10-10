@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { MdLeaderboard, MdReplay } from 'react-icons/md';
 import gsap from 'gsap';
 // lottie-react v3 exports NAMED components, not a default one, and takes the
 // animation as `src`. (v2 used `import Lottie from …` with `animationData` —
@@ -28,10 +30,13 @@ const ARENA_H = 420;
 const DOT = 56;
 
 // Keep the dot fully inside the arena: never closer to an edge than its own size.
-const randomSpot = () => ({
-  left: Math.random() * (ARENA_W - DOT),
-  top: Math.random() * (ARENA_H - DOT),
-});
+// Positions are FRACTIONS of the free space, not pixels: on a phone narrower
+// than ARENA_W the arena shrinks to fit (max-width: 100%), and a pixel
+// position picked for 320px could put the dot outside a 284px arena.
+const randomSpot = () => ({ fx: Math.random(), fy: Math.random() });
+
+// 34252 -> "34.25"
+const secs = (ms) => (Number(ms || 0) / 1000).toFixed(2);
 
 export default function Game() {
   const [phase, setPhase] = useState('idle');
@@ -134,7 +139,7 @@ export default function Game() {
       duration: 1,
       ease: 'power1.out',
       onUpdate: () => {
-        if (scoreRef.current) scoreRef.current.textContent = Math.round(obj.n);
+        if (scoreRef.current) scoreRef.current.textContent = secs(obj.n);
       },
     });
     return () => tween.kill();
@@ -146,7 +151,7 @@ export default function Game() {
       <p className="muted">Tap Start, then tap the dot {TARGETS} times as fast as you can.</p>
       {error && <p className="error">{error}</p>}
 
-      <div className="arena" style={{ width: ARENA_W, height: ARENA_H }}>
+      <div className="arena" style={{ width: ARENA_W, height: ARENA_H, maxWidth: '100%' }}>
         {phase === 'idle' && (
           <div className="arena-center">
             <button onClick={start}>Start</button>
@@ -159,7 +164,7 @@ export default function Game() {
           <button
             ref={dotRef}
             className="dot"
-            style={{ left: spot.left, top: spot.top, width: DOT, height: DOT }}
+            style={{ left: `calc(${spot.fx} * (100% - ${DOT}px))`, top: `calc(${spot.fy} * (100% - ${DOT}px))`, width: DOT, height: DOT }}
             onClick={tapDot}
           >
             {TARGETS - hits}
@@ -176,10 +181,18 @@ export default function Game() {
             {result.isPersonalBest && (
               <Lottie src={trophy} autoplay loop={false} style={{ width: 120, height: 120 }} />
             )}
-            <p className="big-score"><span ref={scoreRef}>0</span><small>ms</small></p>
-            <p>Rank <strong>#{result.rank}</strong> · best {result.bestScoreMs}ms</p>
+            {/* Seconds, not milliseconds: "34.25 s" is readable, "34252ms" is
+                a number to decode. The server still stores exact ms. */}
+            <p className="big-score"><span ref={scoreRef}>0.00</span><small> s</small></p>
+            <div className="result-stats">
+              <span><small>Best</small><b>{secs(result.bestScoreMs)} s</b></span>
+              <span><small>Rank</small><b>#{result.rank}</b></span>
+            </div>
             {result.isPersonalBest && <p className="info">New personal best!</p>}
-            <button onClick={start}>Play again</button>
+            <div className="result-actions">
+              <button onClick={start}><MdReplay aria-hidden="true" /> Play again</button>
+              <Link className="fb-open" to="/leaderboard"><MdLeaderboard aria-hidden="true" /> Leaderboard</Link>
+            </div>
           </div>
         )}
       </div>

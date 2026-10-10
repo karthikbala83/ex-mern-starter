@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, Link, NavLink, useLocation } from 'react-router-dom';
 import { rememberReturnPath } from './api/axios';
 import { MdLogout } from 'react-icons/md';
@@ -21,7 +21,7 @@ import Home from './pages/Home.jsx';
 // ---------------------------------------------------------------
 // TWO PRODUCTS, ONE LOGIN.
 //
-//   /game, /leaderboard   -> Campus Arena  (the "Fun Game" tab)
+//   /game, /leaderboard   -> Campus Arena  (the "Game" tab)
 //   /enovix/*             -> Enovix        (the "Learning with Fun" tab)
 //
 // Each half is lazy(): React fetches that section's JavaScript only when
@@ -94,8 +94,26 @@ function AdminOnly({ children }) {
   return user?.role === 'admin' ? children : <Navigate to="/home" />;
 }
 
+// Tab titles. Lesson and mission pages set their own (they know the name);
+// everything else is named from its path here, so no tab ever says
+// "MERN Deploy Starter" again.
+const TITLES = {
+  '/home': 'Home', '/game': 'Game', '/leaderboard': 'Leaderboard', '/enovix': 'Lessons',
+  '/missions': 'Missions', '/feedback': 'Feedback', '/notes': 'Notes', '/admin': 'Admin',
+  '/login': 'Log in', '/signup': 'Sign up', '/forgot-password': 'Forgot password', '/enovix/check': 'Concept check',
+};
+function useRouteTitle() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (/^\/enovix\/(?!check)[^/]+/.test(pathname) || /^\/missions\/[^/]+/.test(pathname)) return;   // page sets it
+    const name = TITLES[pathname] || TITLES['/' + pathname.split('/')[1]];
+    document.title = name ? `${name} · Enovix` : 'Enovix';
+  }, [pathname]);
+}
+
 export default function App() {
   const { user, logout } = useAuth();
+  useRouteTitle();
 
   return (
     <ToastProvider>
@@ -113,16 +131,16 @@ export default function App() {
                   so the current tab can highlight itself. */}
               <span className="desktop-only">
                 <NavLink to="/home">Home</NavLink>
-                <NavLink to="/game">Fun Game</NavLink>
+                <NavLink to="/game">Game</NavLink>
                 <NavLink to="/enovix">Enovix</NavLink>
                 <NavLink to="/missions">Missions</NavLink>
-                <NavLink to="/feedback">Feedback</NavLink>
                 {user.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
               </span>
-              {/* Actions, as icons: invite, notifications, logout. No name
+              {/* Actions, as icons: feedback, invite, notifications, logout. No name
                   next to logout — the greeting on Home already says who you
                   are, and on a shared lab PC a name in the header is one more
                   thing the next student reads. title = tooltip on desktop. */}
+              <FeedbackButton />
               <ReferButton />
               <NotificationBell />
               <button className="link-btn logout-btn" onClick={logout} aria-label="Logout" title="Logout">
@@ -146,8 +164,10 @@ export default function App() {
             <Route path="/" element={<Navigate to={user ? '/home' : '/login'} />} />
 
             {/* ---- signed out ---- */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            {/* Already signed in? Login and Signup have nothing to offer —
+                showing them invites a second account by mistake. */}
+            <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
+            <Route path="/signup" element={user ? <Navigate to="/home" replace /> : <Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
 
@@ -185,9 +205,6 @@ export default function App() {
       {/* Phones only. Rendered outside <main> so it can be fixed to the
           viewport bottom without the page content scrolling over it. */}
       <MobileNav />
-
-      {/* Beta: report a problem from any screen, with that screen attached. */}
-      <FeedbackButton />
 
       {/* ---------------------------------------------------------------
           Site footer. It lives HERE — outside <Routes> — so it renders

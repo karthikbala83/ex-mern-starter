@@ -37,7 +37,7 @@ const ownsKeys = (el, key) =>
   el?.closest?.('input, textarea, select, [contenteditable="true"]') ||
   ((key === ' ' || key === 'Enter') && el?.closest?.('button, a'));
 
-export default function LessonPlayer({ lessonId, version, story, createScenes, lang, onLangChange, onComplete, onNext, nextLabel }) {
+export default function LessonPlayer({ lessonId, version, story, createScenes, lang, onLangChange, onComplete, onNext, nextLabel, resumeScene = 0, onScene }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const fillRefs = useRef([]);            // one progress-segment fill per scene, written by the engine
@@ -53,7 +53,8 @@ export default function LessonPlayer({ lessonId, version, story, createScenes, l
   const [tip, setTip] = useState(null);              // scene index whose title tooltip is showing
   const langRef = useRef(lang); const voiceRef = useRef(voiceOn);
   const completeRef = useRef(onComplete);
-  langRef.current = lang; voiceRef.current = voiceOn; completeRef.current = onComplete;
+  const sceneRef = useRef(onScene);
+  langRef.current = lang; voiceRef.current = voiceOn; completeRef.current = onComplete; sceneRef.current = onScene;
 
   const scenes = story.scenes;
   const beat = (s, b) => scenes[s].beats[b];
@@ -246,11 +247,19 @@ export default function LessonPlayer({ lessonId, version, story, createScenes, l
   }, [ui.playing]);
 
   // ---------- actions ----------
+  // ---------- resume ----------
+  // Report each new scene so the lesson can remember where the student is.
+  // Only once playing has started: the title frame is not "scene 1 watched".
+  useEffect(() => { if (ui.started && !ui.finished) sceneRef.current?.(ui.scene); }, [ui.scene, ui.started, ui.finished]);
+  // A student who left at scene 4 should not have to sit through 1-3 again.
+  const resumeAt = resumeScene > 0 && resumeScene < scenes.length ? resumeScene : 0;
+
   const togglePlay = () => {
     // The first Play on a phone is a real tap — the one moment the browser
     // lets us go fullscreen — so we use it to turn the phone into a screen.
     if (!ui.started && fs === 'none' && isPhone()) enterFull();
-    api().play();
+    if (!ui.started && resumeAt) api().go(resumeAt);   // continue where they left off
+    else api().play();
     poke();
   };
   const goScene = (i) => { api().go(i); poke(); };
@@ -324,8 +333,12 @@ export default function LessonPlayer({ lessonId, version, story, createScenes, l
         )}
 
         {(!ui.started || (!ui.playing && !ui.asking && !ui.finished)) && (
-          <button className="lp-big" onClick={togglePlay} aria-label={ui.started ? 'Play' : 'Start the lesson'} title={ui.started ? 'Play' : 'Start the lesson'}>
+          <button className="lp-big" onClick={togglePlay}
+            aria-label={ui.started ? 'Play' : resumeAt ? `Resume from scene ${resumeAt + 1}` : 'Start the lesson'}
+            title={ui.started ? 'Play' : resumeAt ? `Resume from scene ${resumeAt + 1}` : 'Start the lesson'}>
             <MdPlayArrow aria-hidden="true" />
+            {/* A number, not a sentence: "4 / 10" under Play says "you were here". */}
+            {!ui.started && resumeAt > 0 && <span className="lp-resume" aria-hidden="true">{resumeAt + 1} / {scenes.length}</span>}
           </button>
         )}
 

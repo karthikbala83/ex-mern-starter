@@ -31,7 +31,7 @@ export default function Home() {
       <div className="home-grid" ref={gridRef}>
         <Link to="/game" className="home-card home-card-game">
           <span className="home-emoji">🎮</span>
-          <h3>Fun Game</h3>
+          <h3>Game</h3>
           <p>Campus Arena — tap the dot, beat your best time, and climb the
              leaderboard against everyone on campus.</p>
           <span className="home-go">Play now →</span>

@@ -8,11 +8,15 @@ const LESSON = 'probability-why';
 
 // Lessons now live inside this app (see client/src/lessons).
 // A = applications-first story, B = life-first story, C = code lab only.
+// The A/B/C pilot is over: Version B is the standard. All three stay in
+// this table because answers already saved carry those letters and the
+// admin results still group by them — but new students only get B.
 const VERSIONS = {
-  A: { label: 'Version A', url: '/enovix/probability?v=A' },
-  B: { label: 'Version B', url: '/enovix/probability?v=B' },
-  C: { label: 'Version C', url: '/enovix/probability?v=C' },
+  A: { label: 'Version A', url: '/enovix/probability/watch' },
+  B: { label: 'Probability', url: '/enovix/probability/watch' },
+  C: { label: 'Version C', url: '/enovix/probability/watch' },
 };
+const ACTIVE_VERSION = 'B';
 
 // Same 3 questions before and after. Every version covers these ideas.
 // "Don't know" is always offered so students don't blind-guess.
@@ -60,6 +64,7 @@ exports.questions = (req, res) =>
   res.json({
     lesson: LESSON,
     versions: VERSIONS,
+    activeVersion: ACTIVE_VERSION,
     liked: LIKED,
     questions: QUESTIONS.map(({ answer, ...q }) => q), // strip answers
   });
@@ -72,8 +77,9 @@ exports.mine = ah(async (req, res) => {
 
 // POST /api/feedback/pre   { version, answers }
 exports.submitPre = ah(async (req, res) => {
-  const { version, answers } = req.body;
-  if (!VERSIONS[version]) return res.status(400).json({ message: 'Pick version A, B or C' });
+  const { answers } = req.body;
+  // Whatever the client sends, a new check is recorded against the one live version.
+  const version = ACTIVE_VERSION;
 
   const exists = await LessonFeedback.findOne({ user: req.user._id, lesson: LESSON });
   if (exists) return res.status(409).json({ message: 'Pre-check already submitted' });

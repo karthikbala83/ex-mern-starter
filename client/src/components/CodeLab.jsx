@@ -5,6 +5,7 @@
 // Student code NEVER runs on our server.
 // ---------------------------------------------------------------
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { Dots, useArrowKeys } from './Pager.jsx';
 
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
@@ -225,8 +226,9 @@ export default function CodeLab({ createLab, lang, onRun = () => {}, ran = [] })
       ))}
       {exps.length > 1 && (
         <div className="pager-nav">
-          <button className="lp-ghost" onClick={() => go(i - 1)} disabled={i === 0}>← {ta ? 'முந்தையது' : 'Previous'}</button>
-          <button className="lp-ghost" onClick={() => go(i + 1)} disabled={i === exps.length - 1}>{ta ? 'அடுத்த experiment' : 'Next experiment'} →</button>
+          <button className="lp-ghost pager-arrow" onClick={() => go(i - 1)} disabled={i === 0} aria-label="Previous experiment" title="Previous"><MdChevronLeft aria-hidden="true" /></button>
+          <span className="pager-count">{i + 1}/{exps.length}</span>
+          <button className="lp-ghost pager-arrow" onClick={() => go(i + 1)} disabled={i === exps.length - 1} aria-label="Next experiment" title="Next"><MdChevronRight aria-hidden="true" /></button>
         </div>
       )}
     </div>
